@@ -1,0 +1,876 @@
+openapi: 3.1.0
+# Create a comprehensive OpenAPI 3.0 YAML covering all tables and nested alias routes
+info:
+  title: Mock API – Customer Service (json-server)
+  version: 1.0.0
+  description: |
+    OpenAPI documentation for the json-server mock API built from the provided ERD.
+servers:
+  - url: http://localhost:4000
+    description: Local
+  - url: http://0.0.0.0:4000
+    description: LAN (bind all interfaces)
+
+tags:
+  - name: Customer
+  - name: Account
+  - name: Agent
+  - name: Team
+  - name: SLA
+  - name: Channel
+  - name: UIC
+  - name: ComplaintCategory
+  - name: FAQ
+  - name: FAQ Log
+  - name: Ticket
+  - name: Ticket Activity
+  - name: Attachment
+  - name: Feedback
+  - name: Notification
+  - name: Chat Message
+  - name: Call Log
+  - name: Chatbot Session
+  - name: Chatbot Message
+  - name: Aliases
+
+paths:
+  /customer:
+    get:
+      tags: [Customer]
+      summary: List customers
+      parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Customer' } } } } }
+    post:
+      tags: [Customer]
+      summary: Create customer
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CustomerCreate' } } }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Customer' } } } }
+  /customer/{customer_id}:
+    get:
+      tags: [Customer]
+      summary: Get customer by ID
+      parameters: [ { $ref: '#/components/parameters/customer_id' } ]
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Customer' } } } }
+        "404": { description: Not Found }
+    patch:
+      tags: [Customer]
+      summary: Update customer (partial)
+      parameters: [ { $ref: '#/components/parameters/customer_id' } ]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CustomerUpdate' } } }
+      responses: { "200": { description: Updated } }
+    delete:
+      tags: [Customer]
+      summary: Delete customer
+      parameters: [ { $ref: '#/components/parameters/customer_id' } ]
+      responses: { "200": { description: Deleted } }
+
+  /account:
+    get: { tags: [Account], summary: List accounts, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: customer_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Account' } } } } } } }
+    post:
+      tags: [Account]
+      summary: Create account
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AccountCreate' } } } }
+      responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Account' } } } } }
+  /account/{account_id}:
+    get: { tags: [Account], summary: Get account by ID, parameters: [ { $ref: '#/components/parameters/account_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Account' } } } }, "404": { description: Not Found } } }
+    patch:
+      tags: [Account]
+      summary: Update account (partial)
+      parameters: [ { $ref: '#/components/parameters/account_id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AccountUpdate' } } } }
+      responses: { "200": { description: Updated } }
+    delete: { tags: [Account], summary: Delete account, parameters: [ { $ref: '#/components/parameters/account_id' } ], responses: { "200": { description: Deleted } } }
+
+  /agent:
+    get: { tags: [Agent], summary: List agents, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: team_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Agent' } } } } } } }
+    post: { tags: [Agent], summary: Create agent, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AgentCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Agent' } } } } } }
+  /agent/{agent_id}:
+    get: { tags: [Agent], summary: Get agent by ID, parameters: [ { $ref: '#/components/parameters/agent_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Agent' } } } }, "404": { description: Not Found } } }
+    patch:
+      tags: [Agent]
+      summary: Update agent (partial)
+      parameters: [ { $ref: '#/components/parameters/agent_id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AgentUpdate' } } } }
+      responses: { "200": { description: Updated } }
+    delete: { tags: [Agent], summary: Delete agent, parameters: [ { $ref: '#/components/parameters/agent_id' } ], responses: { "200": { description: Deleted } } }
+
+  /team:
+    get: { tags: [Team], summary: List teams, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Team' } } } } } } }
+    post: { tags: [Team], summary: Create team, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/TeamCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Team' } } } } } }
+  /team/{team_id}:
+    get: { tags: [Team], summary: Get team by ID, parameters: [ { $ref: '#/components/parameters/team_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Team' } } } }, "404": { description: Not Found } } }
+    patch:
+      tags: [Team]
+      summary: Update team (partial)
+      parameters: [ { $ref: '#/components/parameters/team_id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/TeamUpdate' } } } }
+      responses: { "200": { description: Updated } }
+    delete: { tags: [Team], summary: Delete team, parameters: [ { $ref: '#/components/parameters/team_id' } ], responses: { "200": { description: Deleted } } }
+
+  /sla:
+    get: { tags: [SLA], summary: List SLA, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/SLA' } } } } } } }
+    post: { tags: [SLA], summary: Create SLA, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/SLACreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/SLA' } } } } } }
+  /sla/{sla_id}:
+    get: { tags: [SLA], summary: Get SLA by ID, parameters: [ { $ref: '#/components/parameters/sla_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/SLA' } } } }, "404": { description: Not Found } } }
+    patch:
+      tags: [SLA]
+      summary: Update SLA (partial)
+      parameters: [ { $ref: '#/components/parameters/sla_id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/SLAUpdate' } } } }
+      responses: { "200": { description: Updated } }
+    delete: { tags: [SLA], summary: Delete SLA, parameters: [ { $ref: '#/components/parameters/sla_id' } ], responses: { "200": { description: Deleted } } }
+
+  /channel:
+    get: { tags: [Channel], summary: List channels, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Channel' } } } } } } }
+    post: { tags: [Channel], summary: Create channel, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ChannelCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Channel' } } } } } }
+  /channel/{channel_id}:
+    get: { tags: [Channel], summary: Get channel by ID, parameters: [ { $ref: '#/components/parameters/channel_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Channel' } } } }, "404": { description: Not Found } } }
+    patch:
+      tags: [Channel]
+      summary: Update channel (partial)
+      parameters: [ { $ref: '#/components/parameters/channel_id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ChannelUpdate' } } } }
+      responses: { "200": { description: Updated } }
+    delete: { tags: [Channel], summary: Delete channel, parameters: [ { $ref: '#/components/parameters/channel_id' } ], responses: { "200": { description: Deleted } } }
+
+  /uic:
+    get: { tags: [UIC], summary: List UICs, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/UIC' } } } } } } }
+    post: { tags: [UIC], summary: Create UIC, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UICCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/UIC' } } } } } }
+  /uic/{uic_id}:
+    get: { tags: [UIC], summary: Get UIC by ID, parameters: [ { $ref: '#/components/parameters/uic_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/UIC' } } } }, "404": { description: Not Found } } }
+    patch:
+      tags: [UIC]
+      summary: Update UIC (partial)
+      parameters: [ { $ref: '#/components/parameters/uic_id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/UICUpdate' } } } }
+      responses: { "200": { description: Updated } }
+    delete: { tags: [UIC], summary: Delete UIC, parameters: [ { $ref: '#/components/parameters/uic_id' } ], responses: { "200": { description: Deleted } } }
+
+  /complaint_category:
+    get: { tags: [ComplaintCategory], summary: List complaint categories, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ComplaintCategory' } } } } } } }
+    post: { tags: [ComplaintCategory], summary: Create complaint category, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ComplaintCategoryCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/ComplaintCategory' } } } } } }
+  /complaint_category/{complaint_id}:
+    get: { tags: [ComplaintCategory], summary: Get complaint category by ID, parameters: [ { $ref: '#/components/parameters/complaint_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ComplaintCategory' } } } }, "404": { description: Not Found } } }
+    patch:
+      tags: [ComplaintCategory]
+      summary: Update complaint category (partial)
+      parameters: [ { $ref: '#/components/parameters/complaint_id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ComplaintCategoryUpdate' } } } }
+      responses: { "200": { description: Updated } }
+    delete: { tags: [ComplaintCategory], summary: Delete complaint category, parameters: [ { $ref: '#/components/parameters/complaint_id' } ], responses: { "200": { description: Deleted } } }
+
+  /faq:
+    get: { tags: [FAQ], summary: List FAQs, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: complaint_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/FAQ' } } } } } } }
+    post: { tags: [FAQ], summary: Create FAQ, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/FAQCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/FAQ' } } } } } }
+  /faq/{faq_id}:
+    get: { tags: [FAQ], summary: Get FAQ by ID, parameters: [ { $ref: '#/components/parameters/faq_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/FAQ' } } } }, "404": { description: Not Found } } }
+    patch:
+      tags: [FAQ]
+      summary: Update FAQ (partial)
+      parameters: [ { $ref: '#/components/parameters/faq_id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/FAQUpdate' } } } }
+      responses: { "200": { description: Updated } }
+    delete: { tags: [FAQ], summary: Delete FAQ, parameters: [ { $ref: '#/components/parameters/faq_id' } ], responses: { "200": { description: Deleted } } }
+
+  /faq_log:
+    get: { tags: [FAQ Log], summary: List FAQ logs, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: session_id, schema: { type: integer } }, { in: query, name: faq_id, schema: { type: integer } }, { in: query, name: customer_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/FAQLog' } } } } } } }
+    post: { tags: [FAQ Log], summary: Create FAQ log, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/FAQLogCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/FAQLog' } } } } } }
+  /faq_log/{log_id}:
+    get: { tags: [FAQ Log], summary: Get FAQ log by ID, parameters: [ { $ref: '#/components/parameters/log_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/FAQLog' } } } }, "404": { description: Not Found } } }
+    patch: { tags: [FAQ Log], summary: Update FAQ log (partial), parameters: [ { $ref: '#/components/parameters/log_id' } ], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/FAQLogUpdate' } } } }, responses: { "200": { description: Updated } } }
+    delete: { tags: [FAQ Log], summary: Delete FAQ log, parameters: [ { $ref: '#/components/parameters/log_id' } ], responses: { "200": { description: Deleted } } }
+
+  /ticket:
+    get: { tags: [Ticket], summary: List tickets, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: customer_id, schema: { type: integer } }, { in: query, name: agent_status, schema: { $ref: '#/components/schemas/AgentStatus' } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Ticket' } } } } } } }
+    post: { tags: [Ticket], summary: Create ticket, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/TicketCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Ticket' } } } } } }
+  /ticket/{ticket_id}:
+    get: { tags: [Ticket], summary: Get ticket by ID, parameters: [ { $ref: '#/components/parameters/ticket_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Ticket' } } } }, "404": { description: Not Found } } }
+    patch: { tags: [Ticket], summary: Update ticket (partial), parameters: [ { $ref: '#/components/parameters/ticket_id' } ], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/TicketUpdate' } } } }, responses: { "200": { description: Updated } } }
+    delete: { tags: [Ticket], summary: Delete ticket, parameters: [ { $ref: '#/components/parameters/ticket_id' } ], responses: { "200": { description: Deleted } } }
+
+  /ticket_activity:
+    get: { tags: [Ticket Activity], summary: List ticket activities, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: ticket_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/TicketActivity' } } } } } } }
+    post: { tags: [Ticket Activity], summary: Create ticket activity, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/TicketActivityCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/TicketActivity' } } } } } }
+  /ticket_activity/{activity_id}:
+    get: { tags: [Ticket Activity], summary: Get activity by ID, parameters: [ { $ref: '#/components/parameters/activity_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/TicketActivity' } } } }, "404": { description: Not Found } } }
+    patch: { tags: [Ticket Activity], summary: Update activity (partial), parameters: [ { $ref: '#/components/parameters/activity_id' } ], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/TicketActivityUpdate' } } } }, responses: { "200": { description: Updated } } }
+    delete: { tags: [Ticket Activity], summary: Delete activity, parameters: [ { $ref: '#/components/parameters/activity_id' } ], responses: { "200": { description: Deleted } } }
+
+  /attachment:
+    get: { tags: [Attachment], summary: List attachments, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: activity_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Attachment' } } } } } } }
+    post: { tags: [Attachment], summary: Create attachment, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AttachmentCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Attachment' } } } } } }
+  /attachment/{attachment_id}:
+    get: { tags: [Attachment], summary: Get attachment by ID, parameters: [ { $ref: '#/components/parameters/attachment_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Attachment' } } } }, "404": { description: Not Found } } }
+    patch: { tags: [Attachment], summary: Update attachment (partial), parameters: [ { $ref: '#/components/parameters/attachment_id' } ], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AttachmentUpdate' } } } }, responses: { "200": { description: Updated } } }
+    delete: { tags: [Attachment], summary: Delete attachment, parameters: [ { $ref: '#/components/parameters/attachment_id' } ], responses: { "200": { description: Deleted } } }
+
+  /feedback:
+    get: { tags: [Feedback], summary: List feedbacks, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: ticket_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Feedback' } } } } } } }
+    post: { tags: [Feedback], summary: Create feedback, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/FeedbackCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Feedback' } } } } } }
+  /feedback/{feedback_id}:
+    get: { tags: [Feedback], summary: Get feedback by ID, parameters: [ { $ref: '#/components/parameters/feedback_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Feedback' } } } }, "404": { description: Not Found } } }
+    patch: { tags: [Feedback], summary: Update feedback (partial), parameters: [ { $ref: '#/components/parameters/feedback_id' } ], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/FeedbackUpdate' } } } }, responses: { "200": { description: Updated } } }
+    delete: { tags: [Feedback], summary: Delete feedback, parameters: [ { $ref: '#/components/parameters/feedback_id' } ], responses: { "200": { description: Deleted } } }
+
+  /notification:
+    get: { tags: [Notification], summary: List notifications, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: user_type, schema: { $ref: '#/components/schemas/NotificationUserType' } }, { in: query, name: user_id, schema: { type: integer } }, { in: query, name: ticket_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Notification' } } } } } } }
+    post: { tags: [Notification], summary: Create notification, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/NotificationCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Notification' } } } } } }
+  /notification/{notification_id}:
+    get: { tags: [Notification], summary: Get notification by ID, parameters: [ { $ref: '#/components/parameters/notification_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Notification' } } } }, "404": { description: Not Found } } }
+    patch: { tags: [Notification], summary: Update notification (partial), parameters: [ { $ref: '#/components/parameters/notification_id' } ], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/NotificationUpdate' } } } }, responses: { "200": { description: Updated } } }
+    delete: { tags: [Notification], summary: Delete notification, parameters: [ { $ref: '#/components/parameters/notification_id' } ], responses: { "200": { description: Deleted } } }
+
+  /chat_message:
+    get: { tags: [Chat Message], summary: List chat messages, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: ticket_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ChatMessage' } } } } } } }
+    post: { tags: [Chat Message], summary: Create chat message, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ChatMessageCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/ChatMessage' } } } } } }
+  /chat_message/{chat_id}:
+    get: { tags: [Chat Message], summary: Get chat message by ID, parameters: [ { $ref: '#/components/parameters/chat_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ChatMessage' } } } }, "404": { description: Not Found } } }
+    patch: { tags: [Chat Message], summary: Update chat message (partial), parameters: [ { $ref: '#/components/parameters/chat_id' } ], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ChatMessageUpdate' } } } }, responses: { "200": { description: Updated } } }
+    delete: { tags: [Chat Message], summary: Delete chat message, parameters: [ { $ref: '#/components/parameters/chat_id' } ], responses: { "200": { description: Deleted } } }
+
+  /call_log:
+    get: { tags: [Call Log], summary: List call logs, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: ticket_id, schema: { type: integer } }, { in: query, name: agent_id, schema: { type: integer } }, { in: query, name: customer_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/CallLog' } } } } } } }
+    post: { tags: [Call Log], summary: Create call log, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CallLogCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/CallLog' } } } } } }
+  /call_log/{call_id}:
+    get: { tags: [Call Log], summary: Get call log by ID, parameters: [ { $ref: '#/components/parameters/call_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/CallLog' } } } }, "404": { description: Not Found } } }
+    patch: { tags: [Call Log], summary: Update call log (partial), parameters: [ { $ref: '#/components/parameters/call_id' } ], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CallLogUpdate' } } } }, responses: { "200": { description: Updated } } }
+    delete: { tags: [Call Log], summary: Delete call log, parameters: [ { $ref: '#/components/parameters/call_id' } ], responses: { "200": { description: Deleted } } }
+
+  /chatbot_session:
+    get: { tags: [Chatbot Session], summary: List chatbot sessions, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: customer_id, schema: { type: integer } }, { in: query, name: status, schema: { $ref: '#/components/schemas/ChatbotStatus' } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ChatbotSession' } } } } } } }
+    post: { tags: [Chatbot Session], summary: Create chatbot session, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ChatbotSessionCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/ChatbotSession' } } } } } }
+  /chatbot_session/{session_id}:
+    get: { tags: [Chatbot Session], summary: Get chatbot session by ID, parameters: [ { $ref: '#/components/parameters/session_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ChatbotSession' } } } }, "404": { description: Not Found } } }
+    patch: { tags: [Chatbot Session], summary: Update chatbot session (partial), parameters: [ { $ref: '#/components/parameters/session_id' } ], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ChatbotSessionUpdate' } } } }, responses: { "200": { description: Updated } } }
+    delete: { tags: [Chatbot Session], summary: Delete chatbot session, parameters: [ { $ref: '#/components/parameters/session_id' } ], responses: { "200": { description: Deleted } } }
+
+  /chatbot_message:
+    get: { tags: [Chatbot Message], summary: List chatbot messages, parameters: [ { $ref: '#/components/parameters/page' }, { $ref: '#/components/parameters/limit' }, { $ref: '#/components/parameters/q' }, { in: query, name: session_id, schema: { type: integer } } ], responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ChatbotMessage' } } } } } } }
+    post: { tags: [Chatbot Message], summary: Create chatbot message, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ChatbotMessageCreate' } } } }, responses: { "201": { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/ChatbotMessage' } } } } } }
+  /chatbot_message/{message_id}:
+    get: { tags: [Chatbot Message], summary: Get chatbot message by ID, parameters: [ { $ref: '#/components/parameters/message_id' } ], responses: { "200": { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ChatbotMessage' } } } }, "404": { description: Not Found } } }
+    patch: { tags: [Chatbot Message], summary: Update chatbot message (partial), parameters: [ { $ref: '#/components/parameters/message_id' } ], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ChatbotMessageUpdate' } } } }, responses: { "200": { description: Updated } } }
+    delete: { tags: [Chatbot Message], summary: Delete chatbot message, parameters: [ { $ref: '#/components/parameters/message_id' } ], responses: { "200": { description: Deleted } } }
+
+  # -------- Aliases (via routes.json) ----------
+  /api/customers/{customer_id}/accounts:
+    get:
+      tags: [Aliases]
+      summary: List accounts for a customer (alias route)
+      parameters: [ { $ref: '#/components/parameters/customer_id' } ]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Account' } } } } } }
+  /api/customers/{customer_id}/tickets:
+    get:
+      tags: [Aliases]
+      summary: List tickets for a customer (alias route)
+      parameters: [ { $ref: '#/components/parameters/customer_id' } ]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Ticket' } } } } } }
+  /api/agents/{agent_id}/tickets:
+    get:
+      tags: [Aliases]
+      summary: List tickets for an agent (alias route)
+      parameters: [ { $ref: '#/components/parameters/agent_id' } ]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Ticket' } } } } } }
+  /api/teams/{team_id}/agents:
+    get:
+      tags: [Aliases]
+      summary: List agents for a team (alias route)
+      parameters: [ { $ref: '#/components/parameters/team_id' } ]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Agent' } } } } } }
+  /api/complaints/{complaint_id}/faqs:
+    get:
+      tags: [Aliases]
+      summary: List FAQs for a complaint (alias route)
+      parameters: [ { $ref: '#/components/parameters/complaint_id' } ]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/FAQ' } } } } } }
+  /api/tickets/{ticket_id}/activities:
+    get:
+      tags: [Aliases]
+      summary: List activities for a ticket (alias route)
+      parameters: [ { $ref: '#/components/parameters/ticket_id' } ]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/TicketActivity' } } } } } }
+  /api/tickets/{ticket_id}/attachments:
+    get:
+      tags: [Aliases]
+      summary: List attachments for a ticket (alias route)
+      parameters: [ { $ref: '#/components/parameters/ticket_id' } ]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Attachment' } } } } } }
+  /api/tickets/{ticket_id}/chat:
+    get:
+      tags: [Aliases]
+      summary: List chat messages for a ticket (alias route)
+      parameters: [ { $ref: '#/components/parameters/ticket_id' } ]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ChatMessage' } } } } } }
+  /api/sessions/{session_id}/faq-logs:
+    get:
+      tags: [Aliases]
+      summary: List FAQ logs for a chatbot session (alias route)
+      parameters: [ { $ref: '#/components/parameters/session_id' } ]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/FAQLog' } } } } } }
+  /api/sessions/{session_id}/messages:
+    get:
+      tags: [Aliases]
+      summary: List chatbot messages for a session (alias route)
+      parameters: [ { $ref: '#/components/parameters/session_id' } ]
+      responses: { "200": { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/ChatbotMessage' } } } } } }
+
+components:
+  parameters:
+    page: { in: query, name: _page, schema: { type: integer, minimum: 1 }, description: Page number (json-server) }
+    limit: { in: query, name: _limit, schema: { type: integer, minimum: 1, maximum: 100 }, description: Page size (json-server) }
+    q: { in: query, name: q, schema: { type: string }, description: Full-text search (json-server) }
+
+    customer_id: { in: path, name: customer_id, required: true, schema: { type: integer } }
+    account_id: { in: path, name: account_id, required: true, schema: { type: integer } }
+    agent_id: { in: path, name: agent_id, required: true, schema: { type: integer } }
+    team_id: { in: path, name: team_id, required: true, schema: { type: integer } }
+    sla_id: { in: path, name: sla_id, required: true, schema: { type: integer } }
+    channel_id: { in: path, name: channel_id, required: true, schema: { type: integer } }
+    uic_id: { in: path, name: uic_id, required: true, schema: { type: integer } }
+    complaint_id: { in: path, name: complaint_id, required: true, schema: { type: integer } }
+    faq_id: { in: path, name: faq_id, required: true, schema: { type: integer } }
+    log_id: { in: path, name: log_id, required: true, schema: { type: integer } }
+    ticket_id: { in: path, name: ticket_id, required: true, schema: { type: integer } }
+    activity_id: { in: path, name: activity_id, required: true, schema: { type: integer } }
+    attachment_id: { in: path, name: attachment_id, required: true, schema: { type: integer } }
+    feedback_id: { in: path, name: feedback_id, required: true, schema: { type: integer } }
+    notification_id: { in: path, name: notification_id, required: true, schema: { type: integer } }
+    chat_id: { in: path, name: chat_id, required: true, schema: { type: integer } }
+    call_id: { in: path, name: call_id, required: true, schema: { type: integer } }
+    session_id: { in: path, name: session_id, required: true, schema: { type: integer } }
+    message_id: { in: path, name: message_id, required: true, schema: { type: integer } }
+
+  schemas:
+    # ----- ENUMS -----
+    AccountType: { type: string, enum: ["Tabungan", "Giro", "Kartu Kredit", "Lainnya"] }
+    AgentRole: { type: string, enum: ["Frontline", "Back Office", "Manajer", "QA"] }
+    CustomerStatus: { type: string, enum: ["Baru", "Diproses", "Selesai"] }
+    AgentStatus: { type: string, enum: ["Baru", "Dikerjakan", "Menunggu Respon Customer", "Selesai", "Ditutup", "Reopen"] }
+    SourceChannel: { type: string, enum: ["ATM", "Deposito", "Kartu Debit", "Form", "Chat", "Call", "WhatsApp"] }
+    SenderTypeActivity: { type: string, enum: ["agent", "customer", "sistem", "chatbot"] }
+    ActivityType: { type: string, enum: ["Komentar", "Perubahan Status", "Penugasan", "Attachment", "Call", "Chat"] }
+    NotificationUserType: { type: string, enum: ["agent", "customer"] }
+    NotificationType: { type: string, enum: ["status_change", "sla_warning", "sla_breached"] }
+    ChatSenderType: { type: string, enum: ["agent", "customer"] }
+    CallStatus: { type: string, enum: ["connected", "missed", "failed"] }
+    ChatbotStatus: { type: string, enum: ["ongoing", "completed", "converted_to_ticket", "resolved_by_faq"] }
+    ChatbotSenderType: { type: string, enum: ["chatbot", "customer"] }
+
+    # ----- TABLE SCHEMAS -----
+    Customer:
+      type: object
+      properties:
+        customer_id: { type: integer }
+        full_name: { type: string }
+        email: { type: string, format: email }
+        password_hash: { type: string }
+        phone_number: { type: string }
+        created_at: { type: string, format: date-time }
+      required: [customer_id, full_name, email, phone_number]
+    CustomerCreate:
+      type: object
+      properties:
+        full_name: { type: string }
+        email: { type: string, format: email }
+        password_hash: { type: string }
+        phone_number: { type: string }
+      required: [full_name, email, phone_number]
+    CustomerUpdate:
+      type: object
+      properties:
+        full_name: { type: string }
+        email: { type: string, format: email }
+        phone_number: { type: string }
+
+    Account:
+      type: object
+      properties:
+        account_id: { type: integer }
+        customer_id: { type: integer }
+        account_number: { type: string }
+        account_type: { $ref: '#/components/schemas/AccountType' }
+        is_primary: { type: boolean }
+      required: [account_id, customer_id, account_number, account_type]
+    AccountCreate:
+      type: object
+      properties:
+        customer_id: { type: integer }
+        account_number: { type: string }
+        account_type: { $ref: '#/components/schemas/AccountType' }
+        is_primary: { type: boolean }
+      required: [customer_id, account_number, account_type]
+    AccountUpdate:
+      type: object
+      properties:
+        account_number: { type: string }
+        account_type: { $ref: '#/components/schemas/AccountType' }
+        is_primary: { type: boolean }
+
+    Agent:
+      type: object
+      properties:
+        agent_id: { type: integer }
+        full_name: { type: string }
+        email: { type: string, format: email }
+        password_hash: { type: string }
+        role: { $ref: '#/components/schemas/AgentRole' }
+        team_id: { type: integer }
+        is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
+      required: [agent_id, full_name, email, role]
+    AgentCreate:
+      type: object
+      properties:
+        full_name: { type: string }
+        email: { type: string, format: email }
+        password_hash: { type: string }
+        role: { $ref: '#/components/schemas/AgentRole' }
+        team_id: { type: integer }
+        is_active: { type: boolean }
+      required: [full_name, email, role]
+    AgentUpdate:
+      type: object
+      properties:
+        full_name: { type: string }
+        email: { type: string, format: email }
+        role: { $ref: '#/components/schemas/AgentRole' }
+        team_id: { type: integer }
+        is_active: { type: boolean }
+
+    Team:
+      type: object
+      properties:
+        team_id: { type: integer }
+        team_name: { type: string }
+        description: { type: string }
+      required: [team_id, team_name]
+    TeamCreate:
+      type: object
+      properties:
+        team_name: { type: string }
+        description: { type: string }
+      required: [team_name]
+    TeamUpdate:
+      type: object
+      properties:
+        team_name: { type: string }
+        description: { type: string }
+
+    SLA:
+      type: object
+      properties:
+        sla_id: { type: integer }
+        sla_name: { type: string }
+        time_resolution: { type: integer, description: "Dalam jam" }
+      required: [sla_id, sla_name, time_resolution]
+    SLACreate:
+      type: object
+      properties:
+        sla_name: { type: string }
+        time_resolution: { type: integer }
+      required: [sla_name, time_resolution]
+    SLAUpdate:
+      type: object
+      properties:
+        sla_name: { type: string }
+        time_resolution: { type: integer }
+
+    Channel:
+      type: object
+      properties:
+        channel_id: { type: integer }
+        channel_name: { type: string }
+      required: [channel_id, channel_name]
+    ChannelCreate:
+      type: object
+      properties:
+        channel_name: { type: string }
+      required: [channel_name]
+    ChannelUpdate:
+      type: object
+      properties:
+        channel_name: { type: string }
+
+    UIC:
+      type: object
+      properties:
+        uic_id: { type: integer }
+        uic_code: { type: string }
+        description: { type: string }
+      required: [uic_id, uic_code]
+    UICCreate:
+      type: object
+      properties:
+        uic_code: { type: string }
+        description: { type: string }
+      required: [uic_code]
+    UICUpdate:
+      type: object
+      properties:
+        uic_code: { type: string }
+        description: { type: string }
+
+    ComplaintCategory:
+      type: object
+      properties:
+        complaint_id: { type: integer }
+        complaint_name: { type: string }
+        sla_id: { type: integer }
+        channel_id: { type: integer }
+        uic_id: { type: integer }
+      required: [complaint_id, complaint_name]
+    ComplaintCategoryCreate:
+      type: object
+      properties:
+        complaint_name: { type: string }
+        sla_id: { type: integer }
+        channel_id: { type: integer }
+        uic_id: { type: integer }
+      required: [complaint_name]
+    ComplaintCategoryUpdate:
+      type: object
+      properties:
+        complaint_name: { type: string }
+        sla_id: { type: integer }
+        channel_id: { type: integer }
+        uic_id: { type: integer }
+
+    FAQ:
+      type: object
+      properties:
+        faq_id: { type: integer }
+        complaint_id: { type: integer }
+        question: { type: string }
+        answer: { type: string }
+        keywords: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+      required: [faq_id, question, answer]
+    FAQCreate:
+      type: object
+      properties:
+        complaint_id: { type: integer }
+        question: { type: string }
+        answer: { type: string }
+        keywords: { type: string }
+      required: [question, answer]
+    FAQUpdate:
+      type: object
+      properties:
+        complaint_id: { type: integer }
+        question: { type: string }
+        answer: { type: string }
+        keywords: { type: string }
+        updated_at: { type: string, format: date-time }
+
+    FAQLog:
+      type: object
+      properties:
+        log_id: { type: integer }
+        session_id: { type: integer }
+        faq_id: { type: integer }
+        customer_id: { type: integer }
+        shown_at: { type: string, format: date-time }
+      required: [log_id, session_id, faq_id, customer_id]
+    FAQLogCreate:
+      type: object
+      properties:
+        session_id: { type: integer }
+        faq_id: { type: integer }
+        customer_id: { type: integer }
+        shown_at: { type: string, format: date-time }
+      required: [session_id, faq_id, customer_id]
+    FAQLogUpdate:
+      type: object
+      properties:
+        shown_at: { type: string, format: date-time }
+
+    Ticket:
+      type: object
+      properties:
+        ticket_id: { type: integer }
+        ticket_number: { type: string }
+        title: { type: string }
+        description: { type: string }
+        customer_status: { $ref: '#/components/schemas/CustomerStatus' }
+        agent_status: { $ref: '#/components/schemas/AgentStatus' }
+        source_channel: { $ref: '#/components/schemas/SourceChannel' }
+        customer_id: { type: integer }
+        related_account_id: { type: integer }
+        complaint_id: { type: integer }
+        faq_id: { type: integer, nullable: true }
+        responsible_agent_id: { type: integer }
+        responsible_team_id: { type: integer }
+        sla_id: { type: integer }
+        created_time: { type: string, format: date-time }
+        first_response_time: { type: string, format: date-time, nullable: true }
+        end_time: { type: string, format: date-time, nullable: true }
+        closed_time: { type: string, format: date-time, nullable: true }
+        target_sla: { type: string, format: date-time, nullable: true }
+      required: [ticket_id, ticket_number, title, customer_status, agent_status, source_channel, customer_id, sla_id]
+    TicketCreate:
+      type: object
+      properties:
+        ticket_number: { type: string }
+        title: { type: string }
+        description: { type: string }
+        customer_status: { $ref: '#/components/schemas/CustomerStatus' }
+        agent_status: { $ref: '#/components/schemas/AgentStatus' }
+        source_channel: { $ref: '#/components/schemas/SourceChannel' }
+        customer_id: { type: integer }
+        related_account_id: { type: integer }
+        complaint_id: { type: integer }
+        faq_id: { type: integer, nullable: true }
+        responsible_agent_id: { type: integer }
+        responsible_team_id: { type: integer }
+        sla_id: { type: integer }
+        target_sla: { type: string, format: date-time, nullable: true }
+      required: [ticket_number, title, customer_status, agent_status, source_channel, customer_id, sla_id]
+    TicketUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        description: { type: string }
+        customer_status: { $ref: '#/components/schemas/CustomerStatus' }
+        agent_status: { $ref: '#/components/schemas/AgentStatus' }
+        source_channel: { $ref: '#/components/schemas/SourceChannel' }
+        related_account_id: { type: integer }
+        complaint_id: { type: integer }
+        faq_id: { type: integer, nullable: true }
+        responsible_agent_id: { type: integer }
+        responsible_team_id: { type: integer }
+        first_response_time: { type: string, format: date-time, nullable: true }
+        end_time: { type: string, format: date-time, nullable: true }
+        closed_time: { type: string, format: date-time, nullable: true }
+        target_sla: { type: string, format: date-time, nullable: true }
+
+    TicketActivity:
+      type: object
+      properties:
+        activity_id: { type: integer }
+        ticket_id: { type: integer }
+        sender_id: { type: integer }
+        sender_type: { $ref: '#/components/schemas/SenderTypeActivity' }
+        activity_type: { $ref: '#/components/schemas/ActivityType' }
+        content: { type: string }
+        attachment_id: { type: integer, nullable: true }
+        activity_time: { type: string, format: date-time }
+      required: [activity_id, ticket_id, sender_id, sender_type, activity_type]
+    TicketActivityCreate:
+      type: object
+      properties:
+        ticket_id: { type: integer }
+        sender_id: { type: integer }
+        sender_type: { $ref: '#/components/schemas/SenderTypeActivity' }
+        activity_type: { $ref: '#/components/schemas/ActivityType' }
+        content: { type: string }
+        attachment_id: { type: integer, nullable: true }
+        activity_time: { type: string, format: date-time }
+      required: [ticket_id, sender_id, sender_type, activity_type]
+    TicketActivityUpdate:
+      type: object
+      properties:
+        content: { type: string }
+        activity_type: { $ref: '#/components/schemas/ActivityType' }
+        activity_time: { type: string, format: date-time }
+
+    Attachment:
+      type: object
+      properties:
+        attachment_id: { type: integer }
+        activity_id: { type: integer }
+        file_name: { type: string }
+        file_path: { type: string }
+        file_type: { type: string }
+        file_size: { type: integer }
+        upload_time: { type: string, format: date-time }
+      required: [attachment_id, activity_id, file_name, file_path]
+    AttachmentCreate:
+      type: object
+      properties:
+        activity_id: { type: integer }
+        file_name: { type: string }
+        file_path: { type: string }
+        file_type: { type: string }
+        file_size: { type: integer }
+        upload_time: { type: string, format: date-time }
+      required: [activity_id, file_name, file_path]
+    AttachmentUpdate:
+      type: object
+      properties:
+        file_name: { type: string }
+        file_path: { type: string }
+        file_type: { type: string }
+        file_size: { type: integer }
+
+    Feedback:
+      type: object
+      properties:
+        feedback_id: { type: integer }
+        ticket_id: { type: integer }
+        score: { type: integer, minimum: 0, maximum: 10 }
+        comment: { type: string }
+        submit_time: { type: string, format: date-time }
+      required: [feedback_id, ticket_id, score]
+    FeedbackCreate:
+      type: object
+      properties:
+        ticket_id: { type: integer }
+        score: { type: integer }
+        comment: { type: string }
+        submit_time: { type: string, format: date-time }
+      required: [ticket_id, score]
+    FeedbackUpdate:
+      type: object
+      properties:
+        score: { type: integer }
+        comment: { type: string }
+
+    Notification:
+      type: object
+      properties:
+        notification_id: { type: integer }
+        user_type: { $ref: '#/components/schemas/NotificationUserType' }
+        user_id: { type: integer }
+        ticket_id: { type: integer, nullable: true }
+        message: { type: string }
+        notification_type: { $ref: '#/components/schemas/NotificationType' }
+        is_read: { type: boolean }
+        created_at: { type: string, format: date-time }
+      required: [notification_id, user_type, user_id, message, notification_type]
+    NotificationCreate:
+      type: object
+      properties:
+        user_type: { $ref: '#/components/schemas/NotificationUserType' }
+        user_id: { type: integer }
+        ticket_id: { type: integer, nullable: true }
+        message: { type: string }
+        notification_type: { $ref: '#/components/schemas/NotificationType' }
+        is_read: { type: boolean }
+        created_at: { type: string, format: date-time }
+      required: [user_type, user_id, message, notification_type]
+    NotificationUpdate:
+      type: object
+      properties:
+        is_read: { type: boolean }
+        message: { type: string }
+        notification_type: { $ref: '#/components/schemas/NotificationType' }
+
+    ChatMessage:
+      type: object
+      properties:
+        chat_id: { type: integer }
+        ticket_id: { type: integer }
+        sender_id: { type: integer }
+        sender_type: { $ref: '#/components/schemas/ChatSenderType' }
+        message: { type: string }
+        sent_at: { type: string, format: date-time }
+      required: [chat_id, ticket_id, sender_id, sender_type, message]
+    ChatMessageCreate:
+      type: object
+      properties:
+        ticket_id: { type: integer }
+        sender_id: { type: integer }
+        sender_type: { $ref: '#/components/schemas/ChatSenderType' }
+        message: { type: string }
+        sent_at: { type: string, format: date-time }
+      required: [ticket_id, sender_id, sender_type, message]
+    ChatMessageUpdate:
+      type: object
+      properties:
+        message: { type: string }
+        sent_at: { type: string, format: date-time }
+
+    CallLog:
+      type: object
+      properties:
+        call_id: { type: integer }
+        ticket_id: { type: integer }
+        agent_id: { type: integer }
+        customer_id: { type: integer }
+        call_status: { $ref: '#/components/schemas/CallStatus' }
+        call_duration: { type: integer, description: "Durasi panggilan dalam detik" }
+        recording_path: { type: string, nullable: true }
+        call_start_time: { type: string, format: date-time }
+        call_end_time: { type: string, format: date-time, nullable: true }
+        notes: { type: string }
+      required: [call_id, ticket_id, agent_id, customer_id, call_status, call_start_time]
+    CallLogCreate:
+      type: object
+      properties:
+        ticket_id: { type: integer }
+        agent_id: { type: integer }
+        customer_id: { type: integer }
+        call_status: { $ref: '#/components/schemas/CallStatus' }
+        call_duration: { type: integer }
+        recording_path: { type: string, nullable: true }
+        call_start_time: { type: string, format: date-time }
+        call_end_time: { type: string, format: date-time, nullable: true }
+        notes: { type: string }
+      required: [ticket_id, agent_id, customer_id, call_status, call_start_time]
+    CallLogUpdate:
+      type: object
+      properties:
+        call_status: { $ref: '#/components/schemas/CallStatus' }
+        call_duration: { type: integer }
+        recording_path: { type: string, nullable: true }
+        call_end_time: { type: string, format: date-time, nullable: true }
+        notes: { type: string }
+
+    ChatbotSession:
+      type: object
+      properties:
+        session_id: { type: integer }
+        customer_id: { type: integer }
+        status: { $ref: '#/components/schemas/ChatbotStatus' }
+        start_time: { type: string, format: date-time }
+        end_time: { type: string, format: date-time, nullable: true }
+        ticket_id: { type: integer, nullable: true, description: "Jika session dikonversi menjadi ticket" }
+      required: [session_id, customer_id, status, start_time]
+    ChatbotSessionCreate:
+      type: object
+      properties:
+        customer_id: { type: integer }
+        status: { $ref: '#/components/schemas/ChatbotStatus' }
+        start_time: { type: string, format: date-time }
+        ticket_id: { type: integer, nullable: true }
+      required: [customer_id, status, start_time]
+    ChatbotSessionUpdate:
+      type: object
+      properties:
+        status: { $ref: '#/components/schemas/ChatbotStatus' }
+        end_time: { type: string, format: date-time, nullable: true }
+        ticket_id: { type: integer, nullable: true }
+
+    ChatbotMessage:
+      type: object
+      properties:
+        message_id: { type: integer }
+        session_id: { type: integer }
+        sender_type: { $ref: '#/components/schemas/ChatbotSenderType' }
+        message_text: { type: string }
+        sent_at: { type: string, format: date-time }
+        faq_id: { type: integer, nullable: true, description: "Jika pesan adalah jawaban FAQ" }
+      required: [message_id, session_id, sender_type, message_text, sent_at]
+    ChatbotMessageCreate:
+      type: object
+      properties:
+        session_id: { type: integer }
+        sender_type: { $ref: '#/components/schemas/ChatbotSenderType' }
+        message_text: { type: string }
+        sent_at: { type: string, format: date-time }
+        faq_id: { type: integer, nullable: true }
+      required: [session_id, sender_type, message_text, sent_at]
+    ChatbotMessageUpdate:
+      type: object
+      properties:
+        message_text: { type: string }
+        sent_at: { type: string, format: date-time }
+        faq_id: { type: integer, nullable: true }
