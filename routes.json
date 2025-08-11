@@ -1,0 +1,16 @@
+{
+  "/api/*": "/$1",
+
+  "/api/customers/:customerId/accounts": "/account?customer_id=:customerId",
+  "/api/customers/:customerId/tickets": "/ticket?customer_id=:customerId",
+  "/api/agents/:agentId/tickets": "/ticket?responsible_agent_id=:agentId",
+  "/api/teams/:teamId/agents": "/agent?team_id=:teamId",
+  "/api/complaints/:complaintId/faqs": "/faq?complaint_id=:complaintId",
+  "/api/tickets/:ticketId/activities": "/ticket_activity?ticket_id=:ticketId&_sort=activity_time&_order=asc",
+  "/api/tickets/:ticketId/attachments": "/attachment?ticket_id=:ticketId",
+  "/api/tickets/:ticketId/chat": "/chat_message?ticket_id=:ticketId&_sort=sent_at&_order=asc",
+  "/api/sessions/:sessionId/faq-logs": "/faq_log?session_id=:sessionId",
+  "/api/sessions/:sessionId/messages": "/chatbot_message?session_id=:sessionId",
+
+  "/health": "/status"
+}

@@ -1,0 +1,333 @@
+{
+  "customer": [
+    {
+      "customer_id": 1,
+      "full_name": "Budi Santoso",
+      "email": "budi@example.com",
+      "password_hash": "$2a$10$hashbudi",
+      "phone_number": "+628111111111",
+      "created_at": "2025-08-10T10:00:00Z",
+      "id": "b325"
+    },
+    {
+      "customer_id": 2,
+      "full_name": "Siti Aminah",
+      "email": "siti@example.com",
+      "password_hash": "$2a$10$hashsiti",
+      "phone_number": "+628122222222",
+      "created_at": "2025-08-10T10:05:00Z",
+      "id": "62d2"
+    }
+  ],
+  "account": [
+    {
+      "account_id": 10,
+      "customer_id": 1,
+      "account_number": "001-1234567890",
+      "account_type": "Tabungan",
+      "is_primary": true,
+      "id": "14f7"
+    },
+    {
+      "account_id": 11,
+      "customer_id": 1,
+      "account_number": "001-9876543210",
+      "account_type": "Kartu Kredit",
+      "is_primary": false,
+      "id": "3c93"
+    }
+  ],
+  "team": [
+    {
+      "team_id": 1,
+      "team_name": "CS Frontline",
+      "description": "Lini depan customer service",
+      "id": "678a"
+    },
+    {
+      "team_id": 2,
+      "team_name": "Back Office Ops",
+      "description": "Pemrosesan back office",
+      "id": "dfff"
+    }
+  ],
+  "agent": [
+    {
+      "agent_id": 100,
+      "full_name": "Rina Putri",
+      "email": "rina@bank.local",
+      "password_hash": "$2a$10$hashrina",
+      "role": "Frontline",
+      "team_id": 1,
+      "is_active": true,
+      "created_at": "2025-08-10T10:10:00Z",
+      "id": "2de8"
+    },
+    {
+      "agent_id": 101,
+      "full_name": "Andi Saputra",
+      "email": "andi@bank.local",
+      "password_hash": "$2a$10$hashandi",
+      "role": "QA",
+      "team_id": 2,
+      "is_active": true,
+      "created_at": "2025-08-10T10:12:00Z",
+      "id": "d9b6"
+    }
+  ],
+  "sla": [
+    {
+      "sla_id": 1,
+      "sla_name": "SLA Normal",
+      "time_resolution": 72,
+      "id": "3984"
+    },
+    {
+      "sla_id": 2,
+      "sla_name": "SLA Prioritas",
+      "time_resolution": 24,
+      "id": "3a27"
+    }
+  ],
+  "channel": [
+    {
+      "channel_id": 1,
+      "channel_name": "Mobile Banking",
+      "id": "b0eb"
+    },
+    {
+      "channel_id": 2,
+      "channel_name": "ATM",
+      "id": "24b2"
+    },
+    {
+      "channel_id": 3,
+      "channel_name": "Call Center",
+      "id": "24c0"
+    }
+  ],
+  "uic": [
+    {
+      "uic_id": 1,
+      "uic_code": "UIC8",
+      "description": "Kategori UIC8",
+      "id": "82ae"
+    },
+    {
+      "uic_id": 2,
+      "uic_code": "UIC9",
+      "description": "Kategori UIC9",
+      "id": "b460"
+    }
+  ],
+  "complaint_category": [
+    {
+      "complaint_id": 200,
+      "complaint_name": "Kartu Debit Tertelan",
+      "sla_id": 2,
+      "channel_id": 2,
+      "uic_id": 1,
+      "id": "d5e3"
+    },
+    {
+      "complaint_id": 201,
+      "complaint_name": "Transfer Pending",
+      "sla_id": 1,
+      "channel_id": 1,
+      "uic_id": 2,
+      "id": "88d9"
+    }
+  ],
+  "faq": [
+    {
+      "faq_id": 3000,
+      "complaint_id": 200,
+      "question": "Apa yang harus dilakukan jika kartu tertelan ATM?",
+      "answer": "Hubungi call center dan blokir kartu.",
+      "keywords": "kartu;atm;tertelan",
+      "created_at": "2025-08-10T10:20:00Z",
+      "updated_at": "2025-08-10T10:20:00Z",
+      "id": "dd1e"
+    }
+  ],
+  "chatbot_session": [
+    {
+      "session_id": 4000,
+      "customer_id": 1,
+      "started_at": "2025-08-10T11:00:00Z",
+      "status": "ongoing",
+      "id": "ff37"
+    }
+  ],
+  "faq_log": [
+    {
+      "log_id": 5000,
+      "session_id": 4000,
+      "faq_id": 3000,
+      "customer_id": 1,
+      "shown_at": "2025-08-10T11:05:00Z",
+      "id": "d615"
+    }
+  ],
+  "ticket": [
+    {
+      "ticket_id": 6000,
+      "ticket_number": "TCK-00001",
+      "title": "Kartu tertelan di ATM 123",
+      "description": "Kartu debit tertelan saat tarik tunai.",
+      "customer_status": "Baru",
+      "agent_status": "Baru",
+      "source_channel": "ATM",
+      "customer_id": 1,
+      "related_account_id": 10,
+      "complaint_id": 200,
+      "faq_id": 3000,
+      "responsible_agent_id": 100,
+      "responsible_team_id": 1,
+      "sla_id": 2,
+      "created_time": "2025-08-10T11:10:00Z",
+      "first_response_time": null,
+      "end_time": null,
+      "closed_time": null,
+      "target_sla": "2025-08-11T11:10:00Z",
+      "id": "fadb"
+    },
+    {
+      "id": "940f",
+      "ticket_number": "TCK-00002",
+      "title": "Transfer pending",
+      "description": "Uang belum masuk",
+      "customer_status": "Baru",
+      "agent_status": "Baru",
+      "source_channel": "Mobile Banking",
+      "customer_id": 2,
+      "related_account_id": 11,
+      "complaint_id": 201,
+      "responsible_agent_id": 101,
+      "responsible_team_id": 2,
+      "sla_id": 1
+    },
+    {
+      "id": "db54",
+      "ticket_number": "TCK-00003",
+      "title": "Transfer pending INI TEST",
+      "description": "Uang belum masuk TESTT",
+      "customer_status": "Baru TEST",
+      "agent_status": "Baru TEST ",
+      "source_channel": "Mobile Banking TEST",
+      "customer_id": 2,
+      "related_account_id": 11,
+      "complaint_id": 201,
+      "responsible_agent_id": 101,
+      "responsible_team_id": 2,
+      "sla_id": 1
+    }
+  ],
+  "ticket_activity": [
+    {
+      "activity_id": 7000,
+      "ticket_id": 6000,
+      "sender_id": 100,
+      "sender_type": "agent",
+      "activity_type": "Perubahan Status",
+      "content": "Ticket diterima.",
+      "attachment_id": null,
+      "activity_time": "2025-08-10T11:12:00Z",
+      "id": "d84d"
+    },
+    {
+      "activity_id": 7001,
+      "ticket_id": 6000,
+      "sender_id": 1,
+      "sender_type": "customer",
+      "activity_type": "Komentar",
+      "content": "Mohon bantuan segera.",
+      "attachment_id": null,
+      "activity_time": "2025-08-10T11:13:00Z",
+      "id": "5022"
+    }
+  ],
+  "attachment": [
+    {
+      "attachment_id": 8000,
+      "activity_id": 7001,
+      "file_name": "atm_receipt.jpg",
+      "file_path": "/uploads/atm_receipt.jpg",
+      "file_type": "image/jpeg",
+      "file_size": 204800,
+      "upload_time": "2025-08-10T11:14:00Z",
+      "id": "baa3"
+    }
+  ],
+  "chat_message": [
+    {
+      "chat_id": 9000,
+      "ticket_id": 6000,
+      "sender_id": 100,
+      "sender_type": "agent",
+      "message": "Halo, saya Rina dari CS. Bisa jelaskan lokasi ATM?",
+      "sent_at": "2025-08-10T11:15:00Z",
+      "id": "c03d"
+    }
+  ],
+  "call_log": [
+    {
+      "call_id": 10000,
+      "ticket_id": 6000,
+      "agent_id": 100,
+      "customer_id": 1,
+      "call_start": "2025-08-10T11:20:00Z",
+      "call_end": "2025-08-10T11:25:00Z",
+      "status": "connected",
+      "id": "6c52"
+    }
+  ],
+  "feedback": [
+    {
+      "feedback_id": 11000,
+      "ticket_id": 6000,
+      "score": 5,
+      "comment": "Terima kasih, cepat ditangani.",
+      "submit_time": "2025-08-10T12:00:00Z",
+      "id": "eef1"
+    }
+  ],
+  "notification": [
+    {
+      "notification_id": 12000,
+      "user_type": "agent",
+      "user_id": 100,
+      "ticket_id": 6000,
+      "message": "SLA menuju breach dalam 2 jam.",
+      "notification_type": "sla_warning",
+      "is_read": false,
+      "created_at": "2025-08-10T12:10:00Z",
+      "id": "d915"
+    }
+  ],
+  "chatbot_message": [
+    {
+      "message_id": 13000,
+      "session_id": 4000,
+      "sender_type": "chatbot",
+      "message": "Halo! Ada yang bisa dibantu?",
+      "sent_at": "2025-08-10T11:00:30Z",
+      "id": "a6b7"
+    },
+    {
+      "message_id": 13001,
+      "session_id": 4000,
+      "sender_type": "customer",
+      "message": "Kartu saya tertelan ATM.",
+      "sent_at": "2025-08-10T11:01:10Z",
+      "id": "3161"
+    }
+  ],
+  "status": [
+    {
+      "ok": true,
+      "ts": "2025-08-10T12:15:00Z",
+      "id": "3f25"
+    }
+  ]
+}
