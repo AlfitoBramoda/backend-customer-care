@@ -1,3 +1,46 @@
 {
-    "/api/v1/*": "/$1"
+    "/api/*": "/$1",
+
+    "/auth/login": "/auth/login",
+    "/meta/health": "/health",
+    "/meta/enums": "/meta/enums",
+
+    "/customers": "/customer",
+    "/customers/:id": "/customer/:id",
+
+    "/agents": "/agent",
+    "/agents/:id": "/agent/:id",
+
+    "/teams": "/team",
+    "/teams/:id": "/team/:id",
+
+    "/accounts": "/account",
+
+    "/complaint-categories": "/complaint_category",
+    "/complaint-categories/:id": "/complaint_category/:id",
+
+    "/faqs": "/faq",
+    "/faq-logs": "/faq_log",
+
+    "/tickets": "/ticket",
+    "/tickets/:id": "/ticket/:id",
+    "/tickets/:id/activities": "/ticket_activity?ticket_id=:id&_sort=activity_time&_order=asc",
+
+    "/attachments": "/attachment",
+    "/attachments/pre-sign": "/attachments/pre-sign",
+
+    "/feedback": "/feedback",
+    "/feedback/:ticket_id": "/feedback?ticket_id=:ticket_id",
+
+    "/notifications": "/notification",
+    "/notifications/:id": "/notification/:id",
+
+    "/chat-messages": "/chat_message",
+    "/call-logs": "/call_log",
+
+    "/chatbot/sessions": "/chatbot_session",
+    "/chatbot/sessions/:id": "/chatbot_session?session_id=:id",
+    "/chatbot/messages": "/chatbot_message",
+
+    "/notifications/mark-read": "/notifications/mark-read"
 }

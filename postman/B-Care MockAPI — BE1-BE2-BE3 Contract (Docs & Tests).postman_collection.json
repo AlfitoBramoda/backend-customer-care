@@ -1,0 +1,1243 @@
+{
+	"info": {
+		"_postman_id": "9e84a9c6-b192-41f3-8c50-b529920fc821",
+		"name": "B-Care MockAPI — BE1/BE2/BE3 Contract (Docs & Tests)",
+		"description": "Executable documentation for FE. Covers Identity/Meta, Tickets/Workflow, Knowledge/Notifications, Interactions.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "29237812"
+	},
+	"item": [
+		{
+			"name": "BE1 — Identity & Meta",
+			"item": [
+				{
+					"name": "POST /auth/login (agent)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+									"const json = pm.response.json();",
+									"pm.test('has access_token', ()=> pm.expect(json.access_token).to.be.a('string'));",
+									"pm.collectionVariables.set('access_token', json.access_token);",
+									"pm.collectionVariables.set('agentId', json.user?.id || 1);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"email\": \"rina.hartati@bank.local\", \"password\": \"any\", \"user_type\": \"agent\"}"
+						},
+						"url": "{{baseUrl}}/auth/login"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /meta/health",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/meta/health"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /meta/enums",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/meta/enums"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /customers/{id}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+									"pm.collectionVariables.set('customerId', pm.response.json().customer_id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/customers/{{customerId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /agents/{id}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/agents/{{agentId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /teams",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+									"const arr=pm.response.json(); pm.collectionVariables.set('teamId',(arr[0]&&arr[0].team_id)||1);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/teams"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /agents?team_id=",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/agents?team_id={{teamId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"agents"
+							],
+							"query": [
+								{
+									"key": "team_id",
+									"value": "{{teamId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /accounts?customer_id=",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/accounts?customer_id={{customerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"accounts"
+							],
+							"query": [
+								{
+									"key": "customer_id",
+									"value": "{{customerId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "BE2 — Tickets & Workflow",
+			"item": [
+				{
+					"name": "POST /tickets (create)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('201 Created', ()=> pm.response.to.have.status(201));",
+									"const t = pm.response.json();",
+									"pm.test('ticket_number generated', ()=> pm.expect(t.ticket_number).to.be.a('string'));",
+									"pm.test('target_sla computed', ()=> pm.expect(t.target_sla).to.be.a('string'));",
+									"pm.collectionVariables.set('ticketId', t.ticket_id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"title\": \"API Doc Ticket\", \"description\": \"Ticket created by Postman collection\", \"customer_status\": \"Baru\", \"agent_status\": \"Baru\", \"source_channel\": \"Chat\", \"customer_id\": 1, \"related_account_id\": 1, \"complaint_id\": 2, \"responsible_agent_id\": 1, \"responsible_team_id\": 1}"
+						},
+						"url": "{{baseUrl}}/tickets"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /tickets?customer_id=&status=",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tickets?customer_id={{customerId}}&status=Baru",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tickets"
+							],
+							"query": [
+								{
+									"key": "customer_id",
+									"value": "{{customerId}}"
+								},
+								{
+									"key": "status",
+									"value": "Baru"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /tickets/{id} (enriched)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+									"const j=pm.response.json(); pm.test('has joins',()=>{pm.expect(j.customer).to.be.an('object');});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/tickets/{{ticketId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /tickets/{id}/activities",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/tickets/{{ticketId}}/activities"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /tickets/{id}/activities (comment)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('201 Created', ()=> pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"sender_id\": 1, \"sender_type\": \"agent\", \"activity_type\": \"Komentar\", \"content\": \"Comment from Postman\"}"
+						},
+						"url": "{{baseUrl}}/tickets/{{ticketId}}/activities"
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH /tickets/{id}/status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+									"pm.test('activity appended',()=>pm.expect(pm.response.json().activity).to.have.property('activity_id'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"agent_status\": \"Dikerjakan\", \"actor_id\": 1, \"actor_type\": \"agent\"}"
+						},
+						"url": "{{baseUrl}}/tickets/{{ticketId}}/status"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /tickets/{id}/full",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/tickets/{{ticketId}}/full"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /tickets/{id}/timeline",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/tickets/{{ticketId}}/timeline"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /tickets/open",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/tickets/open"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /tickets/closed",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/tickets/closed"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "BE2 — Attachments & Feedback",
+			"item": [
+				{
+					"name": "POST /attachments/pre-sign",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": "{{baseUrl}}/attachments/pre-sign"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /attachments (record metadata)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('201 Created', ()=> pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"activity_id\": 1, \"file_name\": \"doc.pdf\", \"file_path\": \"/uploads/doc.pdf\", \"file_type\": \"application/pdf\", \"file_size\": 1000}"
+						},
+						"url": "{{baseUrl}}/attachments"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /feedback",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('201 Created', ()=> pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"ticket_id\": \"{{ticketId}}\", \"score\": 5, \"comment\": \"Great service\"}"
+						},
+						"url": "{{baseUrl}}/feedback"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /feedback/{ticket_id}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/feedback/{{ticketId}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "BE3 — Knowledge, Notifications & Interactions",
+			"item": [
+				{
+					"name": "GET /complaint-categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/complaint-categories"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /complaint-categories/{id}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/complaint-categories/1"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /sla",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/sla"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /faqs?q=&page=&page_size=",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+									"const j = pm.response.json(); pm.collectionVariables.set('faqId', (j.items[0]&&j.items[0].faq_id)||1);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/faqs?q=transaksi&page=1&page_size=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"faqs"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "transaksi"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "page_size",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /tickets/{id}/link-faq",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"faq_id\": \"{{faqId}}\", \"actor_id\": 1, \"actor_type\": \"agent\"}"
+						},
+						"url": "{{baseUrl}}/tickets/{{ticketId}}/link-faq"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /faq-logs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('201 Created', ()=> pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"session_id\": 1, \"faq_id\": \"{{faqId}}\", \"customer_id\": \"{{customerId}}\"}"
+						},
+						"url": "{{baseUrl}}/faq-logs"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /notifications?user_type=&user_id=&is_read=",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+									"const arr=pm.response.json(); if(arr.length) pm.collectionVariables.set('notifId', arr[0].notification_id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/notifications?user_type=customer&user_id={{customerId}}&is_read=false",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"notifications"
+							],
+							"query": [
+								{
+									"key": "user_type",
+									"value": "customer"
+								},
+								{
+									"key": "user_id",
+									"value": "{{customerId}}"
+								},
+								{
+									"key": "is_read",
+									"value": "false"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH /notifications/{id} (mark read)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200/404', ()=> pm.expect([200,404]).to.include(pm.response.code));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"is_read\": true}"
+						},
+						"url": "{{baseUrl}}/notifications/{{notifId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /notifications/mark-read (bulk)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const id = Number(pm.collectionVariables.get('notifId'));",
+									"const fallback = 1;",
+									"const payload = { ids: [Number.isFinite(id) ? id : fallback] };",
+									"pm.variables.set('idsBody', JSON.stringify(payload));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));",
+									"pm.test('has count', ()=> pm.expect(pm.response.json()).to.have.property('count'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{{idsBody}}"
+						},
+						"url": "{{baseUrl}}/notifications/mark-read"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /chat-messages?ticket_id=&since=",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/chat-messages?ticket_id={{ticketId}}&since=2025-08-09T00:00:00Z",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat-messages"
+							],
+							"query": [
+								{
+									"key": "ticket_id",
+									"value": "{{ticketId}}"
+								},
+								{
+									"key": "since",
+									"value": "2025-08-09T00:00:00Z"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /chat-messages",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('201 Created', ()=> pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"ticket_id\": \"{{ticketId}}\", \"sender_id\": 1, \"sender_type\": \"agent\", \"message\": \"Hello from Postman\"}"
+						},
+						"url": "{{baseUrl}}/chat-messages"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /call-logs?ticket_id=",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/call-logs?ticket_id={{ticketId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"call-logs"
+							],
+							"query": [
+								{
+									"key": "ticket_id",
+									"value": "{{ticketId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /call-logs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('201 Created', ()=> pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"ticket_id\": \"{{ticketId}}\", \"agent_id\": 1, \"customer_id\": \"{{customerId}}\", \"status\": \"connected\"}"
+						},
+						"url": "{{baseUrl}}/call-logs"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Chatbot (Optional)",
+			"item": [
+				{
+					"name": "POST /chatbot/sessions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('201 Created', ()=> pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"customer_id\": \"{{customerId}}\"}"
+						},
+						"url": "{{baseUrl}}/chatbot/sessions"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /chatbot/sessions/{id}",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseUrl}}/chatbot/sessions/1"
+					},
+					"response": []
+				},
+				{
+					"name": "POST /chatbot/messages",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('201 Created', ()=> pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"session_id\": 1, \"sender_type\": \"customer\", \"message\": \"Halo bot\"}"
+						},
+						"url": "{{baseUrl}}/chatbot/messages"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /chatbot/messages?session_id=",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', ()=> pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/chatbot/messages?session_id=1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chatbot",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "session_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": {
+			"token": "{{access_token}}"
+		}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"(function bootstrap() {\r",
+					"  const base =\r",
+					"    pm.variables.get('baseUrl') ||\r",
+					"    pm.environment.get('baseUrl') ||\r",
+					"    'http://localhost:3001';\r",
+					"\r",
+					"  const getJson = (res) => {\r",
+					"    try { return res.json(); } catch (_) { return null; }\r",
+					"  };\r",
+					"\r",
+					"  // Try multiple paths until one returns a non-empty array\r",
+					"  const fetchFirst = (paths) => new Promise((resolve) => {\r",
+					"    const next = (i) => {\r",
+					"      if (i >= paths.length) return resolve(null);\r",
+					"      pm.sendRequest(base + paths[i], (err, res) => {\r",
+					"        if (err || !res || res.code >= 400) return next(i + 1);\r",
+					"        const body = getJson(res);\r",
+					"        if (Array.isArray(body) && body.length) return resolve(body[0]);\r",
+					"        if (body && Array.isArray(body.data) && body.data.length) return resolve(body.data[0]);\r",
+					"        return next(i + 1);\r",
+					"      });\r",
+					"    };\r",
+					"    next(0);\r",
+					"  });\r",
+					"\r",
+					"  const ensureVar = async (key, paths, idKeys) => {\r",
+					"    if (pm.collectionVariables.get(key)) return;\r",
+					"    const first = await fetchFirst(paths);\r",
+					"    if (!first) return;\r",
+					"    const idKey = idKeys.find(k => Object.prototype.hasOwnProperty.call(first, k)) || 'id';\r",
+					"    const val = first[idKey];\r",
+					"    if (val !== undefined && val !== null && val !== '') {\r",
+					"      pm.collectionVariables.set(key, val);\r",
+					"    }\r",
+					"  };\r",
+					"\r",
+					"  (async () => {\r",
+					"    // Core lookups (plural & singular fallback so it works with/without rewriter)\r",
+					"    await ensureVar('teamId',     ['/teams', '/team'],                     ['team_id']);\r",
+					"    await ensureVar('agentId',    ['/agents', '/agent'],                   ['agent_id']);\r",
+					"    await ensureVar('customerId', ['/customers', '/customer'],             ['customer_id']);\r",
+					"\r",
+					"    // Dependent lookup: accountId for that customer\r",
+					"    const cid = pm.collectionVariables.get('customerId') || 1;\r",
+					"    await ensureVar('accountId',  [`/accounts?customer_id=${cid}`, '/accounts'], ['account_id']);\r",
+					"\r",
+					"    // Notifications (for GET /notifications/{{notifId}} and bulk mark-read)\r",
+					"    await ensureVar('notifId',    ['/notifications', '/notification'],     ['notification_id']);\r",
+					"\r",
+					"    // Chatbot session (for GET /chatbot/sessions/{{sessionId}})\r",
+					"    await ensureVar('sessionId',  ['/chatbot/sessions', '/chatbot_session'], ['session_id']);\r",
+					"  })();\r",
+					"})();\r",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "agentId",
+			"value": ""
+		},
+		{
+			"key": "customerId",
+			"value": ""
+		},
+		{
+			"key": "teamId",
+			"value": ""
+		},
+		{
+			"key": "ticketId",
+			"value": ""
+		},
+		{
+			"key": "faqId",
+			"value": ""
+		},
+		{
+			"key": "accountId",
+			"value": ""
+		},
+		{
+			"key": "notifId",
+			"value": ""
+		},
+		{
+			"key": "sessionId",
+			"value": ""
+		}
+	]
+}
