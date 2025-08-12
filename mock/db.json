@@ -271,6 +271,10 @@
     {
       "customer_id": "1",
       "session_id": 12
+    },
+    {
+      "customer_id": "1",
+      "session_id": 13
     }
   ],
   "faq_log": [
@@ -354,6 +358,12 @@
       "faq_id": "2",
       "customer_id": "1",
       "log_id": 13
+    },
+    {
+      "session_id": 1,
+      "faq_id": "2",
+      "customer_id": "1",
+      "log_id": 14
     }
   ],
   "ticket": [
@@ -723,6 +733,24 @@
       "ticket_number": "TCK-20250812-0016",
       "sla_id": 1,
       "target_sla": "2025-08-13T07:59:16.352Z",
+      "faq_id": 2
+    },
+    {
+      "title": "API Doc Ticket",
+      "description": "Ticket created by Postman collection",
+      "customer_status": "Baru",
+      "agent_status": "Dikerjakan",
+      "source_channel": "Chat",
+      "customer_id": 1,
+      "related_account_id": 1,
+      "complaint_id": 2,
+      "responsible_agent_id": 1,
+      "responsible_team_id": 1,
+      "ticket_id": 21,
+      "created_time": "2025-08-12T08:14:48.178Z",
+      "ticket_number": "TCK-20250812-0017",
+      "sla_id": 1,
+      "target_sla": "2025-08-13T08:14:48.178Z",
       "faq_id": 2
     }
   ],
@@ -1126,6 +1154,33 @@
       "content": "FAQ linked: 2",
       "attachment_id": null,
       "activity_time": "2025-08-12T07:59:17.935Z"
+    },
+    {
+      "sender_id": 1,
+      "sender_type": "agent",
+      "activity_type": "Komentar",
+      "content": "Comment from Postman",
+      "activity_id": 44
+    },
+    {
+      "activity_id": 45,
+      "ticket_id": 21,
+      "sender_id": 1,
+      "sender_type": "agent",
+      "activity_type": "Perubahan Status",
+      "content": "Status updated: agent_status -> Dikerjakan",
+      "attachment_id": null,
+      "activity_time": "2025-08-12T08:14:48.635Z"
+    },
+    {
+      "activity_id": 46,
+      "ticket_id": 21,
+      "sender_id": 1,
+      "sender_type": "agent",
+      "activity_type": "Penugasan",
+      "content": "FAQ linked: 2",
+      "attachment_id": null,
+      "activity_time": "2025-08-12T08:14:49.771Z"
     }
   ],
   "attachment": [
@@ -1235,6 +1290,14 @@
       "file_type": "application/pdf",
       "file_size": 1000,
       "attachment_id": 13
+    },
+    {
+      "activity_id": 1,
+      "file_name": "doc.pdf",
+      "file_path": "/uploads/doc.pdf",
+      "file_type": "application/pdf",
+      "file_size": 1000,
+      "attachment_id": 14
     }
   ],
   "feedback": [
@@ -1311,6 +1374,12 @@
       "score": 5,
       "comment": "Great service",
       "feedback_id": 12
+    },
+    {
+      "ticket_id": "21",
+      "score": 5,
+      "comment": "Great service",
+      "feedback_id": 13
     }
   ],
   "notification": [
@@ -1439,6 +1508,13 @@
       "sender_type": "agent",
       "message": "Hello from Postman",
       "chat_id": 13
+    },
+    {
+      "ticket_id": "21",
+      "sender_id": 1,
+      "sender_type": "agent",
+      "message": "Hello from Postman",
+      "chat_id": 14
     }
   ],
   "call_log": [
@@ -1529,6 +1605,13 @@
       "customer_id": "1",
       "status": "connected",
       "call_id": 12
+    },
+    {
+      "ticket_id": "21",
+      "agent_id": 1,
+      "customer_id": "1",
+      "status": "connected",
+      "call_id": 13
     }
   ],
   "chatbot_message": [
@@ -1612,6 +1695,12 @@
       "sender_type": "customer",
       "message": "Halo bot",
       "message_id": 13
+    },
+    {
+      "session_id": 1,
+      "sender_type": "customer",
+      "message": "Halo bot",
+      "message_id": 14
     }
   ]
 }
