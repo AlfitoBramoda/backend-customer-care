@@ -4,17 +4,24 @@
   "description": "Sistem Backend API untuk Customer Care B-Care",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js --watch",
-    "mock": "node mock/server.js"
+    "start": "node app.js",
+    "dev": "node --watch app.js",
+    "mock": "node mock/server.js",
+    "db:create": "npx sequelize-cli db:create",
+    "db:migrate": "npx sequelize-cli db:migrate",
+    "db:seed": "npx sequelize-cli db:seed:all",
+    "db:reset": "npx sequelize-cli db:migrate:undo:all && npm run db:migrate && npm run db:seed",
+    "db:status": "npx sequelize-cli db:migrate:status"
   },
   "keywords": [],
   "author": "Tim Backend B-Care",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.16.3",
     "sequelize": "^6.37.7",
