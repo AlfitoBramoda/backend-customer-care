@@ -1,1706 +1,1025 @@
 {
-  "customer": [
+  "customers": [
     {
       "customer_id": 1,
-      "full_name": "Adi Pratama",
-      "email": "adi.pratama@example.com",
-      "password_hash": "$2b$10$adiHASH",
-      "address": "Jl. Merdeka No. 10, Jakarta",
-      "phone_number": "+628111111111",
-      "created_at": "2025-08-05T09:15:32+07:00"
+      "demo": "patch",
+      "id": 1
     },
     {
       "customer_id": 2,
-      "full_name": "Siti Lestari",
-      "email": "siti.lestari@example.com",
-      "password_hash": "$2b$10$sitiHASH",
-      "address": "Jl. Diponegoro No. 21, Bandung",
-      "phone_number": "+628122222222",
-      "created_at": "2025-08-06T11:02:10+07:00"
+      "full_name": "John Smith",
+      "email": "john.smith@customer.test",
+      "password_hash": "Customer@123",
+      "address": "Jl. Sudirman No. 2",
+      "billing_address": "Jl. Sudirman No. 2",
+      "postal_code": "10220",
+      "phone_number": "+628129998877",
+      "home_phone": "",
+      "office_phone": "",
+      "fax_phone": "",
+      "cif": "CIF0002",
+      "nik": "3174011111111111",
+      "gender": "Male",
+      "place_of_birth": "Bandung",
+      "created_at": "2025-08-11T06:00:00.000Z",
+      "id": 2
     },
     {
       "customer_id": 3,
-      "full_name": "Budi Santoso",
-      "email": "budi.santoso@example.com",
-      "password_hash": "$2b$10$budiHASH",
-      "address": "Jl. Sudirman No. 5, Surabaya",
-      "phone_number": "+628133333333",
-      "created_at": "2025-08-07T08:44:59+07:00"
+      "demo": "value",
+      "id": 3
+    },
+    {
+      "customer_id": 1,
+      "id": 1,
+      "full_name": "Jane Doe",
+      "email": "jane.doe@customer.test",
+      "password_hash": "Customer@123",
+      "address": "Jl. Sudirman 1",
+      "billing_address": "Jl. Sudirman 1",
+      "postal_code": "10220",
+      "phone_number": "081234567890",
+      "home_phone": "021123456",
+      "office_phone": null,
+      "fax_phone": null,
+      "cif": "CIF0001",
+      "nik": "3173xxxxxxxxxxxx",
+      "gender": "Female",
+      "place_of_birth": "Jakarta",
+      "created_at": "2025-08-13T03:37:16.017Z"
     }
   ],
-  "account": [
+  "accounts": [
     {
       "account_id": 1,
-      "customer_id": 1,
-      "account_number": "001-000001-01",
-      "account_type": "Tabungan",
-      "is_primary": true
+      "demo": "patch",
+      "id": 1
     },
     {
       "account_id": 2,
-      "customer_id": 1,
-      "account_number": "4988-88XX-XXXX-0001",
-      "account_type": "Kartu Kredit",
-      "is_primary": false
+      "customer_id": 2,
+      "account_number": "2000000002",
+      "account_type": "Giro",
+      "is_primary": true,
+      "id": 2
     },
     {
       "account_id": 3,
       "customer_id": 2,
-      "account_number": "002-000123-77",
-      "account_type": "Giro",
-      "is_primary": true
+      "account_number": "4111111111111111",
+      "account_type": "Kartu Kredit",
+      "is_primary": false,
+      "id": 3
     },
     {
       "account_id": 4,
-      "customer_id": 3,
-      "account_number": "003-000777-11",
-      "account_type": "Tabungan",
-      "is_primary": true
+      "demo": "value",
+      "id": 4
     }
   ],
-  "team": [
+  "cards": [
     {
-      "team_id": 1,
-      "team_name": "Care Frontline",
-      "description": "Tim garda depan penanganan keluhan dan first response."
+      "card_id": 1,
+      "demo": "patch",
+      "id": 1
     },
     {
-      "team_id": 2,
-      "team_name": "Card Back Office",
-      "description": "Tim back office untuk investigasi dan rekonsiliasi kartu."
+      "card_id": 2,
+      "demo": "value",
+      "id": 2
     }
   ],
-  "agent": [
+  "agents": [
     {
       "agent_id": 1,
-      "full_name": "Rina Hartati",
-      "email": "rina.hartati@bank.local",
-      "password_hash": "$2b$10$rinaHASH",
-      "role": "Frontline",
-      "team_id": 1,
-      "is_active": true,
-      "created_at": "2025-08-05T08:00:00+07:00"
+      "demo": "patch",
+      "id": 1
     },
     {
       "agent_id": 2,
-      "full_name": "Andi Saputra",
-      "email": "andi.saputra@bank.local",
-      "password_hash": "$2b$10$andiHASH",
-      "role": "Back Office",
-      "team_id": 2,
+      "full_name": "Sinta Lestari",
+      "email": "sinta.lestari@bcare.test",
+      "npp": "87654321",
+      "password_hash": "Supervisor@123",
+      "role": "Manajer",
       "is_active": true,
-      "created_at": "2025-08-05T08:05:00+07:00"
+      "created_at": "2025-08-10T04:00:00.000Z",
+      "id": 2
     },
     {
       "agent_id": 3,
-      "full_name": "Dewi Lestari",
-      "email": "dewi.lestari@bank.local",
-      "password_hash": "$2b$10$dewiHASH",
-      "role": "Manajer",
-      "team_id": 1,
+      "demo": "value",
+      "id": 3
+    },
+    {
+      "agent_id": 1,
+      "id": 1,
+      "npp": "12345678",
+      "full_name": "Agent One",
+      "email": "agent1@bank.test",
+      "password_hash": "Agent@123",
+      "role": "Frontline",
       "is_active": true,
-      "created_at": "2025-08-05T08:10:00+07:00"
+      "created_at": "2025-08-13T03:37:16.015Z"
     }
   ],
-  "sla": [
-    {
-      "sla_id": 1,
-      "sla_name": "SLA-24h",
-      "time_resolution": 24
-    },
-    {
-      "sla_id": 2,
-      "sla_name": "SLA-8h",
-      "time_resolution": 8
-    },
-    {
-      "sla_id": 3,
-      "sla_name": "SLA-72h",
-      "time_resolution": 72
-    }
-  ],
-  "channel": [
+  "channels": [
     {
       "channel_id": 1,
-      "channel_name": "Mobile Banking"
+      "demo": "patch",
+      "id": 1
     },
     {
       "channel_id": 2,
-      "channel_name": "ATM"
+      "channel_code": "CRM",
+      "channel_name": "CRM",
+      "supports_terminal": true,
+      "id": 2
     },
     {
       "channel_id": 3,
-      "channel_name": "Call Center"
+      "channel_code": "MBANK",
+      "channel_name": "Mobile Banking",
+      "supports_terminal": false,
+      "id": 3
     },
     {
       "channel_id": 4,
-      "channel_name": "Website Form"
+      "channel_code": "IBANK",
+      "channel_name": "Internet Banking",
+      "supports_terminal": false,
+      "id": 4
+    },
+    {
+      "channel_id": 5,
+      "channel_code": "CALL",
+      "channel_name": "Call Center",
+      "supports_terminal": false,
+      "id": 5
+    },
+    {
+      "channel_id": 6,
+      "channel_code": "BRANCH",
+      "channel_name": "Branch",
+      "supports_terminal": false,
+      "id": 6
+    },
+    {
+      "channel_id": 7,
+      "channel_code": "QRIS",
+      "channel_name": "QRIS",
+      "supports_terminal": false,
+      "id": 7
+    },
+    {
+      "channel_id": 8,
+      "demo": "value",
+      "id": 8
+    },
+    {
+      "channel_id": 1,
+      "id": 1,
+      "channel_code": "ATM",
+      "channel_name": "ATM",
+      "supports_terminal": true
+    }
+  ],
+  "sources": [
+    {
+      "source_id": 1,
+      "demo": "patch",
+      "id": 1
+    },
+    {
+      "source_id": 2,
+      "source_code": "CHATBOT",
+      "source_name": "Chatbot",
+      "id": 2
+    },
+    {
+      "source_id": 3,
+      "source_code": "BRANCH",
+      "source_name": "Branch",
+      "id": 3
+    },
+    {
+      "source_id": 4,
+      "source_code": "WHATSAPP",
+      "source_name": "WhatsApp",
+      "id": 4
+    },
+    {
+      "source_id": 5,
+      "demo": "value",
+      "id": 5
+    },
+    {
+      "source_id": 1,
+      "id": 1,
+      "source_code": "CONTACT_CENTER",
+      "source_name": "Contact Center"
+    }
+  ],
+  "services": [
+    {
+      "service_id": 1,
+      "demo": "patch",
+      "id": 1
+    },
+    {
+      "service_id": 2,
+      "service_code": "MBANK",
+      "service_name": "Mobile Banking",
+      "id": 2
+    },
+    {
+      "service_id": 3,
+      "service_code": "DEPOSITO",
+      "service_name": "Deposito",
+      "id": 3
+    },
+    {
+      "service_id": 4,
+      "service_code": "CARDS",
+      "service_name": "Cards",
+      "id": 4
+    },
+    {
+      "service_id": 5,
+      "demo": "value",
+      "id": 5
+    },
+    {
+      "service_id": 1,
+      "id": 1,
+      "service_code": "ATM",
+      "service_name": "ATM"
+    }
+  ],
+  "priorities": [
+    {
+      "priority_id": 1,
+      "demo": "patch",
+      "id": 1
+    },
+    {
+      "priority_id": 2,
+      "priority_code": "HIGH",
+      "priority_name": "High",
+      "sort_order": 2,
+      "id": 2
+    },
+    {
+      "priority_id": 3,
+      "priority_code": "REGULAR",
+      "priority_name": "Regular",
+      "sort_order": 3,
+      "id": 3
+    },
+    {
+      "priority_id": 4,
+      "priority_code": "LOW",
+      "priority_name": "Low",
+      "sort_order": 4,
+      "id": 4
+    },
+    {
+      "priority_id": 5,
+      "demo": "value",
+      "id": 5
+    },
+    {
+      "priority_id": 1,
+      "id": 1,
+      "priority_code": "CRITICAL",
+      "priority_name": "Critical",
+      "sort_order": 1
     }
   ],
   "uic": [
     {
       "uic_id": 1,
-      "uic_code": "UIC8",
-      "description": "Kendala akses dan operasional kanal fisik."
+      "demo": "patch",
+      "id": 1
     },
     {
       "uic_id": 2,
-      "uic_code": "UIC12",
-      "description": "Anomali transaksi dan rekonsiliasi digital."
+      "uic_code": "UIC-OPS-PAY",
+      "uic_name": "Payments Operations",
+      "email": "uic.pay@bcare.test",
+      "email_cc": "",
+      "description": "Handles payment and transfer issues",
+      "id": 2
+    },
+    {
+      "uic_id": 3,
+      "demo": "value",
+      "id": 3
+    },
+    {
+      "uic_id": 1,
+      "id": 1,
+      "uic_code": "UIC1",
+      "uic_name": "BCC - Customer Care",
+      "email": "uic1@bank.test"
     }
   ],
-  "complaint_category": [
+  "complaint_categories": [
     {
       "complaint_id": 1,
-      "complaint_name": "Kartu ATM Tertelan",
-      "sla_id": 2,
-      "channel_id": 2,
-      "uic_id": 1
+      "complaint_code": "GAGAL_TUNAI",
+      "complaint_name": "Cash Not Dispensed",
+      "id": 1
     },
     {
       "complaint_id": 2,
-      "complaint_name": "Transaksi Ganda",
-      "sla_id": 1,
-      "channel_id": 1,
-      "uic_id": 2
+      "complaint_code": "KARTU_TERTELAN",
+      "complaint_name": "Card Captured",
+      "id": 2
     },
     {
       "complaint_id": 3,
-      "complaint_name": "Salah Debit Kartu Kredit",
-      "sla_id": 3,
-      "channel_id": 3,
-      "uic_id": 2
+      "complaint_code": "TRANSFER_TERTUNDA",
+      "complaint_name": "Delayed Transfer",
+      "id": 3
     },
     {
       "complaint_id": 4,
-      "complaint_name": "Perubahan Data Nasabah",
-      "sla_id": 1,
-      "channel_id": 4,
-      "uic_id": 1
+      "demo": "value",
+      "id": 4
     }
   ],
-  "faq": [
+  "slas": [
+    {
+      "sla_id": 1,
+      "demo": "patch",
+      "id": 1
+    },
+    {
+      "sla_id": 2,
+      "sla_name": "SLA-Mobile-Transfer",
+      "resolution_days": 3,
+      "id": 2
+    },
+    {
+      "sla_id": 3,
+      "demo": "value",
+      "id": 3
+    },
+    {
+      "sla_id": 1,
+      "id": 1,
+      "sla_name": "Default 3d",
+      "resolution_days": 3
+    }
+  ],
+  "complaint_policies": [
+    {
+      "policy_id": 1,
+      "service_id": 1,
+      "channel_id": 1,
+      "complaint_id": 1,
+      "sla_id": 1,
+      "uic_id": 1,
+      "valid_from": "2025-01-01T00:00:00.000Z",
+      "valid_to": null,
+      "description": "ATM cash-out failures routed to UIC-OPS-ATM within 5 workdays",
+      "id": 1
+    },
+    {
+      "policy_id": 2,
+      "service_id": 2,
+      "channel_id": 3,
+      "complaint_id": 3,
+      "sla_id": 2,
+      "uic_id": 2,
+      "valid_from": "2025-01-01T00:00:00.000Z",
+      "valid_to": null,
+      "description": "Mobile transfer delays routed to Payments Ops within 3 workdays",
+      "id": 2
+    },
+    {
+      "policy_id": 3,
+      "demo": "value",
+      "id": 3
+    },
+    {
+      "policy_id": 1,
+      "demo": "patch",
+      "id": 1
+    },
+    {
+      "policy_id": 1,
+      "demo": "patch",
+      "id": 4
+    },
+    {
+      "policy_id": 1,
+      "demo": "patch",
+      "id": 5
+    }
+  ],
+  "faqs": [
     {
       "faq_id": 1,
-      "complaint_id": 1,
-      "question": "Apa yang harus dilakukan jika kartu ATM tertelan?",
-      "answer": "Blokir kartu via call center atau mobile banking, lalu kunjungi cabang membawa identitas.",
-      "keywords": "atm, kartu tertelan, blokir",
-      "created_at": "2025-08-05T09:00:00+07:00",
-      "updated_at": "2025-08-10T09:00:00+07:00"
+      "demo": "patch",
+      "id": 1
     },
     {
       "faq_id": 2,
-      "complaint_id": 2,
-      "question": "Bagaimana jika transaksi ganda terjadi di Mobile Banking?",
-      "answer": "Laporkan tiket dengan bukti transaksi. Bank akan melakukan reversi setelah verifikasi.",
-      "keywords": "transaksi ganda, mobile, reversi",
-      "created_at": "2025-08-05T09:05:00+07:00",
-      "updated_at": "2025-08-11T08:00:00+07:00"
-    },
-    {
-      "faq_id": 3,
-      "complaint_id": 3,
-      "question": "Tagihan kartu kredit saya salah, apa langkahnya?",
-      "answer": "Ajukan dispute dalam 30 hari, lampirkan bukti. Investigasi maksimal 72 jam kerja.",
-      "keywords": "kartu kredit, dispute, salah debit",
-      "created_at": "2025-08-05T09:10:00+07:00",
-      "updated_at": "2025-08-09T10:00:00+07:00"
-    },
-    {
-      "faq_id": 4,
-      "complaint_id": 4,
-      "question": "Bagaimana mengubah alamat korespondensi?",
-      "answer": "Ajukan melalui website form dan verifikasi OTP. Perubahan efektif dalam 1x24 jam.",
-      "keywords": "alamat, perubahan data, korespondensi",
-      "created_at": "2025-08-05T09:15:00+07:00",
-      "updated_at": "2025-08-08T15:30:00+07:00"
+      "demo": "value",
+      "id": 2
     }
   ],
-  "chatbot_session": [
+  "chatbot_sessions": [
     {
       "session_id": 1,
       "customer_id": 1,
-      "started_at": "2025-08-11T02:05:00+07:00",
-      "ended_at": "2025-08-11T02:20:00+07:00",
-      "status": "converted_to_ticket"
+      "started_at": "2025-08-09T03:00:00.000Z",
+      "ended_at": "2025-08-13T03:46:54.912Z",
+      "status": "completed",
+      "id": 1
     },
     {
       "session_id": 2,
-      "customer_id": 2,
-      "started_at": "2025-08-10T09:45:00+07:00",
-      "ended_at": "2025-08-10T10:10:00+07:00",
-      "status": "completed"
-    },
-    {
-      "customer_id": null,
-      "session_id": 3
-    },
-    {
-      "customer_id": 1,
-      "session_id": 4
-    },
-    {
-      "customer_id": 1,
-      "session_id": 5
-    },
-    {
-      "customer_id": 1,
-      "session_id": 6
-    },
-    {
-      "customer_id": 1,
-      "session_id": 7
-    },
-    {
-      "customer_id": 1,
-      "session_id": 8
-    },
-    {
-      "customer_id": "1",
-      "session_id": 9
-    },
-    {
-      "customer_id": "1",
-      "session_id": 10
-    },
-    {
-      "customer_id": "1",
-      "session_id": 11
-    },
-    {
-      "customer_id": "1",
-      "session_id": 12
-    },
-    {
-      "customer_id": "1",
-      "session_id": 13
+      "demo": "value",
+      "id": 2
     }
   ],
-  "faq_log": [
+  "faq_logs": [
     {
       "log_id": 1,
       "session_id": 1,
-      "faq_id": 2,
-      "customer_id": 1,
-      "shown_at": "2025-08-11T02:12:00+07:00"
-    },
-    {
-      "log_id": 2,
-      "session_id": 2,
       "faq_id": 1,
-      "customer_id": 2,
-      "shown_at": "2025-08-10T09:50:00+07:00"
-    },
-    {
-      "log_id": 3,
-      "session_id": 2,
-      "faq_id": 4,
-      "customer_id": 2,
-      "shown_at": "2025-08-10T10:05:00+07:00"
-    },
-    {
-      "session_id": 1,
-      "faq_id": 2,
-      "customer_id": null,
-      "log_id": 4
-    },
-    {
-      "session_id": 1,
-      "faq_id": 2,
       "customer_id": 1,
-      "log_id": 5
-    },
-    {
-      "session_id": 1,
-      "faq_id": 2,
-      "customer_id": 1,
-      "log_id": 6
-    },
-    {
-      "session_id": 1,
-      "faq_id": 2,
-      "customer_id": 1,
-      "log_id": 7
-    },
-    {
-      "session_id": 1,
-      "faq_id": 2,
-      "customer_id": 1,
-      "log_id": 8
-    },
-    {
-      "session_id": 1,
-      "faq_id": 2,
-      "customer_id": 1,
-      "log_id": 9
-    },
-    {
-      "session_id": 1,
-      "faq_id": "2",
-      "customer_id": "1",
-      "log_id": 10
-    },
-    {
-      "session_id": 1,
-      "faq_id": "2",
-      "customer_id": "1",
-      "log_id": 11
-    },
-    {
-      "session_id": 1,
-      "faq_id": "2",
-      "customer_id": "1",
-      "log_id": 12
-    },
-    {
-      "session_id": 1,
-      "faq_id": "2",
-      "customer_id": "1",
-      "log_id": 13
-    },
-    {
-      "session_id": 1,
-      "faq_id": "2",
-      "customer_id": "1",
-      "log_id": 14
+      "shown_at": "2025-08-09T04:05:00.000Z",
+      "id": 1
     }
   ],
-  "ticket": [
+  "chatbot_messages": [
+    {
+      "message_id": 1,
+      "session_id": 1,
+      "sender_type": "customer",
+      "message": "Halo, ATM error.",
+      "sent_at": "2025-08-09T03:01:00.000Z",
+      "id": 1
+    },
+    {
+      "message_id": 2,
+      "session_id": 1,
+      "sender_type": "chatbot",
+      "message": "Mohon sampaikan lokasi ATM.",
+      "sent_at": "2025-08-09T03:01:30.000Z",
+      "id": 2
+    }
+  ],
+  "terminals": [
+    {
+      "terminal_id": 1,
+      "terminal_code": "ATM321",
+      "terminal_type": "ATM",
+      "location": "Jakarta Pusat",
+      "channel_id": 1,
+      "id": 1
+    },
+    {
+      "terminal_id": 2,
+      "terminal_code": "CRM999",
+      "terminal_type": "CRM",
+      "location": "Bandung",
+      "channel_id": 2,
+      "id": 2
+    }
+  ],
+  "ticket_transactions": [
+    {
+      "ticket_txn_id": 1,
+      "ticket_id": 1,
+      "transaction_datetime": "2025-08-10T03:30:00.000Z",
+      "amount": 500000,
+      "currency": "IDR",
+      "terminal_id": 1,
+      "rrn": "123456789012",
+      "stan": "123456",
+      "id": 1
+    },
+    {
+      "ticket_txn_id": 2,
+      "ticket_id": null,
+      "transaction_datetime": "2025-08-13T01:00:00.000Z",
+      "amount": 100000,
+      "currency": "IDR",
+      "terminal_id": 1,
+      "rrn": "987654321000",
+      "stan": "654321",
+      "id": 2
+    },
+    {
+      "ticket_txn_id": 3,
+      "ticket_id": 5,
+      "transaction_datetime": "2030-08-13T01:00:00.000Z",
+      "amount": 100000,
+      "currency": "IDR",
+      "terminal_id": 1,
+      "rrn": "987654321000",
+      "stan": "654321",
+      "id": 3
+    }
+  ],
+  "tickets": [
     {
       "ticket_id": 1,
-      "ticket_number": "TCK-20250811-0001",
-      "title": "Transaksi ganda di Mobile Banking",
-      "description": "Terdapat dua debit untuk satu transaksi top-up e-wallet.",
-      "customer_status": "Diproses",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
+      "ticket_number": "TCK-20250810-0001",
+      "description": "ATM tidak mengeluarkan uang, saldo terdebit.",
+      "customer_status": "Diterima",
+      "agent_status": "Diterima",
+      "priority_id": 2,
+      "issue_channel_id": 1,
+      "intake_source_id": 1,
+      "service_id": 1,
       "customer_id": 1,
       "related_account_id": 1,
-      "complaint_id": 2,
-      "faq_id": 2,
+      "related_card_id": 1,
+      "complaint_id": 1,
+      "uic_id": 1,
+      "faq_id": null,
+      "source_session_id": null,
       "responsible_agent_id": 1,
-      "responsible_team_id": 1,
       "sla_id": 1,
-      "created_time": "2025-08-11T02:15:00+07:00",
-      "first_response_time": "2025-08-11T02:25:00+07:00",
+      "policy_id": 1,
+      "committed_due_at": null,
+      "created_time": "2025-08-10T05:00:00.000Z",
+      "first_response_time": "2025-08-10T05:10:00.000Z",
       "end_time": null,
       "closed_time": null,
-      "target_sla": "2025-08-12T02:15:00+07:00"
+      "target_sla": null,
+      "row_version": 0,
+      "id": 1
     },
     {
       "ticket_id": 2,
-      "ticket_number": "TCK-20250810-0003",
-      "title": "Kartu ATM tertelan di mesin",
-      "description": "Kartu tertahan saat tarik tunai di ATM cabang Dago.",
-      "customer_status": "Selesai",
-      "agent_status": "Selesai",
-      "source_channel": "ATM",
+      "ticket_number": "TCK-20250811-0001",
+      "description": "Transfer mobile pending > 2 jam.",
+      "customer_status": "Diterima",
+      "agent_status": "Diterima",
+      "priority_id": 3,
+      "issue_channel_id": 3,
+      "intake_source_id": 2,
+      "service_id": 2,
       "customer_id": 2,
-      "related_account_id": 3,
-      "complaint_id": 1,
+      "related_account_id": 2,
+      "related_card_id": null,
+      "complaint_id": 3,
+      "uic_id": 2,
       "faq_id": null,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
+      "source_session_id": 1,
+      "responsible_agent_id": 2,
       "sla_id": 2,
-      "created_time": "2025-08-10T10:00:00+07:00",
-      "first_response_time": "2025-08-10T10:20:00+07:00",
-      "end_time": "2025-08-10T14:00:00+07:00",
-      "closed_time": "2025-08-10T16:30:00+07:00",
-      "target_sla": "2025-08-10T18:00:00+07:00"
+      "policy_id": 2,
+      "committed_due_at": null,
+      "created_time": "2025-08-11T07:00:00.000Z",
+      "first_response_time": "2025-08-11T07:05:00.000Z",
+      "end_time": null,
+      "closed_time": null,
+      "target_sla": null,
+      "row_version": 0,
+      "id": 2
     },
     {
       "ticket_id": 3,
-      "ticket_number": "TCK-20250809-0007",
-      "title": "Salah debit pada kartu kredit",
-      "description": "Tagihan berisi transaksi yang tidak diakui.",
-      "customer_status": "Diproses",
-      "agent_status": "Menunggu Respon Customer",
-      "source_channel": "Call",
+      "description": "Converted from chatbot (v3.3)",
+      "customer_status": "Diterima",
+      "agent_status": "Diterima",
+      "priority_id": 3,
+      "issue_channel_id": 3,
+      "intake_source_id": 2,
+      "service_id": 2,
       "customer_id": 1,
-      "related_account_id": 2,
+      "related_account_id": null,
+      "related_card_id": null,
       "complaint_id": 3,
-      "faq_id": 3,
+      "uic_id": 2,
+      "faq_id": null,
+      "source_session_id": 1,
       "responsible_agent_id": 2,
-      "responsible_team_id": 2,
-      "sla_id": 3,
-      "created_time": "2025-08-09T09:30:00+07:00",
-      "first_response_time": "2025-08-09T09:45:00+07:00",
+      "sla_id": 2,
+      "policy_id": 2,
+      "committed_due_at": null,
+      "created_time": "2025-08-13T02:37:53.317Z",
+      "first_response_time": null,
       "end_time": null,
       "closed_time": null,
-      "target_sla": "2025-08-12T09:30:00+07:00"
+      "target_sla": null,
+      "row_version": 0,
+      "ticket_number": "TCK-20250813-0001",
+      "id": 3
     },
     {
-      "ticket_id": 4,
-      "ticket_number": "TCK-20250808-0002",
-      "title": "Permintaan perubahan alamat korespondensi",
-      "description": "Nasabah meminta update alamat surat.",
-      "customer_status": "Selesai",
-      "agent_status": "Ditutup",
-      "source_channel": "Form",
-      "customer_id": 3,
-      "related_account_id": 4,
-      "complaint_id": 4,
-      "faq_id": 4,
-      "responsible_agent_id": 3,
-      "responsible_team_id": 1,
-      "sla_id": 1,
-      "created_time": "2025-08-08T13:00:00+07:00",
-      "first_response_time": "2025-08-08T13:20:00+07:00",
-      "end_time": "2025-08-08T18:30:00+07:00",
-      "closed_time": "2025-08-08T19:00:00+07:00",
-      "target_sla": "2025-08-09T13:00:00+07:00"
+      "description": "patch demo",
+      "id": 4,
+      "agent_status": "HandledCXC",
+      "first_response_time": "2025-08-13T02:54:48.927Z",
+      "row_version": 1,
+      "ticket_id": 4
     },
     {
-      "title": "Smoke Test Ticket",
-      "description": "Auto-generated by Postman",
-      "customer_status": "Baru",
-      "agent_status": "Baru",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 5,
-      "created_time": "2025-08-12T07:32:00.000Z",
-      "ticket_number": "TCK-20250812-0011",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:32:00.000Z",
-      "faq_id": 2
+      "description": "patch demo",
+      "id": 5,
+      "agent_status": "Declined",
+      "first_response_time": "2025-08-13T03:00:51.844Z",
+      "row_version": 8,
+      "responsible_agent_id": 2,
+      "target_sla": "2030-08-20T00:00:00.000Z",
+      "uic_id": 1,
+      "priority_id": 3,
+      "customer_status": "Ditolak",
+      "closed_time": null,
+      "end_time": "2025-08-13T03:00:52.532Z",
+      "ticket_id": 5
     },
     {
-      "title": "Smoke Test Ticket",
-      "description": "Auto-generated by Postman",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
       "ticket_id": 6,
-      "created_time": "2025-08-12T07:33:00.000Z",
-      "ticket_number": "TCK-20250812-0012",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:33:00.000Z",
-      "faq_id": 2
+      "description": "Converted from chatbot (v3.3.2)",
+      "customer_status": "Diterima",
+      "agent_status": "Diterima",
+      "priority_id": 3,
+      "issue_channel_id": 3,
+      "intake_source_id": 2,
+      "service_id": 2,
+      "customer_id": 1,
+      "related_account_id": null,
+      "related_card_id": null,
+      "complaint_id": 3,
+      "uic_id": 2,
+      "faq_id": null,
+      "source_session_id": 1,
+      "responsible_agent_id": 2,
+      "sla_id": 2,
+      "policy_id": 2,
+      "committed_due_at": null,
+      "created_time": "2025-08-13T03:00:54.775Z",
+      "first_response_time": null,
+      "end_time": null,
+      "closed_time": null,
+      "target_sla": null,
+      "row_version": 0,
+      "ticket_number": "TCK-20250813-0002",
+      "id": 6
     },
     {
-      "title": "Smoke Test Ticket",
-      "description": "Auto-generated by Postman",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 7,
-      "created_time": "2025-08-12T06:11:28.198Z",
-      "ticket_number": "TCK-20250812-0001",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T06:11:28.198Z"
+      "description": "patch demo",
+      "id": 7,
+      "ticket_id": 7
     },
     {
-      "title": "Smoke Test Ticket",
-      "description": "Auto-generated by Postman",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 8,
-      "created_time": "2025-08-12T06:19:49.244Z",
-      "ticket_number": "TCK-20250812-0002",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T06:19:49.244Z"
+      "description": "patch demo",
+      "id": 8
     },
     {
-      "title": "Smoke Test Ticket",
-      "description": "Auto-generated by Postman",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
       "ticket_id": 9,
-      "created_time": "2025-08-12T06:21:06.859Z",
-      "ticket_number": "TCK-20250812-0003",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T06:21:06.859Z"
+      "id": 9,
+      "description": "Converted from chatbot (v3.3.3)",
+      "customer_status": "Diterima",
+      "agent_status": "Diterima",
+      "priority_id": 3,
+      "issue_channel_id": 3,
+      "intake_source_id": 2,
+      "service_id": 2,
+      "customer_id": 1,
+      "related_account_id": null,
+      "related_card_id": null,
+      "complaint_id": 3,
+      "uic_id": 2,
+      "faq_id": null,
+      "source_session_id": 1,
+      "responsible_agent_id": 2,
+      "sla_id": 2,
+      "policy_id": 2,
+      "committed_due_at": null,
+      "created_time": "2025-08-13T03:45:13.994Z",
+      "first_response_time": null,
+      "end_time": null,
+      "closed_time": null,
+      "target_sla": null,
+      "row_version": 0,
+      "ticket_number": "TCK-20250813-0003"
     },
     {
-      "title": "Smoke Test Ticket",
-      "description": "Auto-generated by Postman",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 10,
-      "created_time": "2025-08-12T06:21:49.172Z",
-      "ticket_number": "TCK-20250812-0004",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T06:21:49.172Z"
+      "description": "patch demo",
+      "id": 10
     },
     {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
       "ticket_id": 11,
-      "created_time": "2025-08-12T07:05:00.752Z",
-      "ticket_number": "TCK-20250812-0005",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:05:00.752Z",
-      "faq_id": 2
-    },
-    {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
+      "id": 11,
+      "description": "Converted from chatbot (v3.3.3)",
+      "customer_status": "Diterima",
+      "agent_status": "Diterima",
+      "priority_id": 3,
+      "issue_channel_id": 3,
+      "intake_source_id": 2,
+      "service_id": 2,
       "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 12,
-      "created_time": "2025-08-12T07:10:57.195Z",
-      "ticket_number": "TCK-20250812-0006",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:10:57.195Z",
-      "faq_id": 2
-    },
-    {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 13,
-      "created_time": "2025-08-12T07:12:03.517Z",
-      "ticket_number": "TCK-20250812-0007",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:12:03.517Z",
-      "faq_id": 2
-    },
-    {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 14,
-      "created_time": "2025-08-12T07:12:18.857Z",
-      "ticket_number": "TCK-20250812-0008",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:12:18.857Z",
-      "faq_id": 2
-    },
-    {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 15,
-      "created_time": "2025-08-12T07:24:37.303Z",
-      "ticket_number": "TCK-20250812-0009",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:24:37.303Z",
-      "faq_id": 2
-    },
-    {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 16,
-      "created_time": "2025-08-12T07:29:31.924Z",
-      "ticket_number": "TCK-20250812-0010",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:29:31.924Z",
-      "faq_id": 2
-    },
-    {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 17,
-      "created_time": "2025-08-12T07:46:53.349Z",
-      "ticket_number": "TCK-20250812-0013",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:46:53.349Z",
-      "faq_id": 2
-    },
-    {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 18,
-      "created_time": "2025-08-12T07:53:04.531Z",
-      "ticket_number": "TCK-20250812-0014",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:53:04.531Z",
-      "faq_id": 2
-    },
-    {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 19,
-      "created_time": "2025-08-12T07:56:38.601Z",
-      "ticket_number": "TCK-20250812-0015",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:56:38.601Z",
-      "faq_id": 2
-    },
-    {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 20,
-      "created_time": "2025-08-12T07:59:16.352Z",
-      "ticket_number": "TCK-20250812-0016",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T07:59:16.352Z",
-      "faq_id": 2
-    },
-    {
-      "title": "API Doc Ticket",
-      "description": "Ticket created by Postman collection",
-      "customer_status": "Baru",
-      "agent_status": "Dikerjakan",
-      "source_channel": "Chat",
-      "customer_id": 1,
-      "related_account_id": 1,
-      "complaint_id": 2,
-      "responsible_agent_id": 1,
-      "responsible_team_id": 1,
-      "ticket_id": 21,
-      "created_time": "2025-08-12T08:14:48.178Z",
-      "ticket_number": "TCK-20250812-0017",
-      "sla_id": 1,
-      "target_sla": "2025-08-13T08:14:48.178Z",
-      "faq_id": 2
+      "related_account_id": null,
+      "related_card_id": null,
+      "complaint_id": 3,
+      "uic_id": 2,
+      "faq_id": null,
+      "source_session_id": 1,
+      "responsible_agent_id": 2,
+      "sla_id": 2,
+      "policy_id": 2,
+      "committed_due_at": null,
+      "created_time": "2025-08-13T03:46:54.989Z",
+      "first_response_time": null,
+      "end_time": null,
+      "closed_time": null,
+      "target_sla": null,
+      "row_version": 0,
+      "ticket_number": "TCK-20250813-0004"
     }
   ],
-  "ticket_activity": [
+  "ticket_activities": [
     {
       "activity_id": 1,
       "ticket_id": 1,
       "sender_id": 1,
       "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status diubah menjadi Dikerjakan.",
-      "attachment_id": null,
-      "activity_time": "2025-08-11T02:25:00+07:00"
+      "activity_type": "Komentar",
+      "content": "Ticket dibuat oleh agent.",
+      "activity_time": "2025-08-10T05:05:00.000Z",
+      "id": 1
     },
     {
       "activity_id": 2,
       "ticket_id": 1,
       "sender_id": 1,
-      "sender_type": "customer",
-      "activity_type": "Attachment",
-      "content": "Mengirim bukti transaksi.",
-      "attachment_id": 1,
-      "activity_time": "2025-08-11T02:28:00+07:00"
+      "sender_type": "agent",
+      "activity_type": "Call",
+      "content": "Follow up call ke nasabah.",
+      "activity_time": "2025-08-10T05:20:00.000Z",
+      "id": 2
     },
     {
       "activity_id": 3,
-      "ticket_id": 1,
-      "sender_id": 3,
+      "ticket_id": 2,
+      "sender_id": 2,
       "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "Manajer menugaskan agen Rina untuk investigasi.",
-      "attachment_id": null,
-      "activity_time": "2025-08-11T02:30:00+07:00"
+      "activity_type": "Komentar",
+      "content": "Policy match via resolver.",
+      "activity_time": "2025-08-11T07:06:00.000Z",
+      "id": 3
     },
     {
       "activity_id": 4,
-      "ticket_id": 2,
-      "sender_id": 2,
-      "sender_type": "customer",
-      "activity_type": "Attachment",
-      "content": "Foto mesin ATM dan struk.",
-      "attachment_id": 2,
-      "activity_time": "2025-08-10T10:15:00+07:00"
+      "ticket_id": null,
+      "sender_id": 1,
+      "sender_type": "agent",
+      "activity_type": "Komentar",
+      "content": "via v3.3",
+      "activity_time": "2025-08-13T02:37:51.867Z",
+      "id": 4
     },
     {
       "activity_id": 5,
-      "ticket_id": 2,
-      "sender_id": 1,
+      "ticket_id": 5,
+      "sender_id": 2,
       "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status diubah menjadi Selesai.",
-      "attachment_id": null,
-      "activity_time": "2025-08-10T16:00:00+07:00"
+      "activity_type": "Penugasan",
+      "content": "Assigned to agent 2",
+      "activity_time": "2025-08-13T03:00:51.937Z",
+      "id": 5
     },
     {
       "activity_id": 6,
-      "ticket_id": 3,
-      "sender_id": 2,
+      "ticket_id": 5,
+      "sender_id": 1,
       "sender_type": "agent",
       "activity_type": "Komentar",
-      "content": "Investigasi transaksi merchant dimulai.",
-      "attachment_id": 3,
-      "activity_time": "2025-08-09T10:00:00+07:00"
-    },
-    {
-      "activity_id": 7,
-      "ticket_id": 4,
-      "sender_id": 3,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Tiket ditutup setelah verifikasi alamat.",
-      "attachment_id": null,
-      "activity_time": "2025-08-08T19:00:00+07:00"
+      "content": "via v3.3.2",
+      "activity_time": "2025-08-13T03:00:53.319Z",
+      "id": 6
     },
     {
       "activity_id": 8,
-      "ticket_id": 3,
-      "sender_id": 2,
-      "sender_type": "agent",
-      "activity_type": "Call",
-      "content": "Telepon outbound ke nasabah untuk klarifikasi.",
-      "attachment_id": null,
-      "activity_time": "2025-08-09T11:30:00+07:00"
-    },
-    {
-      "activity_id": 9,
-      "ticket_id": 6,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T06:06:07.576Z"
-    },
-    {
-      "activity_id": 10,
-      "ticket_id": 7,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T06:11:28.404Z"
-    },
-    {
-      "activity_id": 11,
       "ticket_id": 8,
       "sender_id": 1,
       "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T06:19:49.456Z"
+      "activity_type": "Komentar",
+      "content": "via v3.3.3",
+      "activity_time": "2025-08-13T03:45:12.345Z"
     },
     {
-      "activity_id": 12,
-      "ticket_id": 9,
-      "sender_id": 1,
+      "activity_id": 9,
+      "ticket_id": 10,
+      "sender_id": 2,
       "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T06:21:07.015Z"
+      "activity_type": "Penugasan",
+      "content": "Assigned to agent 2",
+      "activity_time": "2025-08-13T03:46:52.226Z"
     },
     {
-      "activity_id": 13,
+      "activity_id": 10,
       "ticket_id": 10,
       "sender_id": 1,
       "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T06:21:49.340Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
       "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 14
-    },
-    {
-      "activity_id": 15,
-      "ticket_id": 11,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:05:01.317Z"
-    },
-    {
-      "activity_id": 16,
-      "ticket_id": 11,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:05:02.561Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 17
-    },
-    {
-      "activity_id": 18,
-      "ticket_id": 12,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:10:57.610Z"
-    },
-    {
-      "activity_id": 19,
-      "ticket_id": 12,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:10:58.774Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 20
-    },
-    {
-      "activity_id": 21,
-      "ticket_id": 13,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:12:03.981Z"
-    },
-    {
-      "activity_id": 22,
-      "ticket_id": 13,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:12:05.465Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 23
-    },
-    {
-      "activity_id": 24,
-      "ticket_id": 14,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:12:19.222Z"
-    },
-    {
-      "activity_id": 25,
-      "ticket_id": 14,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:12:20.416Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 26
-    },
-    {
-      "activity_id": 27,
-      "ticket_id": 15,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:24:37.763Z"
-    },
-    {
-      "activity_id": 28,
-      "ticket_id": 15,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:24:38.976Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 29
-    },
-    {
-      "activity_id": 30,
-      "ticket_id": 16,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:29:32.369Z"
-    },
-    {
-      "activity_id": 31,
-      "ticket_id": 16,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:29:33.596Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 32
-    },
-    {
-      "activity_id": 33,
-      "ticket_id": 17,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:46:53.792Z"
-    },
-    {
-      "activity_id": 34,
-      "ticket_id": 17,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:46:54.943Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 35
-    },
-    {
-      "activity_id": 36,
-      "ticket_id": 18,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:53:04.992Z"
-    },
-    {
-      "activity_id": 37,
-      "ticket_id": 18,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:53:06.101Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 38
-    },
-    {
-      "activity_id": 39,
-      "ticket_id": 19,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:56:39.061Z"
-    },
-    {
-      "activity_id": 40,
-      "ticket_id": 19,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:56:40.212Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 41
-    },
-    {
-      "activity_id": 42,
-      "ticket_id": 20,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:59:16.826Z"
-    },
-    {
-      "activity_id": 43,
-      "ticket_id": 20,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T07:59:17.935Z"
-    },
-    {
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Comment from Postman",
-      "activity_id": 44
-    },
-    {
-      "activity_id": 45,
-      "ticket_id": 21,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Perubahan Status",
-      "content": "Status updated: agent_status -> Dikerjakan",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T08:14:48.635Z"
-    },
-    {
-      "activity_id": 46,
-      "ticket_id": 21,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "FAQ linked: 2",
-      "attachment_id": null,
-      "activity_time": "2025-08-12T08:14:49.771Z"
+      "content": "via v3.3.3",
+      "activity_time": "2025-08-13T03:46:53.497Z"
     }
   ],
-  "attachment": [
+  "attachments": [
     {
       "attachment_id": 1,
-      "activity_id": 2,
-      "file_name": "bukti_transaksi.pdf",
-      "file_path": "/uploads/2025/08/bukti_transaksi.pdf",
-      "file_type": "application/pdf",
-      "file_size": 234567,
-      "upload_time": "2025-08-11T02:28:00+07:00"
-    },
-    {
-      "attachment_id": 2,
-      "activity_id": 4,
-      "file_name": "foto_atm.jpg",
-      "file_path": "/uploads/2025/08/foto_atm.jpg",
+      "activity_id": 1,
+      "file_name": "atm_receipt.jpg",
+      "file_path": "/files/atm_receipt.jpg",
       "file_type": "image/jpeg",
-      "file_size": 523456,
-      "upload_time": "2025-08-10T10:15:00+07:00"
+      "file_size": 345678,
+      "upload_time": "2025-08-10T05:06:00.000Z",
+      "id": 1
     },
     {
-      "attachment_id": 3,
-      "activity_id": 6,
-      "file_name": "log_transaksi.csv",
-      "file_path": "/uploads/2025/08/log_transaksi.csv",
-      "file_type": "text/csv",
-      "file_size": 12500,
-      "upload_time": "2025-08-09T10:00:00+07:00"
+      "activity_id": "null",
+      "file_name": "evidence.jpg",
+      "file_path": "/files/evidence.jpg",
+      "file_type": "image/jpeg",
+      "file_size": 12345,
+      "ticketId": "7",
+      "id": 2,
+      "attachment_id": 2
+    }
+  ],
+  "ticket_uic_escalations": [
+    {
+      "escalation_id": 1,
+      "ticket_id": 1,
+      "uic_id": 1,
+      "escalated_by_agent_id": 1,
+      "escalated_at": "2025-08-10T06:00:00.000Z",
+      "external_case_ref": "ATM-OPS-2025-0001",
+      "status": "sent",
+      "responded_at": null,
+      "closed_at": null,
+      "escalation_kind": "initial",
+      "reminder_seq": null,
+      "notes": "Initial escalation",
+      "email_message_id": "msg-001",
+      "email_status": "sent",
+      "email_sent_at": "2025-08-10T06:01:00.000Z",
+      "id": 1
     },
     {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 4
+      "escalation_id": 2,
+      "ticket_id": null,
+      "uic_id": 1,
+      "escalated_by_agent_id": 1,
+      "escalated_at": "2025-08-13T02:37:52.438Z",
+      "external_case_ref": null,
+      "status": "sent",
+      "responded_at": null,
+      "closed_at": null,
+      "escalation_kind": "initial",
+      "reminder_seq": null,
+      "notes": "via nested",
+      "email_message_id": "msg-2",
+      "email_status": "sent",
+      "email_sent_at": "2025-08-13T02:37:52.438Z",
+      "id": 2
     },
     {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 5
-    },
-    {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 6
-    },
-    {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 7
-    },
-    {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 8
-    },
-    {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 9
-    },
-    {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 10
-    },
-    {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 11
-    },
-    {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 12
-    },
-    {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 13
-    },
-    {
-      "activity_id": 1,
-      "file_name": "doc.pdf",
-      "file_path": "/uploads/doc.pdf",
-      "file_type": "application/pdf",
-      "file_size": 1000,
-      "attachment_id": 14
+      "escalation_id": 3,
+      "ticket_id": 5,
+      "uic_id": 1,
+      "escalated_by_agent_id": 1,
+      "escalated_at": "2025-08-13T03:00:53.834Z",
+      "external_case_ref": null,
+      "status": "sent",
+      "responded_at": null,
+      "closed_at": null,
+      "escalation_kind": "initial",
+      "reminder_seq": null,
+      "notes": "via nested",
+      "email_message_id": "msg-3",
+      "email_status": "sent",
+      "email_sent_at": "2025-08-13T03:00:53.834Z",
+      "id": 3
     }
   ],
   "feedback": [
     {
       "feedback_id": 1,
-      "ticket_id": 2,
+      "ticket_id": 1,
       "score": 5,
-      "comment": "Sangat cepat dan informatif.",
-      "submit_time": "2025-08-10T19:00:00+07:00"
+      "comment": "Cepat ditangani",
+      "submit_time": "2025-08-12T02:00:00.000Z",
+      "id": 1
     },
     {
       "feedback_id": 2,
-      "ticket_id": 4,
-      "score": 4,
-      "comment": "Perubahan berhasil, sedikit menunggu verifikasi.",
-      "submit_time": "2025-08-08T20:00:00+07:00"
+      "ticket_id": null,
+      "score": 5,
+      "comment": "mantap",
+      "submit_time": "2025-08-13T02:37:52.890Z",
+      "id": 2
     },
     {
-      "ticket_id": 11,
+      "feedback_id": 3,
+      "ticket_id": 5,
       "score": 5,
-      "comment": "Great service",
-      "feedback_id": 3
+      "comment": "mantap",
+      "submit_time": "2025-08-13T03:00:54.335Z",
+      "id": 3
     },
     {
-      "ticket_id": 12,
       "score": 5,
-      "comment": "Great service",
+      "comment": "mantap",
+      "ticketId": "7",
+      "id": 4,
       "feedback_id": 4
-    },
-    {
-      "ticket_id": 13,
-      "score": 5,
-      "comment": "Great service",
-      "feedback_id": 5
-    },
-    {
-      "ticket_id": 14,
-      "score": 5,
-      "comment": "Great service",
-      "feedback_id": 6
-    },
-    {
-      "ticket_id": 15,
-      "score": 5,
-      "comment": "Great service",
-      "feedback_id": 7
-    },
-    {
-      "ticket_id": 16,
-      "score": 5,
-      "comment": "Great service",
-      "feedback_id": 8
-    },
-    {
-      "ticket_id": "17",
-      "score": 5,
-      "comment": "Great service",
-      "feedback_id": 9
-    },
-    {
-      "ticket_id": "18",
-      "score": 5,
-      "comment": "Great service",
-      "feedback_id": 10
-    },
-    {
-      "ticket_id": "19",
-      "score": 5,
-      "comment": "Great service",
-      "feedback_id": 11
-    },
-    {
-      "ticket_id": "20",
-      "score": 5,
-      "comment": "Great service",
-      "feedback_id": 12
-    },
-    {
-      "ticket_id": "21",
-      "score": 5,
-      "comment": "Great service",
-      "feedback_id": 13
     }
   ],
-  "notification": [
+  "notifications": [
     {
       "notification_id": 1,
       "user_type": "customer",
       "user_id": 1,
       "ticket_id": 1,
-      "message": "Tiket TCK-20250811-0001 diproses oleh agen.",
+      "message": "Ticket dibuat",
       "notification_type": "status_change",
       "is_read": true,
-      "created_at": "2025-08-11T02:26:00+07:00"
-    },
-    {
-      "notification_id": 2,
-      "user_type": "agent",
-      "user_id": 1,
-      "ticket_id": 3,
-      "message": "Reminder SLA 72 jam untuk tiket TCK-20250809-0007.",
-      "notification_type": "sla_warning",
-      "is_read": false,
-      "created_at": "2025-08-10T09:30:00+07:00"
-    },
-    {
-      "notification_id": 3,
-      "user_type": "customer",
-      "user_id": 2,
-      "ticket_id": 2,
-      "message": "Tiket TCK-20250810-0003 ditutup.",
-      "notification_type": "status_change",
-      "is_read": true,
-      "created_at": "2025-08-10T16:30:00+07:00"
+      "created_at": "2025-08-10T05:01:00.000Z",
+      "id": 1
     }
   ],
-  "chat_message": [
+  "chat_messages": [
     {
       "chat_id": 1,
       "ticket_id": 1,
       "sender_id": 1,
-      "sender_type": "customer",
-      "message": "Halo, ada transaksi ganda di akun saya.",
-      "sent_at": "2025-08-11T02:16:00+07:00"
+      "sender_type": "agent",
+      "message": "Mohon info lokasi ATM.",
+      "sent_at": "2025-08-10T05:10:00.000Z",
+      "id": 1
     },
     {
       "chat_id": 2,
       "ticket_id": 1,
       "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Baik, mohon kirimkan bukti transaksi ya Pak.",
-      "sent_at": "2025-08-11T02:17:00+07:00"
+      "sender_type": "customer",
+      "message": "ATM dekat Monas.",
+      "sent_at": "2025-08-10T05:11:00.000Z",
+      "id": 2
     },
     {
       "chat_id": 3,
-      "ticket_id": 1,
-      "sender_id": 1,
-      "sender_type": "customer",
-      "message": "Sudah saya lampirkan.",
-      "sent_at": "2025-08-11T02:28:30+07:00"
-    },
-    {
-      "ticket_id": 11,
+      "ticket_id": null,
       "sender_id": 1,
       "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 4
+      "message": "ping",
+      "sent_at": "2025-08-13T02:37:52.577Z",
+      "id": 3
     },
     {
-      "ticket_id": 12,
+      "chat_id": 4,
+      "ticket_id": 5,
       "sender_id": 1,
       "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 5
-    },
-    {
-      "ticket_id": 13,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 6
-    },
-    {
-      "ticket_id": 14,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 7
-    },
-    {
-      "ticket_id": 15,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 8
-    },
-    {
-      "ticket_id": 16,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 9
-    },
-    {
-      "ticket_id": "17",
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 10
-    },
-    {
-      "ticket_id": "18",
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 11
-    },
-    {
-      "ticket_id": "19",
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 12
-    },
-    {
-      "ticket_id": "20",
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 13
-    },
-    {
-      "ticket_id": "21",
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Hello from Postman",
-      "chat_id": 14
+      "message": "ping",
+      "sent_at": "2025-08-13T03:00:53.984Z",
+      "id": 4
     }
   ],
-  "call_log": [
+  "call_logs": [
     {
       "call_id": 1,
-      "ticket_id": 3,
-      "agent_id": 2,
+      "ticket_id": 1,
+      "agent_id": 1,
       "customer_id": 1,
-      "call_start": "2025-08-09T11:30:00+07:00",
-      "call_end": "2025-08-09T11:42:00+07:00",
-      "status": "connected"
+      "call_start": "2025-08-10T05:20:00.000Z",
+      "call_end": "2025-08-10T05:25:00.000Z",
+      "status": "connected",
+      "id": 1
     },
     {
       "call_id": 2,
-      "ticket_id": 2,
-      "agent_id": 1,
-      "customer_id": 2,
-      "call_start": "2025-08-10T10:12:00+07:00",
-      "call_end": "2025-08-10T10:12:30+07:00",
-      "status": "missed"
-    },
-    {
-      "ticket_id": 11,
-      "agent_id": 1,
-      "customer_id": null,
-      "status": "connected",
-      "call_id": 3
-    },
-    {
-      "ticket_id": 12,
+      "ticket_id": null,
       "agent_id": 1,
       "customer_id": 1,
+      "call_start": "2025-08-13T02:00:00.000Z",
+      "call_end": null,
       "status": "connected",
-      "call_id": 4
+      "id": 2
     },
     {
-      "ticket_id": 13,
+      "call_id": 3,
+      "ticket_id": 5,
       "agent_id": 1,
       "customer_id": 1,
+      "call_start": "2030-08-13T02:00:00.000Z",
+      "call_end": null,
       "status": "connected",
-      "call_id": 5
-    },
-    {
-      "ticket_id": 14,
-      "agent_id": 1,
-      "customer_id": 1,
-      "status": "connected",
-      "call_id": 6
-    },
-    {
-      "ticket_id": 15,
-      "agent_id": 1,
-      "customer_id": 1,
-      "status": "connected",
-      "call_id": 7
-    },
-    {
-      "ticket_id": 16,
-      "agent_id": 1,
-      "customer_id": 1,
-      "status": "connected",
-      "call_id": 8
-    },
-    {
-      "ticket_id": "17",
-      "agent_id": 1,
-      "customer_id": "1",
-      "status": "connected",
-      "call_id": 9
-    },
-    {
-      "ticket_id": "18",
-      "agent_id": 1,
-      "customer_id": "1",
-      "status": "connected",
-      "call_id": 10
-    },
-    {
-      "ticket_id": "19",
-      "agent_id": 1,
-      "customer_id": "1",
-      "status": "connected",
-      "call_id": 11
-    },
-    {
-      "ticket_id": "20",
-      "agent_id": 1,
-      "customer_id": "1",
-      "status": "connected",
-      "call_id": 12
-    },
-    {
-      "ticket_id": "21",
-      "agent_id": 1,
-      "customer_id": "1",
-      "status": "connected",
-      "call_id": 13
-    }
-  ],
-  "chatbot_message": [
-    {
-      "message_id": 1,
-      "session_id": 1,
-      "sender_type": "chatbot",
-      "message": "Selamat datang. Apa kendala Anda?",
-      "sent_at": "2025-08-11T02:05:05+07:00"
-    },
-    {
-      "message_id": 2,
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Ada transaksi ganda.",
-      "sent_at": "2025-08-11T02:06:10+07:00"
-    },
-    {
-      "message_id": 3,
-      "session_id": 2,
-      "sender_type": "chatbot",
-      "message": "Silakan pilih kategori keluhan.",
-      "sent_at": "2025-08-10T09:45:10+07:00"
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 4
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 5
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 6
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 7
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 8
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 9
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 10
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 11
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 12
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 13
-    },
-    {
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo bot",
-      "message_id": 14
+      "id": 3
     }
   ]
 }
