@@ -614,7 +614,8 @@ server.patch(['/notifications/:id', '/notification/:id'], (req, res) => {
 server.use(router);
 
 // Boot
-const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`Mock API running at http://localhost:${PORT}`);
+const PORT = process.env.PORT || 6969;
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Mock API running at http://0.0.0.0:${PORT}`);
+  console.log(`Access from network: http://[your-ip]:${PORT}`);
 });
