@@ -1,0 +1,279 @@
+{
+  "info": {
+    "name": "Backend Customer Care",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Agents",
+      "item": [
+        {
+          "name": "Get Agents",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/agent?team_id=",
+              "host": ["{{baseUrl}}"],
+              "path": ["agent"],
+              "query": [
+                { "key": "team_id", "value": "", "disabled": false }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Agent by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/agent/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["agent", ":id"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Get Accounts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/account?customer_id=",
+              "host": ["{{baseUrl}}"],
+              "path": ["account"],
+              "query": [
+                { "key": "customer_id", "value": "", "disabled": false }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Account by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/account/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["account", ":id"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/notification?user_type=&user_id=&is_read=",
+              "host": ["{{baseUrl}}"],
+              "path": ["notification"],
+              "query": [
+                { "key": "user_type", "value": "", "disabled": false },
+                { "key": "user_id", "value": "", "disabled": false },
+                { "key": "is_read", "value": "", "disabled": false }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark Notifications as Read",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/notifications/mark-read",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "mark-read"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": [1, 2, 3]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chatbot",
+      "item": [
+        {
+          "name": "Get Chatbot Session by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/chatbot/sessions/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["chatbot", "sessions", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Get Chatbot Messages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/chatbot/messages?session_id=",
+              "host": ["{{baseUrl}}"],
+              "path": ["chatbot", "messages"],
+              "query": [
+                { "key": "session_id", "value": "", "disabled": false }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Get Customer by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/customer/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["customer", ":id"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teams",
+      "item": [
+        {
+          "name": "Get Team by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/team/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["team", ":id"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Complaint Categories",
+      "item": [
+        {
+          "name": "Get Complaint Category by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/complaint_category/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["complaint_category", ":id"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Create Ticket",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/ticket",
+              "host": ["{{baseUrl}}"],
+              "path": ["ticket"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": 1,\n  \"complaint_id\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Tickets",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/tickets?customer_id=&agent_id=&status=&complaint_id=&date_from=&date_to=",
+              "host": ["{{baseUrl}}"],
+              "path": ["tickets"],
+              "query": [
+                { "key": "customer_id", "value": "", "disabled": false },
+                { "key": "agent_id", "value": "", "disabled": false },
+                { "key": "status", "value": "", "disabled": false },
+                { "key": "complaint_id", "value": "", "disabled": false },
+                { "key": "date_from", "value": "", "disabled": false },
+                { "key": "date_to", "value": "", "disabled": false }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Ticket by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/ticket/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["ticket", ":id"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Meta",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Get Enums",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/meta/enums",
+              "host": ["{{baseUrl}}"],
+              "path": ["meta", "enums"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"user_type\": \"customer\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
