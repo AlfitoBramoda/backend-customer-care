@@ -1,6 +1,5 @@
 const jsonServer = require('json-server');
 const path = require('path');
-const cors = require('cors');
 
 const server = jsonServer.create();
 const router = jsonServer.router(path.join(__dirname, 'db.json'));
@@ -8,7 +7,6 @@ const middlewares = jsonServer.defaults({ static: 'public' });
 
 server.use(middlewares);
 server.use(jsonServer.bodyParser);
-server.use(cors());
 
 // ---------- HARDENING for Postman contract (no more 404) ----------
 
@@ -616,7 +614,7 @@ server.patch(['/notifications/:id', '/notification/:id'], (req, res) => {
 server.use(router);
 
 // Boot
-const PORT = process.env.PORT || 6969;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Mock API running at http://0.0.0.0:${PORT}`);
   console.log(`Access from network: http://[your-ip]:${PORT}`);
