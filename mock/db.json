@@ -1,193 +1,354 @@
 {
-  "customers": [
+  "customer": [
     {
       "customer_id": 1,
-      "demo": "patch",
+      "full_name": "Andi Saputra",
+      "email": "andi.saputra@example.com",
+      "password_hash": "hash$andi",
+      "address": "Jl. Merdeka No. 10, Jakarta",
+      "billing_address": "Jl. Merdeka No. 10, Jakarta",
+      "postal_code": 10110,
+      "phone_number": 81234567890,
+      "home_phone": 215551234,
+      "office_phone": 215554321,
+      "fax_phone": 215556789,
+      "cif": "CIF00001",
+      "nik": 3201010101010001,
+      "gender_type": "Male",
+      "place_of_birth": "Jakarta",
+      "created_at": "2025-08-14T08:00:00Z",
       "id": 1
     },
     {
       "customer_id": 2,
-      "full_name": "John Smith",
-      "email": "john.smith@customer.test",
-      "password_hash": "Customer@123",
-      "address": "Jl. Sudirman No. 2",
-      "billing_address": "Jl. Sudirman No. 2",
-      "postal_code": "10220",
-      "phone_number": "+628129998877",
-      "home_phone": "",
-      "office_phone": "",
-      "fax_phone": "",
-      "cif": "CIF0002",
-      "nik": "3174011111111111",
-      "gender": "Male",
+      "full_name": "Siti Nurhaliza",
+      "email": "siti.nurhaliza@example.com",
+      "password_hash": "hash$siti",
+      "address": "Jl. Diponegoro No. 5, Bandung",
+      "billing_address": "Jl. Diponegoro No. 5, Bandung",
+      "postal_code": 40115,
+      "phone_number": 82233344455,
+      "home_phone": 221234567,
+      "office_phone": 227654321,
+      "fax_phone": 225556667,
+      "cif": "CIF00002",
+      "nik": 3202020202020002,
+      "gender_type": "Female",
       "place_of_birth": "Bandung",
-      "created_at": "2025-08-11T06:00:00.000Z",
+      "created_at": "2025-08-14T08:02:00Z",
       "id": 2
     },
     {
       "customer_id": 3,
-      "demo": "value",
+      "full_name": "Rudi Hartono",
+      "email": "rudi.hartono@example.com",
+      "password_hash": "hash$rudi",
+      "address": "Jl. Sudirman No. 77, Surabaya",
+      "billing_address": "Jl. Sudirman No. 77, Surabaya",
+      "postal_code": 60271,
+      "phone_number": 83311122233,
+      "home_phone": 31778899,
+      "office_phone": 31998877,
+      "fax_phone": 31445566,
+      "cif": "CIF00003",
+      "nik": 3578010101010003,
+      "gender_type": "Male",
+      "place_of_birth": "Surabaya",
+      "created_at": "2025-08-14T08:04:00Z",
       "id": 3
-    },
-    {
-      "customer_id": 1,
-      "id": 1,
-      "full_name": "Jane Doe",
-      "email": "jane.doe@customer.test",
-      "password_hash": "Customer@123",
-      "address": "Jl. Sudirman 1",
-      "billing_address": "Jl. Sudirman 1",
-      "postal_code": "10220",
-      "phone_number": "081234567890",
-      "home_phone": "021123456",
-      "office_phone": null,
-      "fax_phone": null,
-      "cif": "CIF0001",
-      "nik": "3173xxxxxxxxxxxx",
-      "gender": "Female",
-      "place_of_birth": "Jakarta",
-      "created_at": "2025-08-13T03:37:16.017Z"
     }
   ],
-  "accounts": [
+  "account_type": [
+    {
+      "account_type_id": 1,
+      "account_type_code": "TABUNGAN",
+      "account_type_name": "Tabungan",
+      "id": 1
+    },
+    {
+      "account_type_id": 2,
+      "account_type_code": "GIRO",
+      "account_type_name": "Giro",
+      "id": 2
+    },
+    {
+      "account_type_id": 3,
+      "account_type_code": "CREDIT",
+      "account_type_name": "Kartu Kredit",
+      "id": 3
+    }
+  ],
+  "account": [
     {
       "account_id": 1,
-      "demo": "patch",
+      "customer_id": 1,
+      "account_number": 1234567890,
+      "account_type_id": 1,
+      "is_primary": true,
       "id": 1
     },
     {
       "account_id": 2,
       "customer_id": 2,
-      "account_number": "2000000002",
-      "account_type": "Giro",
+      "account_number": 2234567890,
+      "account_type_id": 2,
       "is_primary": true,
       "id": 2
     },
     {
       "account_id": 3,
-      "customer_id": 2,
-      "account_number": "4111111111111111",
-      "account_type": "Kartu Kredit",
+      "customer_id": 1,
+      "account_number": 3234567890,
+      "account_type_id": 3,
       "is_primary": false,
       "id": 3
-    },
-    {
-      "account_id": 4,
-      "demo": "value",
-      "id": 4
     }
   ],
-  "cards": [
+  "card_status": [
+    {
+      "card_status_id": 1,
+      "card_status_code": "ACTIVE",
+      "card_status_name": "Active",
+      "id": 1
+    },
+    {
+      "card_status_id": 2,
+      "card_status_code": "BLOCKED",
+      "card_status_name": "Blocked",
+      "id": 2
+    },
+    {
+      "card_status_id": 3,
+      "card_status_code": "CLOSED",
+      "card_status_name": "Closed",
+      "id": 3
+    }
+  ],
+  "card": [
     {
       "card_id": 1,
-      "demo": "patch",
+      "account_id": 1,
+      "card_number": 4111111111111111,
+      "card_status_id": 1,
+      "card_type": "DEBIT",
+      "exp_date": "12/27",
       "id": 1
     },
     {
       "card_id": 2,
-      "demo": "value",
+      "account_id": 3,
+      "card_number": 5500000000000004,
+      "card_status_id": 1,
+      "card_type": "KREDIT",
+      "exp_date": "06/28",
       "id": 2
+    },
+    {
+      "card_id": 3,
+      "account_id": 2,
+      "card_number": 4000000000000028,
+      "card_status_id": 2,
+      "card_type": "DEBIT",
+      "exp_date": "09/26",
+      "id": 3
     }
   ],
-  "agents": [
+  "role": [
     {
-      "agent_id": 1,
-      "demo": "patch",
+      "role_id": 1,
+      "role_code": "AGENT_CXC",
+      "role_name": "CX Communication Agent",
       "id": 1
     },
     {
-      "agent_id": 2,
-      "full_name": "Sinta Lestari",
-      "email": "sinta.lestari@bcare.test",
-      "npp": "87654321",
-      "password_hash": "Supervisor@123",
-      "role": "Manajer",
-      "is_active": true,
-      "created_at": "2025-08-10T04:00:00.000Z",
+      "role_id": 2,
+      "role_code": "ASST_DGO",
+      "role_name": "Assistant DGO",
       "id": 2
     },
     {
-      "agent_id": 3,
-      "demo": "value",
+      "role_id": 3,
+      "role_code": "ASST_TBS",
+      "role_name": "Assistant TBS",
+      "id": 3
+    }
+  ],
+  "division": [
+    {
+      "division_id": 1,
+      "division_code": "CXC",
+      "division_name": "CX Communication",
+      "id": 1
+    },
+    {
+      "division_id": 2,
+      "division_code": "BCC",
+      "division_name": "BCC Customer Care",
+      "id": 2
+    },
+    {
+      "division_id": 3,
+      "division_code": "OPR",
+      "division_name": "Divisi OPR",
       "id": 3
     },
     {
-      "agent_id": 1,
-      "id": 1,
-      "npp": "12345678",
-      "full_name": "Agent One",
-      "email": "agent1@bank.test",
-      "password_hash": "Agent@123",
-      "role": "Frontline",
-      "is_active": true,
-      "created_at": "2025-08-13T03:37:16.015Z"
+      "division_id": 4,
+      "division_code": "TBS",
+      "division_name": "Divisi TBS",
+      "id": 4
+    },
+    {
+      "division_id": 5,
+      "division_code": "UIC1",
+      "division_name": "DGO USER 1",
+      "id": 5
+    },
+    {
+      "division_id": 6,
+      "division_code": "UIC3",
+      "division_name": "DGO USER 1",
+      "id": 6
+    },
+    {
+      "division_id": 7,
+      "division_code": "UIC6",
+      "division_name": "DGO USER 1",
+      "id": 7
+    },
+    {
+      "division_id": 8,
+      "division_code": "UIC7",
+      "division_name": "DGO USER 1",
+      "id": 8
+    },
+    {
+      "division_id": 9,
+      "division_code": "UIC8",
+      "division_name": "DGO USER 1",
+      "id": 9
+    },
+    {
+      "division_id": 10,
+      "division_code": "UIC10",
+      "division_name": "DGO USER 1",
+      "id": 10
+    },
+    {
+      "division_id": 11,
+      "division_code": "UIC11",
+      "division_name": "DGO USER 1",
+      "id": 11
     }
   ],
-  "channels": [
+  "employee": [
+    {
+      "employee_id": 1,
+      "full_name": "Budi Hartono",
+      "email": "budi.hartono@example.com",
+      "npp": "EMP00001",
+      "password_hash": "hash$budi",
+      "role_id": 1,
+      "division_id": 1,
+      "is_active": true,
+      "created_at": "2025-08-14T08:05:00Z",
+      "id": 1
+    },
+    {
+      "employee_id": 2,
+      "full_name": "Lina Oktavia",
+      "email": "lina.oktavia@example.com",
+      "npp": "EMP00002",
+      "password_hash": "hash$lina",
+      "role_id": 2,
+      "division_id": 2,
+      "is_active": true,
+      "created_at": "2025-08-14T08:06:00Z",
+      "id": 2
+    },
+    {
+      "employee_id": 3,
+      "full_name": "Agus Salim",
+      "email": "agus.salim@example.com",
+      "npp": "EMP00003",
+      "password_hash": "hash$agus",
+      "role_id": 3,
+      "division_id": 3,
+      "is_active": true,
+      "created_at": "2025-08-14T08:07:00Z",
+      "id": 3
+    }
+  ],
+  "channel": [
     {
       "channel_id": 1,
-      "demo": "patch",
+      "channel_code": "ATM",
+      "channel_name": "Automated Teller Machine",
+      "supports_terminal": true,
       "id": 1
     },
     {
       "channel_id": 2,
-      "channel_code": "CRM",
-      "channel_name": "CRM",
-      "supports_terminal": true,
+      "channel_code": "TAPCASH",
+      "channel_name": "BNI Tapcash",
+      "supports_terminal": false,
       "id": 2
     },
     {
       "channel_id": 3,
-      "channel_code": "MBANK",
-      "channel_name": "Mobile Banking",
-      "supports_terminal": false,
+      "channel_code": "CRM",
+      "channel_name": "Cash Recycling Machine",
+      "supports_terminal": true,
       "id": 3
     },
     {
       "channel_id": 4,
-      "channel_code": "IBANK",
-      "channel_name": "Internet Banking",
+      "channel_code": "DISPUTE_DEBIT",
+      "channel_name": "DISPUTE KARTU DEBIT",
       "supports_terminal": false,
       "id": 4
     },
     {
       "channel_id": 5,
-      "channel_code": "CALL",
-      "channel_name": "Call Center",
+      "channel_code": "IBANK",
+      "channel_name": "Internet Banking",
       "supports_terminal": false,
       "id": 5
     },
     {
       "channel_id": 6,
-      "channel_code": "BRANCH",
-      "channel_name": "Branch",
+      "channel_code": "MBANK",
+      "channel_name": "Mobile Banking",
       "supports_terminal": false,
       "id": 6
     },
     {
       "channel_id": 7,
-      "channel_code": "QRIS",
-      "channel_name": "QRIS",
+      "channel_code": "MTUNAI",
+      "channel_name": "Mobile Tunai",
       "supports_terminal": false,
       "id": 7
     },
     {
       "channel_id": 8,
-      "demo": "value",
+      "channel_code": "MTUNAI_ALFAMART",
+      "channel_name": "Mobile Tunai Alfamart",
+      "supports_terminal": false,
       "id": 8
     },
     {
-      "channel_id": 1,
-      "id": 1,
-      "channel_code": "ATM",
-      "channel_name": "ATM",
-      "supports_terminal": true
+      "channel_id": 9,
+      "channel_code": "QRIS_DEBIT",
+      "channel_name": "QRIS Kartu Debit",
+      "supports_terminal": false,
+      "id": 9
     }
   ],
-  "sources": [
+  "source": [
     {
       "source_id": 1,
-      "demo": "patch",
+      "source_code": "CONTACT_CENTER",
+      "source_name": "Contact Center",
       "id": 1
     },
     {
@@ -198,342 +359,1375 @@
     },
     {
       "source_id": 3,
-      "source_code": "BRANCH",
-      "source_name": "Branch",
+      "source_code": "SOSMED",
+      "source_name": "Sosial Media",
       "id": 3
-    },
-    {
-      "source_id": 4,
-      "source_code": "WHATSAPP",
-      "source_name": "WhatsApp",
-      "id": 4
-    },
-    {
-      "source_id": 5,
-      "demo": "value",
-      "id": 5
-    },
-    {
-      "source_id": 1,
-      "id": 1,
-      "source_code": "CONTACT_CENTER",
-      "source_name": "Contact Center"
     }
   ],
-  "services": [
-    {
-      "service_id": 1,
-      "demo": "patch",
-      "id": 1
-    },
-    {
-      "service_id": 2,
-      "service_code": "MBANK",
-      "service_name": "Mobile Banking",
-      "id": 2
-    },
-    {
-      "service_id": 3,
-      "service_code": "DEPOSITO",
-      "service_name": "Deposito",
-      "id": 3
-    },
-    {
-      "service_id": 4,
-      "service_code": "CARDS",
-      "service_name": "Cards",
-      "id": 4
-    },
-    {
-      "service_id": 5,
-      "demo": "value",
-      "id": 5
-    },
-    {
-      "service_id": 1,
-      "id": 1,
-      "service_code": "ATM",
-      "service_name": "ATM"
-    }
-  ],
-  "priorities": [
+  "priority": [
     {
       "priority_id": 1,
-      "demo": "patch",
+      "priority_code": "CRITICAL",
+      "priority_name": "Critical",
       "id": 1
     },
     {
       "priority_id": 2,
       "priority_code": "HIGH",
       "priority_name": "High",
-      "sort_order": 2,
       "id": 2
     },
     {
       "priority_id": 3,
       "priority_code": "REGULAR",
       "priority_name": "Regular",
-      "sort_order": 3,
       "id": 3
-    },
-    {
-      "priority_id": 4,
-      "priority_code": "LOW",
-      "priority_name": "Low",
-      "sort_order": 4,
-      "id": 4
-    },
-    {
-      "priority_id": 5,
-      "demo": "value",
-      "id": 5
-    },
-    {
-      "priority_id": 1,
-      "id": 1,
-      "priority_code": "CRITICAL",
-      "priority_name": "Critical",
-      "sort_order": 1
     }
   ],
-  "uic": [
-    {
-      "uic_id": 1,
-      "demo": "patch",
-      "id": 1
-    },
-    {
-      "uic_id": 2,
-      "uic_code": "UIC-OPS-PAY",
-      "uic_name": "Payments Operations",
-      "email": "uic.pay@bcare.test",
-      "email_cc": "",
-      "description": "Handles payment and transfer issues",
-      "id": 2
-    },
-    {
-      "uic_id": 3,
-      "demo": "value",
-      "id": 3
-    },
-    {
-      "uic_id": 1,
-      "id": 1,
-      "uic_code": "UIC1",
-      "uic_name": "BCC - Customer Care",
-      "email": "uic1@bank.test"
-    }
-  ],
-  "complaint_categories": [
+  "complaint_category": [
     {
       "complaint_id": 1,
-      "complaint_code": "GAGAL_TUNAI",
-      "complaint_name": "Cash Not Dispensed",
+      "complaint_code": "2ND_CHARGEBACK",
+      "complaint_name": "2nd Chargeback",
       "id": 1
     },
     {
       "complaint_id": 2,
-      "complaint_code": "KARTU_TERTELAN",
-      "complaint_name": "Card Captured",
+      "complaint_code": "2ND_CHARGEBACK_QRIS_DEBIT",
+      "complaint_name": "2nd Chargeback QRIS Debit",
       "id": 2
     },
     {
       "complaint_id": 3,
-      "complaint_code": "TRANSFER_TERTUNDA",
-      "complaint_name": "Delayed Transfer",
+      "complaint_code": "BI_FAST_BILATERAL",
+      "complaint_name": "BI-FAST Bilateral (Refund,salah/batal Care/ 7\ntransfer,rek terdebet > 1x)",
       "id": 3
     },
     {
       "complaint_id": 4,
-      "demo": "value",
+      "complaint_code": "BI_FAST_DANA_TIDAK_MASUK",
+      "complaint_name": "BI-FAST Dana Tidak Masuk ke Rek Tujuan",
       "id": 4
+    },
+    {
+      "complaint_id": 5,
+      "complaint_code": "BI_FAST_GAGAL_HAPUS_AKUN",
+      "complaint_name": "BI-FAST Gagal Hapus Akun",
+      "id": 5
+    },
+    {
+      "complaint_id": 6,
+      "complaint_code": "BI_FAST_GAGAL_MIGRASI_AKUN",
+      "complaint_name": "BI-FAST Gagal Migrasi Akun",
+      "id": 6
+    },
+    {
+      "complaint_id": 7,
+      "complaint_code": "BI_FAST_GAGAL_SUSPEND_AKUN",
+      "complaint_name": "BI-FAST Gagal Suspend Akun",
+      "id": 7
+    },
+    {
+      "complaint_id": 8,
+      "complaint_code": "BI_FAST_GAGAL_UPDATE_AKUN",
+      "complaint_name": "BI-FAST Gagal Update Akun",
+      "id": 8
+    },
+    {
+      "complaint_id": 9,
+      "complaint_code": "DISPUTE",
+      "complaint_name": "Dispute",
+      "id": 9
+    },
+    {
+      "complaint_id": 10,
+      "complaint_code": "DISPUTE_QRIS_KARTU_DEBIT",
+      "complaint_name": "Dispute QRIS Kartu Debit",
+      "id": 10
+    },
+    {
+      "complaint_id": 11,
+      "complaint_code": "MOBILE_TUNAI",
+      "complaint_name": "Mobile Tunai",
+      "id": 11
+    },
+    {
+      "complaint_id": 12,
+      "complaint_code": "MOBILE_TUNAI_ALFAMART",
+      "complaint_name": "Mobile Tunai Alfamart",
+      "id": 12
+    },
+    {
+      "complaint_id": 13,
+      "complaint_code": "MOBILE_TUNAI_ALFAMIDI",
+      "complaint_name": "Mobile Tunai Alfamidi",
+      "id": 13
+    },
+    {
+      "complaint_id": 14,
+      "complaint_code": "MOBILE_TUNAI_INDOMARET",
+      "complaint_name": "Mobile Tunai Indomaret",
+      "id": 14
+    },
+    {
+      "complaint_id": 15,
+      "complaint_code": "PEMBAYARAN_KARTU_KREDIT_BANK_LAIN",
+      "complaint_name": "Pembayaran Kartu Kredit Bank Lain",
+      "id": 15
+    },
+    {
+      "complaint_id": 16,
+      "complaint_code": "PEMBAYARAN_KARTU_KREDIT_BNI",
+      "complaint_name": "Pembayaran Kartu Kredit BNI",
+      "id": 16
+    },
+    {
+      "complaint_id": 17,
+      "complaint_code": "PEMBAYARAN_MPNG2",
+      "complaint_name": "Pembayaran MPNG2",
+      "id": 17
+    },
+    {
+      "complaint_id": 18,
+      "complaint_code": "PEMBAYARAN_MPNG3",
+      "complaint_name": "Pembayaran MPNG3",
+      "id": 18
+    },
+    {
+      "complaint_id": 19,
+      "complaint_code": "PEMBAYARAN_MPNG4",
+      "complaint_name": "Pembayaran MPNG4",
+      "id": 19
+    },
+    {
+      "complaint_id": 20,
+      "complaint_code": "PEMBAYARAN_PLN_VIA_ATM_BANK_LAIN",
+      "complaint_name": "Pembayaran PLN via ATM Bank Lain",
+      "id": 20
+    },
+    {
+      "complaint_id": 21,
+      "complaint_code": "PEMBAYARAN_SAMSAT",
+      "complaint_name": "Pembayaran Samsat",
+      "id": 21
+    },
+    {
+      "complaint_id": 22,
+      "complaint_code": "PEMBAYARAN_TELKOM_TELKOMSEL_INDOSAT_PROVIDER_LAINNYA",
+      "complaint_name": "Pembayaran Telkom/Telkomsel/Indosat/Provider Lainnya",
+      "id": 22
+    },
+    {
+      "complaint_id": 23,
+      "complaint_code": "PERMINTAAN_CCTV_ATM_BNI",
+      "complaint_name": "Permintaan CCTV ATM BNI ",
+      "id": 23
+    },
+    {
+      "complaint_id": 24,
+      "complaint_code": "SETOR_TUNAI_DI_MESIN_ATM_CRM",
+      "complaint_name": "Setor Tunai Di Mesin ATM CRM",
+      "id": 24
+    },
+    {
+      "complaint_id": 25,
+      "complaint_code": "TARIK_TUNAI_DI_ATM_LINK",
+      "complaint_name": "Tarik Tunai Di ATM Link",
+      "id": 25
+    },
+    {
+      "complaint_id": 26,
+      "complaint_code": "TARIK_TUNAI_DI_ATM_PRIMA",
+      "complaint_name": "Tarik Tunai Di ATM Prima",
+      "id": 26
+    },
+    {
+      "complaint_id": 27,
+      "complaint_code": "TARIK_TUNAI_DI_ATM_CIRRUS",
+      "complaint_name": "Tarik Tunai Di ATМ Cirrus",
+      "id": 27
+    },
+    {
+      "complaint_id": 28,
+      "complaint_code": "TARIK_TUNAI_DI_JARINGAN_ALTO",
+      "complaint_name": "Tarik Tunai Di Jaringan Alto",
+      "id": 28
+    },
+    {
+      "complaint_id": 29,
+      "complaint_code": "TARIK_TUNAI_DI_JARINGAN_BERSAMA",
+      "complaint_name": "Tarik Tunai Di Jaringan Bersama",
+      "id": 29
+    },
+    {
+      "complaint_id": 30,
+      "complaint_code": "TARIK_TUNAI_DI_MESIN_ATM_BNI",
+      "complaint_name": "Tarik Tunai Di Mesin ATM BNI",
+      "id": 30
+    },
+    {
+      "complaint_id": 31,
+      "complaint_code": "TOP_UP_DANA",
+      "complaint_name": "Top Up Dana",
+      "id": 31
+    },
+    {
+      "complaint_id": 32,
+      "complaint_code": "TOP_UP_E_MONEY",
+      "complaint_name": "Top Up e-money",
+      "id": 32
+    },
+    {
+      "complaint_id": 33,
+      "complaint_code": "TOP_UP_GOPAY",
+      "complaint_name": "Top Up Gopay",
+      "id": 33
+    },
+    {
+      "complaint_id": 34,
+      "complaint_code": "TOP_UP_LINKAJA",
+      "complaint_name": "Top Up LinkAja",
+      "id": 34
+    },
+    {
+      "complaint_id": 35,
+      "complaint_code": "TOP_UP_OVO",
+      "complaint_name": "Top Up OVO",
+      "id": 35
+    },
+    {
+      "complaint_id": 36,
+      "complaint_code": "TOP_UP_PRA_MIGRASI_DANA_GAGAL_TERKOREKSI",
+      "complaint_name": "Top Up Pra Migrasi, Dana Gagal Terkoreksi",
+      "id": 36
+    },
+    {
+      "complaint_id": 37,
+      "complaint_code": "TOP_UP_PULSA",
+      "complaint_name": "Top Up Pulsa",
+      "id": 37
+    },
+    {
+      "complaint_id": 38,
+      "complaint_code": "TOP_UP_PULSA_VIA_ATM_BANK_LAIN",
+      "complaint_name": "Top Up Pulsa via ATM Bank Lain",
+      "id": 38
+    },
+    {
+      "complaint_id": 39,
+      "complaint_code": "TOP_UP_SHOPEE_PAY",
+      "complaint_name": "Top Up Shopee Pay",
+      "id": 39
+    },
+    {
+      "complaint_id": 40,
+      "complaint_code": "TRANSFER_ANTAR_REKENING_BNI",
+      "complaint_name": "Transfer Antar Rekening BNI",
+      "id": 40
+    },
+    {
+      "complaint_id": 41,
+      "complaint_code": "TRANSFER_ATM_ALTO_DANA_TDK_MASUK",
+      "complaint_name": "Transfer ATM Alto (Dana Tdk Masuk ke Rek Tujuan)",
+      "id": 41
+    },
+    {
+      "complaint_id": 42,
+      "complaint_code": "TRANSFER_ATM_ALTO_BILATERAL",
+      "complaint_name": "Transfer ATM Alto Bilateral (Refund,salah/batal transfer,rek terdebet > 1x)",
+      "id": 42
+    },
+    {
+      "complaint_id": 43,
+      "complaint_code": "TRANSFER_ATM_ALTO_LINK_BILATERAL",
+      "complaint_name": "Transfer ATM Alto Link Bilateral  (Refund,salah/batal transfer,rek terdebet > 1x)\n",
+      "id": 43
+    },
+    {
+      "complaint_id": 44,
+      "complaint_code": "TRANSFER_ATM_BERSAMA_DANA_TDK_MASUK",
+      "complaint_name": "Transfer ATM Bersama (Dana Tdk Masuk ke Rek Tujuan)",
+      "id": 44
+    },
+    {
+      "complaint_id": 45,
+      "complaint_code": "TRANSFER_ATM_BERSAMA_BILATERAL",
+      "complaint_name": "Transfer ATM Bersama Bilateral (Refund,salah/batal transfer,rek terdebet > 1x)\n",
+      "id": 45
+    },
+    {
+      "complaint_id": 46,
+      "complaint_code": "TRANSFER_ATM_LINK_DANA_TDK_MASUK",
+      "complaint_name": "Transfer ATM Link (Dana Tdk Masuk ke Rek Tujuan)",
+      "id": 46
+    },
+    {
+      "complaint_id": 47,
+      "complaint_code": "TRANSFER_ATM_PRIMA_DANA_TDK_MASUK",
+      "complaint_name": "Transfer ATM Prima (Dana Tdk Masuk ke Rek Tujuan)",
+      "id": 47
+    },
+    {
+      "complaint_id": 48,
+      "complaint_code": "TRANSFER_ATM_PRIMA_BILATERAL",
+      "complaint_name": "Transfer ATM Prima Bilateral  (Refund,salah/batal transfer,rek terdebet > 1x)\n",
+      "id": 48
     }
   ],
-  "slas": [
-    {
-      "sla_id": 1,
-      "demo": "patch",
-      "id": 1
-    },
-    {
-      "sla_id": 2,
-      "sla_name": "SLA-Mobile-Transfer",
-      "resolution_days": 3,
-      "id": 2
-    },
-    {
-      "sla_id": 3,
-      "demo": "value",
-      "id": 3
-    },
-    {
-      "sla_id": 1,
-      "id": 1,
-      "sla_name": "Default 3d",
-      "resolution_days": 3
-    }
-  ],
-  "complaint_policies": [
+  "complaint_policy": [
     {
       "policy_id": 1,
-      "service_id": 1,
-      "channel_id": 1,
-      "complaint_id": 1,
-      "sla_id": 1,
-      "uic_id": 1,
-      "valid_from": "2025-01-01T00:00:00.000Z",
-      "valid_to": null,
-      "description": "ATM cash-out failures routed to UIC-OPS-ATM within 5 workdays",
-      "id": 1
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 5,
+      "sla": 1,
+      "uic_id": 9,
+      "description": "Kendala yang dialami nasabah saat melakukan Hapus akun di menu Pengaturan  BI-FAST",
+      "id": 9
     },
     {
       "policy_id": 2,
-      "service_id": 2,
-      "channel_id": 3,
-      "complaint_id": 3,
-      "sla_id": 2,
-      "uic_id": 2,
-      "valid_from": "2025-01-01T00:00:00.000Z",
-      "valid_to": null,
-      "description": "Mobile transfer delays routed to Payments Ops within 3 workdays",
-      "id": 2
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 6,
+      "sla": 1,
+      "uic_id": 9,
+      "description": "Kendala yang dialami nasabah saat melakukan Migrasi di menu Pengaturan BI-FAST",
+      "id": 9
     },
     {
       "policy_id": 3,
-      "demo": "value",
-      "id": 3
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 7,
+      "sla": 1,
+      "uic_id": 9,
+      "description": "Kendala yang dialami nasabah saat melakukan Suspend di menu Pengaturan BI-FAST",
+      "id": 9
     },
     {
-      "policy_id": 1,
-      "demo": "patch",
-      "id": 1
+      "policy_id": 4,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 8,
+      "sla": 1,
+      "uic_id": 9,
+      "description": "Kendala yang dialami nasabah saat melakukan Update di menu Pengaturan BI-FAST",
+      "id": 9
     },
     {
-      "policy_id": 1,
-      "demo": "patch",
+      "policy_id": 5,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 16,
+      "sla": 1,
+      "uic_id": 2,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 2
+    },
+    {
+      "policy_id": 6,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 16,
+      "sla": 1,
+      "uic_id": 2,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 2
+    },
+    {
+      "policy_id": 7,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 16,
+      "sla": 1,
+      "uic_id": 2,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 2
+    },
+    {
+      "policy_id": 8,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 40,
+      "sla": 1,
+      "uic_id": 2,
+      "description": "Gagal transaksi rekening terdebet namun tidak tetkredit ke rekening tujuan, rekening terdebet lebih dari satu kali (transaksi normal), transfer terkredit lebih dari satu kali (transaksi normal), salah transfer (bank/rekening tujuan) dan salah nominal",
+      "id": 2
+    },
+    {
+      "policy_id": 9,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 40,
+      "sla": 1,
+      "uic_id": 2,
+      "description": "Gagal transaksi rekening terdebet namun tidak terkredit ke rekening tujuan, rekening terdebet lebih dari satu kali (transaksi normal). transfer terkredit lebih dari satu kali (transaksi normal), salah transfer (bank/rekening tujuan) dan salah nominal.",
+      "id": 2
+    },
+    {
+      "policy_id": 10,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 40,
+      "sla": 1,
+      "uic_id": 2,
+      "description": "Gagal transaksi rekening terdebet namun tidak terkredit ke rekening tujuan, rekening terdebet lebih dari satu kali (transaksi normal), transfer terkredit lebih dari satu kali (transaksi normal), salah transfer (bank/rekening tujuan) dan salah nominal.",
+      "id": 2
+    },
+    {
+      "policy_id": 11,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 4,
+      "sla": 5,
+      "uic_id": 9,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 9
+    },
+    {
+      "policy_id": 12,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 15,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Transaksi gagal namun rekening terdebet transaksi sukses namun rekening tidal terdebet, refund karena double bayar, Salal IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 7
+    },
+    {
+      "policy_id": 13,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 15,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Transaksi gagal namun rekening terdebet transäksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 7
+    },
+    {
+      "policy_id": 14,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 15,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karenadobuble bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 7
+    },
+    {
+      "policy_id": 15,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 20,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 7
+    },
+    {
+      "policy_id": 16,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 21,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 7
+    },
+    {
+      "policy_id": 17,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 21,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 7
+    },
+    {
+      "policy_id": 18,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 21,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 7
+    },
+    {
+      "policy_id": 19,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 22,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 7
+    },
+    {
+      "policy_id": 20,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 22,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 7
+    },
+    {
+      "policy_id": 21,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 22,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 7
+    },
+    {
+      "policy_id": 22,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 31,
+      "sla": 5,
+      "uic_id": 4,
+      "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
       "id": 4
     },
     {
-      "policy_id": 1,
-      "demo": "patch",
-      "id": 5
+      "policy_id": 23,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 31,
+      "sla": 5,
+      "uic_id": 4,
+      "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+      "id": 4
+    },
+    {
+      "policy_id": 24,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 31,
+      "sla": 5,
+      "uic_id": 4,
+      "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+      "id": 4
+    },
+    {
+      "policy_id": 25,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 33,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Gagal pengisian top up Gopay, rekening terdebet.\n",
+      "id": 7
+    },
+    {
+      "policy_id": 26,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 33,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Gagal pengisian top up Gopay, rekening terdebet.",
+      "id": 7
+    },
+    {
+      "policy_id": 27,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 33,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Gagal pengisian top up Gopay, rekening terdebet.",
+      "id": 7
+    },
+    {
+      "policy_id": 28,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 35,
+      "sla": 5,
+      "uic_id": 4,
+      "description": "Nasabah melakukan top up OVO, transaksi\ngagal rekening terdebet",
+      "id": 4
+    },
+    {
+      "policy_id": 29,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 35,
+      "sla": 5,
+      "uic_id": 4,
+      "description": "Nasabah melakukan top up OVO, transaksi gagal rekening terdebet",
+      "id": 4
+    },
+    {
+      "policy_id": 30,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 35,
+      "sla": 5,
+      "uic_id": 4,
+      "description": "Nasabah melakukan top up OVO, transaksi gagal rekening terdebet",
+      "id": 4
+    },
+    {
+      "policy_id": 31,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 37,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Gagal pengisian pulsa prabayar, rekening terdebet",
+      "id": 7
+    },
+    {
+      "policy_id": 32,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 37,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Gagal pengisian pulsa prabayar, rekening terdebet",
+      "id": 7
+    },
+    {
+      "policy_id": 33,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 37,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Gagal pengisian pulsa prabayar, rekening terdebet",
+      "id": 7
+    },
+    {
+      "policy_id": 34,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 38,
+      "sla": 5,
+      "uic_id": 7,
+      "description": "Gagal pengisian pulsa prabayar, rekening terdebet",
+      "id": 7
+    },
+    {
+      "policy_id": 35,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 39,
+      "sla": 5,
+      "uic_id": 4,
+      "description": "Nasabah melakukan top up Shopee pay, transaksi gagal rekening terdebet",
+      "id": 4
+    },
+    {
+      "policy_id": 36,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 39,
+      "sla": 5,
+      "uic_id": 4,
+      "description": "Nasabah melakukan top up Shopee pay, transaksi gagal rekening terdebet",
+      "id": 4
+    },
+    {
+      "policy_id": 37,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 39,
+      "sla": 5,
+      "uic_id": 4,
+      "description": "Nasabah melakukan top up Shopee pay, transaksi gagal rekening terdebet",
+      "id": 4
+    },
+    {
+      "policy_id": 38,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 34,
+      "sla": 5,
+      "uic_id": 9,
+      "description": "Gagal pengisian top up LinkAja, rekening terdebet.",
+      "id": 9
+    },
+    {
+      "policy_id": 39,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 34,
+      "sla": 5,
+      "uic_id": 9,
+      "description": "Nasabah melakukan topup LinkAja, transaksi gagal rekening terdebet",
+      "id": 9
+    },
+    {
+      "policy_id": 40,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 34,
+      "sla": 5,
+      "uic_id": 9,
+      "description": "Nasabah melakukan topup LinkAja, transaksi gagal rekening terdebet",
+      "id": 9
+    },
+    {
+      "policy_id": 41,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 41,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 42,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 41,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 43,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 41,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 44,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 44,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 45,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 44,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 46,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 44,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 47,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 46,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 48,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 46,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 49,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 46,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 50,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 47,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 51,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 47,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 52,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 47,
+      "sla": 5,
+      "uic_id": 8,
+      "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+      "id": 8
+    },
+    {
+      "policy_id": 53,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 32,
+      "sla": 6,
+      "uic_id": 8,
+      "description": "Gagal to up ke e-money, rekening terdebet.",
+      "id": 8
+    },
+    {
+      "policy_id": 54,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 3,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet > 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 55,
+      "service": "COMPLAINT",
+      "channel_id": 2,
+      "complaint_id": 36,
+      "sla": 7,
+      "uic_id": 10,
+      "description": "Gagal top up kartu Tapcash, rekening terdebet",
+      "id": 10
+    },
+    {
+      "policy_id": 56,
+      "service": "COMPLAINT",
+      "channel_id": 7,
+      "complaint_id": 11,
+      "sla": 7,
+      "uic_id": 6,
+      "description": "Kendala tarik tunai tanpa kartu di ATM BNI, rekening terdebet",
+      "id": 6
+    },
+    {
+      "policy_id": 57,
+      "service": "COMPLAINT",
+      "channel_id": 8,
+      "complaint_id": 12,
+      "sla": 7,
+      "uic_id": 8,
+      "description": "Kendala tarik tunai melalui mitra kerjasama Alfamart tanpa menggunakan kartu (Mobile Tunai), rekening terdebet",
+      "id": 8
+    },
+    {
+      "policy_id": 58,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 13,
+      "sla": 7,
+      "uic_id": 8,
+      "description": "Kendala tarik tunai melalui mitra kerjasama Alfamidi tanpa menggunakan kartu (Mobile Tunai), rekening terdebet",
+      "id": 8
+    },
+    {
+      "policy_id": 59,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 14,
+      "sla": 7,
+      "uic_id": 8,
+      "description": "Kendala tarik tunai melalui mitra kerjasama Alfamidi tanpa menggunakan kartu (Mobile Tunai), rekening terdebet",
+      "id": 8
+    },
+    {
+      "policy_id": 60,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 30,
+      "sla": 7,
+      "uic_id": 6,
+      "description": "Transaksi Tarik Tunai Rekening terdebet namun uang tidak keluar dan transaksi rekening tidak terdebet namun uang keluar",
+      "id": 6
+    },
+    {
+      "policy_id": 61,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 42,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 62,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 42,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 63,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 42,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 64,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 45,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 65,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 45,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 66,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 45,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 67,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 43,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 68,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 43,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 69,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 43,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 70,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 48,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 71,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 48,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 72,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 48,
+      "sla": 7,
+      "uic_id": 2,
+      "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+      "id": 2
+    },
+    {
+      "policy_id": 73,
+      "service": "COMPLAINT",
+      "channel_id": 3,
+      "complaint_id": 24,
+      "sla": 7,
+      "uic_id": 6,
+      "description": "Gagal transaksi Setor dan tarik tunai baik di CRM",
+      "id": 6
+    },
+    {
+      "policy_id": 74,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 25,
+      "sla": 9,
+      "uic_id": 8,
+      "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)",
+      "id": 8
+    },
+    {
+      "policy_id": 75,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 26,
+      "sla": 9,
+      "uic_id": 8,
+      "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)",
+      "id": 8
+    },
+    {
+      "policy_id": 76,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 28,
+      "sla": 9,
+      "uic_id": 8,
+      "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)",
+      "id": 8
+    },
+    {
+      "policy_id": 77,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 29,
+      "sla": 9,
+      "uic_id": 8,
+      "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)",
+      "id": 8
+    },
+    {
+      "policy_id": 78,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 17,
+      "sla": 10,
+      "uic_id": 3,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 3
+    },
+    {
+      "policy_id": 79,
+      "service": "COMPLAINT",
+      "channel_id": 5,
+      "complaint_id": 18,
+      "sla": 10,
+      "uic_id": 3,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 3
+    },
+    {
+      "policy_id": 80,
+      "service": "COMPLAINT",
+      "channel_id": 6,
+      "complaint_id": 19,
+      "sla": 10,
+      "uic_id": 3,
+      "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+      "id": 3
+    },
+    {
+      "policy_id": 81,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 23,
+      "sla": 10,
+      "uic_id": 8,
+      "description": "Permintaan CCTV ATM Bank Lain",
+      "id": 8
+    },
+    {
+      "policy_id": 82,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 23,
+      "sla": 10,
+      "uic_id": 6,
+      "description": "Permintaan CCTV ATM BNI",
+      "id": 6
+    },
+    {
+      "policy_id": 83,
+      "service": "COMPLAINT",
+      "channel_id": 9,
+      "complaint_id": 10,
+      "sla": 20,
+      "uic_id": 2,
+      "description": "Nasabah melakukan pembayaran melalui QRIS, transaksi gagal rekening terdebet",
+      "id": 2
+    },
+    {
+      "policy_id": 84,
+      "service": "COMPLAINT",
+      "channel_id": 9,
+      "complaint_id": 2,
+      "sla": 30,
+      "uic_id": 8,
+      "description": "Diinput Customer Care sesuai notifikasi DGO\nuntuk pengajuan 2nd chargeback",
+      "id": 8
+    },
+    {
+      "policy_id": 85,
+      "service": "COMPLAINT",
+      "channel_id": 4,
+      "complaint_id": 1,
+      "sla": 40,
+      "uic_id": 8,
+      "description": "Diinput Customer Care sesuai notifikasi DGO\nuntuk pengajuan 2nd chargeback",
+      "id": 8
+    },
+    {
+      "policy_id": 86,
+      "service": "COMPLAINT",
+      "channel_id": 4,
+      "complaint_id": 9,
+      "sla": 40,
+      "uic_id": 2,
+      "description": "Nasabah melakukan transaksi belanja,\ntransaksi gagal rekening terdebet",
+      "id": 2
+    },
+    {
+      "policy_id": 87,
+      "service": "COMPLAINT",
+      "channel_id": 1,
+      "complaint_id": 27,
+      "sla": 40,
+      "uic_id": 2,
+      "description": "Rekening terdebet namun uang tidak keluar\n(Kartu Debit BNI di ATM bank lain)",
+      "id": 2
     }
   ],
-  "faqs": [
+  "faq": [
     {
       "faq_id": 1,
-      "demo": "patch",
+      "complaint_id": 4,
+      "question": "Apa yang harus dilakukan jika transaksi BI-FAST gagal atau dana tidak masuk?",
+      "answer": "Simpan bukti transaksi dan hubungi BNI Call untuk pengecekan dan proses refund.",
+      "keywords": "dana tidak masuk,bifast",
+      "created_at": "2025-08-14T08:10:00Z",
+      "updated_at": "2025-08-14T08:11:00Z",
       "id": 1
     },
     {
       "faq_id": 2,
-      "demo": "value",
+      "complaint_id": 31,
+      "question": "Bagaimana jika Top Up Dana atau pembayaran tagihan gagal?",
+      "answer": "Pastikan saldo terpotong, simpan bukti transaksi, lalu laporkan ke BNI Call atau cabang.",
+      "keywords": "gagal topup,dana",
+      "created_at": "2025-08-14T08:12:00Z",
+      "updated_at": "2025-08-14T08:13:00Z",
       "id": 2
+    },
+    {
+      "faq_id": 3,
+      "complaint_id": 25,
+      "question": "Apa yang harus dilakukan jika tarik tunai di ATM Link gagal tetapi saldo terpotong?",
+      "answer": "Catat lokasi dan waktu, simpan struk, lalu ajukan laporan ke BNI Call untuk proses pengembalian dana.",
+      "keywords": "transfer gagal,mbank",
+      "created_at": "2025-08-14T08:14:00Z",
+      "updated_at": "2025-08-14T08:15:00Z",
+      "id": 3
     }
   ],
-  "chatbot_sessions": [
+  "sender_type": [
     {
-      "session_id": 1,
-      "customer_id": 1,
-      "started_at": "2025-08-09T03:00:00.000Z",
-      "ended_at": "2025-08-13T03:46:54.912Z",
-      "status": "completed",
+      "sender_type_id": 1,
+      "sender_type_code": "CUSTOMER",
+      "sender_type_name": "Customer",
       "id": 1
     },
     {
-      "session_id": 2,
-      "demo": "value",
+      "sender_type_id": 2,
+      "sender_type_code": "EMPLOYEE",
+      "sender_type_name": "Employee",
       "id": 2
     }
   ],
-  "faq_logs": [
+  "terminal_type": [
     {
-      "log_id": 1,
-      "session_id": 1,
-      "faq_id": 1,
-      "customer_id": 1,
-      "shown_at": "2025-08-09T04:05:00.000Z",
-      "id": 1
-    }
-  ],
-  "chatbot_messages": [
-    {
-      "message_id": 1,
-      "session_id": 1,
-      "sender_type": "customer",
-      "message": "Halo, ATM error.",
-      "sent_at": "2025-08-09T03:01:00.000Z",
+      "terminal_type_id": 1,
+      "terminal_type_code": "ATM",
+      "terminal_type_name": "ATM",
       "id": 1
     },
     {
-      "message_id": 2,
-      "session_id": 1,
-      "sender_type": "chatbot",
-      "message": "Mohon sampaikan lokasi ATM.",
-      "sent_at": "2025-08-09T03:01:30.000Z",
+      "terminal_type_id": 2,
+      "terminal_type_code": "CRM",
+      "terminal_type_name": "CRM",
       "id": 2
     }
   ],
-  "terminals": [
+  "terminal": [
     {
       "terminal_id": 1,
-      "terminal_code": "ATM321",
-      "terminal_type": "ATM",
+      "terminal_code": "ATM001",
+      "terminal_type_id": 1,
       "location": "Jakarta Pusat",
       "channel_id": 1,
       "id": 1
     },
     {
       "terminal_id": 2,
-      "terminal_code": "CRM999",
-      "terminal_type": "CRM",
-      "location": "Bandung",
+      "terminal_code": "ATM002",
+      "terminal_type_id": 1,
+      "location": "Bandung Dago",
+      "channel_id": 1,
+      "id": 1
+    },
+    {
+      "terminal_id": 3,
+      "terminal_code": "CRM101",
+      "terminal_type_id": 2,
+      "location": "Surabaya Darmo",
       "channel_id": 2,
       "id": 2
     }
   ],
-  "ticket_transactions": [
+  "customer_status": [
     {
-      "ticket_txn_id": 1,
-      "ticket_id": 1,
-      "transaction_datetime": "2025-08-10T03:30:00.000Z",
-      "amount": 500000,
-      "currency": "IDR",
-      "terminal_id": 1,
-      "rrn": "123456789012",
-      "stan": "123456",
+      "customer_status_id": 1,
+      "customer_status_code": "ACC",
+      "customer_status_name": "Accepted",
       "id": 1
     },
     {
-      "ticket_txn_id": 2,
-      "ticket_id": null,
-      "transaction_datetime": "2025-08-13T01:00:00.000Z",
-      "amount": 100000,
-      "currency": "IDR",
-      "terminal_id": 1,
-      "rrn": "987654321000",
-      "stan": "654321",
+      "customer_status_id": 2,
+      "customer_status_code": "VERIF",
+      "customer_status_name": "Verification",
       "id": 2
     },
     {
-      "ticket_txn_id": 3,
-      "ticket_id": 5,
-      "transaction_datetime": "2030-08-13T01:00:00.000Z",
-      "amount": 100000,
-      "currency": "IDR",
-      "terminal_id": 1,
-      "rrn": "987654321000",
-      "stan": "654321",
+      "customer_status_id": 3,
+      "customer_status_code": "PROCESS",
+      "customer_status_name": "Processing",
+      "id": 3
+    },
+    {
+      "customer_status_id": 4,
+      "customer_status_code": "CLOSED",
+      "customer_status_name": "Closed",
+      "id": 4
+    },
+    {
+      "customer_status_id": 5,
+      "customer_status_code": "DECLINED",
+      "customer_status_name": "Declined",
+      "id": 5
+    }
+  ],
+  "employee_status": [
+    {
+      "employee_status_id": 1,
+      "employee_status_code": "OPEN",
+      "employee_status_name": "Open",
+      "description": "Belum dikonfirmasi",
+      "id": 1
+    },
+    {
+      "employee_status_id": 2,
+      "employee_status_code": "HANDLEDCXC",
+      "employee_status_name": "Handled by CxC",
+      "description": "Ditangani Agent",
+      "id": 2
+    },
+    {
+      "employee_status_id": 3,
+      "employee_status_code": "ESCALATED",
+      "employee_status_name": "Escalated",
+      "description": "Eskalasi ke divisi terkait",
+      "id": 3
+    },
+    {
+      "employee_status_id": 4,
+      "employee_status_code": "CLOSED",
+      "employee_status_name": "Closed",
+      "description": "Ticket sudah selesai",
+      "id": 4
+    },
+    {
+      "employee_status_id": 5,
+      "employee_status_code": "DECLINED",
+      "employee_status_name": "Declined",
+      "description": "Ticket ditolak",
+      "id": 5
+    }
+  ],
+  "ticket_activity_type": [
+    {
+      "ticket_activity_type_id": 1,
+      "ticket_activity_code": "COMMENT",
+      "ticket_activity_name": "Comment",
+      "id": 1
+    },
+    {
+      "ticket_activity_type_id": 2,
+      "ticket_activity_code": "STATUS_CHANGE",
+      "ticket_activity_name": "Status Change",
+      "id": 2
+    },
+    {
+      "ticket_activity_type_id": 3,
+      "ticket_activity_code": "ATTACHMENT",
+      "ticket_activity_name": "Attachment",
       "id": 3
     }
   ],
-  "tickets": [
+  "ticket": [
     {
       "ticket_id": 1,
-      "ticket_number": "TCK-20250810-0001",
-      "description": "ATM tidak mengeluarkan uang, saldo terdebit.",
-      "customer_status": "Diterima",
-      "agent_status": "Diterima",
+      "ticket_number": "BNI-00001",
+      "description": "Kartu nasabah tertelan di ATM",
+      "customer_status_id": 1,
+      "employee_status_id": 1,
       "priority_id": 2,
       "issue_channel_id": 1,
       "intake_source_id": 1,
@@ -542,367 +1736,129 @@
       "related_account_id": 1,
       "related_card_id": 1,
       "complaint_id": 1,
-      "uic_id": 1,
-      "faq_id": null,
-      "source_session_id": null,
-      "responsible_agent_id": 1,
-      "sla_id": 1,
+      "responsible_employee_id": 1,
       "policy_id": 1,
-      "committed_due_at": null,
-      "created_time": "2025-08-10T05:00:00.000Z",
-      "first_response_time": "2025-08-10T05:10:00.000Z",
-      "end_time": null,
+      "committed_due_at": "2025-08-17T08:00:00Z",
+      "transaction_date": "2025-08-14T07:50:00Z",
+      "amount": 0,
+      "terminal_id": 1,
+      "created_time": "2025-08-14T08:15:00Z",
       "closed_time": null,
-      "target_sla": null,
-      "row_version": 0,
+      "division_notes": "[\n\t{\n\t\tdivision: ‘CXC’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Tolong di cek untuk case ini nasabah mengalami special case di bagian ATM’,\n\t\tauthor : Ratna\n\t},\n\t{\n\t\tdivision: ‘DGO’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Oke sudah di cek dan semua aman’,\n\t\tauthor : Ari\n\t},\n]",
       "id": 1
     },
     {
       "ticket_id": 2,
-      "ticket_number": "TCK-20250811-0001",
-      "description": "Transfer mobile pending > 2 jam.",
-      "customer_status": "Diterima",
-      "agent_status": "Diterima",
-      "priority_id": 3,
-      "issue_channel_id": 3,
-      "intake_source_id": 2,
-      "service_id": 2,
+      "ticket_number": "BNI-00002",
+      "description": "Gagal tarik tunai, saldo terdebet",
+      "customer_status_id": 2,
+      "employee_status_id": 2,
+      "priority_id": 1,
+      "issue_channel_id": 1,
+      "intake_source_id": 3,
+      "service_id": 1,
       "customer_id": 2,
       "related_account_id": 2,
-      "related_card_id": null,
-      "complaint_id": 3,
-      "uic_id": 2,
-      "faq_id": null,
-      "source_session_id": 1,
-      "responsible_agent_id": 2,
-      "sla_id": 2,
+      "related_card_id": 3,
+      "complaint_id": 2,
+      "responsible_employee_id": 2,
       "policy_id": 2,
-      "committed_due_at": null,
-      "created_time": "2025-08-11T07:00:00.000Z",
-      "first_response_time": "2025-08-11T07:05:00.000Z",
-      "end_time": null,
+      "committed_due_at": "2025-08-16T08:00:00Z",
+      "transaction_date": "2025-08-14T07:00:00Z",
+      "amount": 1500000,
+      "terminal_id": 2,
+      "created_time": "2025-08-14T08:20:00Z",
       "closed_time": null,
-      "target_sla": null,
-      "row_version": 0,
+      "division_notes": "[\n\t{\n\t\tdivision: ‘CXC’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Tolong di cek untuk case ini nasabah mengalami special case di bagian ATM’,\n\t\tauthor : Ratna\n\t},\n\t{\n\t\tdivision: ‘DGO’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Oke sudah di cek dan semua aman’,\n\t\tauthor : Ari\n\t},\n]",
       "id": 2
     },
     {
       "ticket_id": 3,
-      "description": "Converted from chatbot (v3.3)",
-      "customer_status": "Diterima",
-      "agent_status": "Diterima",
+      "ticket_number": "BNI-00003",
+      "description": "Transfer MBANK gagal tetapi saldo terdebet",
+      "customer_status_id": 2,
+      "employee_status_id": 2,
       "priority_id": 3,
       "issue_channel_id": 3,
       "intake_source_id": 2,
       "service_id": 2,
-      "customer_id": 1,
-      "related_account_id": null,
+      "customer_id": 3,
+      "related_account_id": 2,
       "related_card_id": null,
       "complaint_id": 3,
-      "uic_id": 2,
-      "faq_id": null,
-      "source_session_id": 1,
-      "responsible_agent_id": 2,
-      "sla_id": 2,
-      "policy_id": 2,
-      "committed_due_at": null,
-      "created_time": "2025-08-13T02:37:53.317Z",
-      "first_response_time": null,
-      "end_time": null,
+      "responsible_employee_id": 3,
+      "policy_id": 3,
+      "committed_due_at": "2025-08-15T08:00:00Z",
+      "transaction_date": "2025-08-14T06:00:00Z",
+      "amount": 250000,
+      "terminal_id": null,
+      "created_time": "2025-08-14T08:25:00Z",
       "closed_time": null,
-      "target_sla": null,
-      "row_version": 0,
-      "ticket_number": "TCK-20250813-0001",
+      "division_notes": "[\n\t{\n\t\tdivision: ‘CXC’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Tolong di cek untuk case ini nasabah mengalami special case di bagian ATM’,\n\t\tauthor : Ratna\n\t},\n\t{\n\t\tdivision: ‘DGO’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Oke sudah di cek dan semua aman’,\n\t\tauthor : Ari\n\t},\n]",
       "id": 3
-    },
-    {
-      "description": "patch demo",
-      "id": 4,
-      "agent_status": "HandledCXC",
-      "first_response_time": "2025-08-13T02:54:48.927Z",
-      "row_version": 1,
-      "ticket_id": 4
-    },
-    {
-      "description": "patch demo",
-      "id": 5,
-      "agent_status": "Declined",
-      "first_response_time": "2025-08-13T03:00:51.844Z",
-      "row_version": 8,
-      "responsible_agent_id": 2,
-      "target_sla": "2030-08-20T00:00:00.000Z",
-      "uic_id": 1,
-      "priority_id": 3,
-      "customer_status": "Ditolak",
-      "closed_time": null,
-      "end_time": "2025-08-13T03:00:52.532Z",
-      "ticket_id": 5
-    },
-    {
-      "ticket_id": 6,
-      "description": "Converted from chatbot (v3.3.2)",
-      "customer_status": "Diterima",
-      "agent_status": "Diterima",
-      "priority_id": 3,
-      "issue_channel_id": 3,
-      "intake_source_id": 2,
-      "service_id": 2,
-      "customer_id": 1,
-      "related_account_id": null,
-      "related_card_id": null,
-      "complaint_id": 3,
-      "uic_id": 2,
-      "faq_id": null,
-      "source_session_id": 1,
-      "responsible_agent_id": 2,
-      "sla_id": 2,
-      "policy_id": 2,
-      "committed_due_at": null,
-      "created_time": "2025-08-13T03:00:54.775Z",
-      "first_response_time": null,
-      "end_time": null,
-      "closed_time": null,
-      "target_sla": null,
-      "row_version": 0,
-      "ticket_number": "TCK-20250813-0002",
-      "id": 6
-    },
-    {
-      "description": "patch demo",
-      "id": 7,
-      "ticket_id": 7
-    },
-    {
-      "description": "patch demo",
-      "id": 8
-    },
-    {
-      "ticket_id": 9,
-      "id": 9,
-      "description": "Converted from chatbot (v3.3.3)",
-      "customer_status": "Diterima",
-      "agent_status": "Diterima",
-      "priority_id": 3,
-      "issue_channel_id": 3,
-      "intake_source_id": 2,
-      "service_id": 2,
-      "customer_id": 1,
-      "related_account_id": null,
-      "related_card_id": null,
-      "complaint_id": 3,
-      "uic_id": 2,
-      "faq_id": null,
-      "source_session_id": 1,
-      "responsible_agent_id": 2,
-      "sla_id": 2,
-      "policy_id": 2,
-      "committed_due_at": null,
-      "created_time": "2025-08-13T03:45:13.994Z",
-      "first_response_time": null,
-      "end_time": null,
-      "closed_time": null,
-      "target_sla": null,
-      "row_version": 0,
-      "ticket_number": "TCK-20250813-0003"
-    },
-    {
-      "description": "patch demo",
-      "id": 10
-    },
-    {
-      "ticket_id": 11,
-      "id": 11,
-      "description": "Converted from chatbot (v3.3.3)",
-      "customer_status": "Diterima",
-      "agent_status": "Diterima",
-      "priority_id": 3,
-      "issue_channel_id": 3,
-      "intake_source_id": 2,
-      "service_id": 2,
-      "customer_id": 1,
-      "related_account_id": null,
-      "related_card_id": null,
-      "complaint_id": 3,
-      "uic_id": 2,
-      "faq_id": null,
-      "source_session_id": 1,
-      "responsible_agent_id": 2,
-      "sla_id": 2,
-      "policy_id": 2,
-      "committed_due_at": null,
-      "created_time": "2025-08-13T03:46:54.989Z",
-      "first_response_time": null,
-      "end_time": null,
-      "closed_time": null,
-      "target_sla": null,
-      "row_version": 0,
-      "ticket_number": "TCK-20250813-0004"
     }
   ],
-  "ticket_activities": [
+  "ticket_activity": [
     {
-      "activity_id": 1,
+      "ticket_activity_id": 1,
       "ticket_id": 1,
       "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
+      "sender_type_id": 2,
+      "ticket_activity_type_id": 1,
       "content": "Ticket dibuat oleh agent.",
-      "activity_time": "2025-08-10T05:05:00.000Z",
+      "ticket_activity_time": "2025-08-14T08:16:00Z",
       "id": 1
     },
     {
-      "activity_id": 2,
-      "ticket_id": 1,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Call",
-      "content": "Follow up call ke nasabah.",
-      "activity_time": "2025-08-10T05:20:00.000Z",
-      "id": 2
-    },
-    {
-      "activity_id": 3,
+      "ticket_activity_id": 2,
       "ticket_id": 2,
       "sender_id": 2,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "Policy match via resolver.",
-      "activity_time": "2025-08-11T07:06:00.000Z",
-      "id": 3
-    },
-    {
-      "activity_id": 4,
-      "ticket_id": null,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "via v3.3",
-      "activity_time": "2025-08-13T02:37:51.867Z",
-      "id": 4
-    },
-    {
-      "activity_id": 5,
-      "ticket_id": 5,
-      "sender_id": 2,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "Assigned to agent 2",
-      "activity_time": "2025-08-13T03:00:51.937Z",
-      "id": 5
-    },
-    {
-      "activity_id": 6,
-      "ticket_id": 5,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "via v3.3.2",
-      "activity_time": "2025-08-13T03:00:53.319Z",
-      "id": 6
-    },
-    {
-      "activity_id": 8,
-      "ticket_id": 8,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "via v3.3.3",
-      "activity_time": "2025-08-13T03:45:12.345Z"
-    },
-    {
-      "activity_id": 9,
-      "ticket_id": 10,
-      "sender_id": 2,
-      "sender_type": "agent",
-      "activity_type": "Penugasan",
-      "content": "Assigned to agent 2",
-      "activity_time": "2025-08-13T03:46:52.226Z"
-    },
-    {
-      "activity_id": 10,
-      "ticket_id": 10,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "activity_type": "Komentar",
-      "content": "via v3.3.3",
-      "activity_time": "2025-08-13T03:46:53.497Z"
-    }
-  ],
-  "attachments": [
-    {
-      "attachment_id": 1,
-      "activity_id": 1,
-      "file_name": "atm_receipt.jpg",
-      "file_path": "/files/atm_receipt.jpg",
-      "file_type": "image/jpeg",
-      "file_size": 345678,
-      "upload_time": "2025-08-10T05:06:00.000Z",
-      "id": 1
-    },
-    {
-      "activity_id": "null",
-      "file_name": "evidence.jpg",
-      "file_path": "/files/evidence.jpg",
-      "file_type": "image/jpeg",
-      "file_size": 12345,
-      "ticketId": "7",
-      "id": 2,
-      "attachment_id": 2
-    }
-  ],
-  "ticket_uic_escalations": [
-    {
-      "escalation_id": 1,
-      "ticket_id": 1,
-      "uic_id": 1,
-      "escalated_by_agent_id": 1,
-      "escalated_at": "2025-08-10T06:00:00.000Z",
-      "external_case_ref": "ATM-OPS-2025-0001",
-      "status": "sent",
-      "responded_at": null,
-      "closed_at": null,
-      "escalation_kind": "initial",
-      "reminder_seq": null,
-      "notes": "Initial escalation",
-      "email_message_id": "msg-001",
-      "email_status": "sent",
-      "email_sent_at": "2025-08-10T06:01:00.000Z",
-      "id": 1
-    },
-    {
-      "escalation_id": 2,
-      "ticket_id": null,
-      "uic_id": 1,
-      "escalated_by_agent_id": 1,
-      "escalated_at": "2025-08-13T02:37:52.438Z",
-      "external_case_ref": null,
-      "status": "sent",
-      "responded_at": null,
-      "closed_at": null,
-      "escalation_kind": "initial",
-      "reminder_seq": null,
-      "notes": "via nested",
-      "email_message_id": "msg-2",
-      "email_status": "sent",
-      "email_sent_at": "2025-08-13T02:37:52.438Z",
+      "sender_type_id": 2,
+      "ticket_activity_type_id": 2,
+      "content": "Status diubah ke HANDLEDCXC.",
+      "ticket_activity_time": "2025-08-14T08:21:00Z",
       "id": 2
     },
     {
-      "escalation_id": 3,
-      "ticket_id": 5,
-      "uic_id": 1,
-      "escalated_by_agent_id": 1,
-      "escalated_at": "2025-08-13T03:00:53.834Z",
-      "external_case_ref": null,
-      "status": "sent",
-      "responded_at": null,
-      "closed_at": null,
-      "escalation_kind": "initial",
-      "reminder_seq": null,
-      "notes": "via nested",
-      "email_message_id": "msg-3",
-      "email_status": "sent",
-      "email_sent_at": "2025-08-13T03:00:53.834Z",
+      "ticket_activity_id": 3,
+      "ticket_id": 3,
+      "sender_id": 3,
+      "sender_type_id": 2,
+      "ticket_activity_type_id": 3,
+      "content": "Lampiran bukti transaksi ditambahkan.",
+      "ticket_activity_time": "2025-08-14T08:26:00Z",
+      "id": 3
+    }
+  ],
+  "attachment": [
+    {
+      "attachment_id": 1,
+      "ticket_activity_id": 3,
+      "file_name": "bukti_transfer.png",
+      "file_path": "/uploads/bukti_transfer.png",
+      "file_type": "image/png",
+      "file_size": 345678,
+      "upload_time": "2025-08-14T08:26:30Z",
+      "id": 1
+    },
+    {
+      "attachment_id": 2,
+      "ticket_activity_id": 1,
+      "file_name": "foto_atm.jpg",
+      "file_path": "/uploads/foto_atm.jpg",
+      "file_type": "image/jpeg",
+      "file_size": 245678,
+      "upload_time": "2025-08-14T08:16:30Z",
+      "id": 2
+    },
+    {
+      "attachment_id": 3,
+      "ticket_activity_id": 2,
+      "file_name": "log_atm.txt",
+      "file_path": "/uploads/log_atm.txt",
+      "file_type": "text/plain",
+      "file_size": 56789,
+      "upload_time": "2025-08-14T08:21:45Z",
       "id": 3
     }
   ],
@@ -911,114 +1867,105 @@
       "feedback_id": 1,
       "ticket_id": 1,
       "score": 5,
-      "comment": "Cepat ditangani",
-      "submit_time": "2025-08-12T02:00:00.000Z",
+      "comment": "Pelayanan cepat.",
+      "submit_time": "2025-08-14T09:00:00Z",
       "id": 1
     },
     {
       "feedback_id": 2,
-      "ticket_id": null,
-      "score": 5,
-      "comment": "mantap",
-      "submit_time": "2025-08-13T02:37:52.890Z",
+      "ticket_id": 2,
+      "score": 3,
+      "comment": "Prosesnya lama.",
+      "submit_time": "2025-08-14T10:00:00Z",
       "id": 2
     },
     {
       "feedback_id": 3,
-      "ticket_id": 5,
-      "score": 5,
-      "comment": "mantap",
-      "submit_time": "2025-08-13T03:00:54.335Z",
+      "ticket_id": 3,
+      "score": 4,
+      "comment": "Informasi jelas dari agent.",
+      "submit_time": "2025-08-14T11:00:00Z",
       "id": 3
-    },
-    {
-      "score": 5,
-      "comment": "mantap",
-      "ticketId": "7",
-      "id": 4,
-      "feedback_id": 4
     }
   ],
-  "notifications": [
-    {
-      "notification_id": 1,
-      "user_type": "customer",
-      "user_id": 1,
-      "ticket_id": 1,
-      "message": "Ticket dibuat",
-      "notification_type": "status_change",
-      "is_read": true,
-      "created_at": "2025-08-10T05:01:00.000Z",
-      "id": 1
-    }
-  ],
-  "chat_messages": [
+  "chat_message": [
     {
       "chat_id": 1,
       "ticket_id": 1,
       "sender_id": 1,
-      "sender_type": "agent",
-      "message": "Mohon info lokasi ATM.",
-      "sent_at": "2025-08-10T05:10:00.000Z",
+      "sender_type_id": 1,
+      "message": "Halo, kartu saya tertelan.",
+      "sent_at": "2025-08-14T08:05:00Z",
       "id": 1
     },
     {
       "chat_id": 2,
-      "ticket_id": 1,
-      "sender_id": 1,
-      "sender_type": "customer",
-      "message": "ATM dekat Monas.",
-      "sent_at": "2025-08-10T05:11:00.000Z",
+      "ticket_id": 2,
+      "sender_id": 2,
+      "sender_type_id": 1,
+      "message": "Tarik tunai gagal tapi saldo berkurang.",
+      "sent_at": "2025-08-14T08:18:00Z",
       "id": 2
     },
     {
       "chat_id": 3,
-      "ticket_id": null,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "ping",
-      "sent_at": "2025-08-13T02:37:52.577Z",
+      "ticket_id": 3,
+      "sender_id": 3,
+      "sender_type_id": 1,
+      "message": "Transfer gagal di MBANK.",
+      "sent_at": "2025-08-14T08:23:00Z",
       "id": 3
-    },
-    {
-      "chat_id": 4,
-      "ticket_id": 5,
-      "sender_id": 1,
-      "sender_type": "agent",
-      "message": "ping",
-      "sent_at": "2025-08-13T03:00:53.984Z",
-      "id": 4
     }
   ],
-  "call_logs": [
+  "call_status_type": [
+    {
+      "call_status_type_id": 1,
+      "call_status_code": "CONNECTED",
+      "call_status_name": "Connected",
+      "id": 1
+    },
+    {
+      "call_status_type_id": 2,
+      "call_status_code": "MISSED",
+      "call_status_name": "Missed",
+      "id": 2
+    },
+    {
+      "call_status_type_id": 3,
+      "call_status_code": "FAILED",
+      "call_status_name": "Failed",
+      "id": 3
+    }
+  ],
+  "call_log": [
     {
       "call_id": 1,
       "ticket_id": 1,
-      "agent_id": 1,
+      "employee_id": 1,
       "customer_id": 1,
-      "call_start": "2025-08-10T05:20:00.000Z",
-      "call_end": "2025-08-10T05:25:00.000Z",
-      "status": "connected",
+      "call_start": "2025-08-14T08:40:00Z",
+      "call_end": "2025-08-14T08:45:00Z",
+      "call_status_type_id": 1,
       "id": 1
     },
     {
       "call_id": 2,
-      "ticket_id": null,
-      "agent_id": 1,
-      "customer_id": 1,
-      "call_start": "2025-08-13T02:00:00.000Z",
+      "ticket_id": 2,
+      "employee_id": 2,
+      "customer_id": 2,
+      "call_start": "2025-08-14T08:50:00Z",
       "call_end": null,
-      "status": "connected",
+      "call_status_type_id": 2,
       "id": 2
     },
     {
       "call_id": 3,
-      "ticket_id": 5,
-      "agent_id": 1,
-      "customer_id": 1,
-      "call_start": "2030-08-13T02:00:00.000Z",
-      "call_end": null,
-      "status": "connected",
+      "ticket_id": 3,
+      "employee_id": 3,
+      "customer_id": 3,
+      "call_start": "2025-08-14T09:00:00Z",
+      "call_end": "2025-08-14T09:06:00Z",
+      "call_status_type_id": 1,
       "id": 3
     }
   ]
