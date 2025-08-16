@@ -46,13 +46,64 @@ class AuthController {
             };
         });
 
-        const { password_hash, ...safeCustomer } = customer;
+        // Get tickets for this customer
+        const tickets = this.db.get('ticket')
+            .filter({ customer_id: customerId })
+            .value();
 
+        const enrichedTickets = tickets.map(ticket => {
+            const customerStatus = this.db.get('customer_status')
+                .find({ customer_status_id: ticket.customer_status_id })
+                .value();
+
+            const issueChannel = this.db.get('channel')
+                .find({ channel_id: ticket.issue_channel_id })
+                .value();
+
+            const relatedAccount = this.db.get('account')
+                .find({ account_id: ticket.related_account_id })
+                .value();
+
+            const relatedCard = this.db.get('card')
+                .find({ card_id: ticket.related_card_id })
+                .value();
+
+            const complaint = this.db.get('complaint_category')
+                .find({ complaint_id: ticket.complaint_id })
+                .value();
+
+            return {
+                ticket_id: ticket.ticket_id,
+                ticket_number: ticket.ticket_number,
+                customer_status: customerStatus?.customer_status_name || null,
+                issue_channel: issueChannel?.channel_name || null,
+                related_account: relatedAccount ? {
+                    account_id: relatedAccount.account_id,
+                    account_number: relatedAccount.account_number
+                } : null,
+                related_card: relatedCard ? {
+                    card_id: relatedCard.card_id,
+                    card_number: relatedCard.card_number,
+                    card_type: relatedCard.card_type
+                } : null,
+                complaint: complaint?.complaint_name || null,
+                created_time: ticket.created_time,
+            };
+        });
+
+        // Return only specific customer fields
         return {
-            ...safeCustomer,
-            accounts: enrichedAccounts
+            full_name: customer.full_name,
+            email: customer.email,
+            address: customer.address,
+            phone_number: customer.phone_number,
+            gender_type: customer.gender_type,
+            place_of_birth: customer.place_of_birth,
+            accounts: enrichedAccounts,
+            tickets: enrichedTickets
         };
     }
+
 
     async loginCustomer(req, res, next) {
         try {
@@ -101,7 +152,9 @@ class AuthController {
             const access_token = jwt.sign({
                 id: customer.customer_id,
                 email: customer.email,
-                role: 'customer'
+                role: 'customer',
+                cif: customer.cif,
+                nik: customer.nik
             }, secret);
 
             res.status(200).json({
@@ -202,7 +255,6 @@ class AuthController {
             next(error);
         }
     }
-
 
     async getAllCustomers(req, res, next) {
         try {

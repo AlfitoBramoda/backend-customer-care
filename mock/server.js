@@ -8,13 +8,18 @@ const server = express();
 const router = jsonServer.router(path.join(__dirname, 'db.json'));
 const middlewares = jsonServer.defaults();
 
+const { swaggerSpec, swaggerUi } = require('./docs/swagger');
 const createAuthRoutes = require('./routes/auth');
+const createTicketRoutes = require('./routes/ticket');
 const db = router.db;
 
 // Body parser
 server.use(express.urlencoded({ extended: true }));
 server.use(express.json());
-server.use(middlewares);
+server.use(middlewares)
+
+// Documentation
+server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));;
 
 // Auto timestamps and id sync
 server.use((req, res, next) => {
@@ -33,8 +38,9 @@ server.use((req, res, next) => {
   }
   next();
 });
-// Auth
+// Custom routes
 server.use('/v1/auth', createAuthRoutes(db));
+server.use('/v1/ticket-detail', createTicketRoutes(db));
 
 // Rewrites
 const rewriter = jsonServer.rewriter(require(path.join(__dirname, 'routes.json')));

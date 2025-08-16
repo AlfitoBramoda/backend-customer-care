@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "f2ae5699-c70a-42fd-b804-caf3ffd9c94c",
-		"name": "B‑Care Mock API new API",
+		"name": "B‑Care Mock API new ERD",
 		"description": "Postman collection for B‑Care mock API endpoints with baseURL variable",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "29237812"
