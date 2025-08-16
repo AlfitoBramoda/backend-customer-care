@@ -92,9 +92,9 @@ const createTicketRoutes = require('./routes/ticket');
 server.use('/v1/auth', createAuthRoutes(db));
 server.use('/v1/ticket-detail', createTicketRoutes(db));
 
-// Rewrites → lalu router
-const rewriter = jsonServer.rewriter(require(path.join(__dirname, 'routes.json')));
-server.use(rewriter);
+// // Rewrites → lalu router
+// const rewriter = jsonServer.rewriter(require(path.join(__dirname, 'routes.json')));
+// server.use(rewriter);
 server.use('/v1', router);
 
 // Global JSON error handler (hindari HTML error page)
