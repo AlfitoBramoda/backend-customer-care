@@ -67,7 +67,7 @@ const swaggerDefinition = {
             }
             }
         },
-        LoginResponse: {
+        CustomerLoginResponse: {
             type: 'object',
             properties: {
             success: {
@@ -97,25 +97,75 @@ const swaggerDefinition = {
             data: {
                 type: 'object',
                 properties: {
+                id: {
+                    type: 'integer',
+                    example: 1
+                },
                 full_name: {
                     type: 'string',
                     example: 'Andi Saputra'
                 },
+                role: {
+                    type: 'string',
+                    example: 'customer'
+                },
                 email: {
                     type: 'string',
                     example: 'andi.saputra@example.com'
+                }
+                }
+            }
+            }
+        },
+        EmployeeLoginResponse: {
+            type: 'object',
+            properties: {
+            success: {
+                type: 'boolean',
+                example: true
+            },
+            message: {
+                type: 'string',
+                example: 'Login successful'
+            },
+            access_token: {
+                type: 'string',
+                example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+            },
+            refresh_token: {
+                type: 'string',
+                example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+            },
+            token_type: {
+                type: 'string',
+                example: 'Bearer'
+            },
+            expires_in: {
+                type: 'integer',
+                example: 900
+            },
+            data: {
+                type: 'object',
+                properties: {
+                id: {
+                    type: 'integer',
+                    example: 1
                 },
-                accounts: {
-                    type: 'array',
-                    items: {
-                    type: 'object'
-                    }
+                full_name: {
+                    type: 'string',
+                    example: 'Budi Hartono'
                 },
-                tickets: {
-                    type: 'array',
-                    items: {
-                    type: 'object'
-                    }
+                npp: {
+                    type: 'string',
+                    example: 'EMP00001'
+                },
+                role: {
+                    type: 'string',
+                    example: 'employee'
+                },
+                email: {
+                    type: 'string',
+                    example: 'budi.hartono@example.com'
                 }
                 }
             }
@@ -172,21 +222,51 @@ const swaggerDefinition = {
                     type: 'string',
                     example: 'andi.saputra@example.com'
                 },
-                full_name: {
-                    type: 'string',
-                    example: 'Andi Saputra'
-                },
                 token_info: {
                     type: 'object',
                     properties: {
                     issued_at: {
                         type: 'string',
-                        format: 'date-time'
+                        format: 'date-time',
+                        example: '2025-01-15T10:30:00.000Z'
                     },
                     expires_at: {
                         type: 'string',
-                        format: 'date-time'
+                        format: 'date-time',
+                        example: '2025-01-15T10:45:00.000Z'
                     }
+                    }
+                },
+                full_name: {
+                    type: 'string',
+                    example: 'Andi Saputra'
+                },
+                address: {
+                    type: 'string',
+                    example: 'Jl. Merdeka No. 10, Jakarta'
+                },
+                phone_number: {
+                    type: 'string',
+                    example: '081234567890'
+                },
+                gender_type: {
+                    type: 'string',
+                    example: 'Male'
+                },
+                place_of_birth: {
+                    type: 'string',
+                    example: 'Jakarta'
+                },
+                accounts: {
+                    type: 'array',
+                    items: {
+                    type: 'object'
+                    }
+                },
+                tickets: {
+                    type: 'array',
+                    items: {
+                    type: 'object'
                     }
                 }
                 }
@@ -291,7 +371,7 @@ const swaggerDefinition = {
             content: {
                 'application/json': {
                 schema: {
-                    $ref: '#/components/schemas/LoginResponse'
+                    $ref: '#/components/schemas/CustomerLoginResponse'
                 }
                 }
             }
@@ -350,7 +430,7 @@ const swaggerDefinition = {
             content: {
                 'application/json': {
                 schema: {
-                    $ref: '#/components/schemas/LoginResponse'
+                    $ref: '#/components/schemas/EmployeeLoginResponse'
                 }
                 }
             }

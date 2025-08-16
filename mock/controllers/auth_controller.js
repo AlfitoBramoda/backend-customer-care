@@ -299,9 +299,6 @@ class AuthController {
                 };
             }
 
-            // Get full customer data
-            const customerFullData = this.getCustomerFullData(customer.customer_id);
-
             // Enhanced token generation
             const tokenPayload = {
                 id: customer.customer_id,
@@ -324,7 +321,12 @@ class AuthController {
                 refresh_token: refreshToken,
                 token_type: "Bearer",
                 expires_in: this.parseExpirationTime(this.jwtConfig.expiresIn),
-                data: customerFullData
+                data: {
+                    id: customer.customer_id,
+                    full_name: customer.full_name,
+                    role: 'customer',
+                    email: customer.email,
+                }
             });
 
         } catch (error) {
@@ -404,9 +406,6 @@ class AuthController {
                 };
             }
 
-            // Get full employee data
-            const employeeFullData = this.getEmployeeFullData(employee.employee_id);
-
             // Enhanced token generation
             const tokenPayload = {
                 id: employee.employee_id,
@@ -430,7 +429,13 @@ class AuthController {
                 refresh_token: refreshToken,
                 token_type: "Bearer",
                 expires_in: this.parseExpirationTime(this.jwtConfig.expiresIn),
-                data: employeeFullData
+                data: {
+                    id: employee.employee_id,
+                    full_name: employee.full_name,
+                    npp: employee.npp,
+                    role: 'employee',
+                    email: employee.email
+                }
             });
 
         } catch (error) {
