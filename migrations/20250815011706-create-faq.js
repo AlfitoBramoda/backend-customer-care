@@ -9,12 +9,12 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.BIGINT
       },
-      complaint_id: {
+      channel_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'complaint_category',
-          key: 'complaint_id'
+          model: 'channel',
+          key: 'channel_id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
@@ -44,7 +44,7 @@ module.exports = {
     });
 
     // Indexes for FAQ search functionality
-    await queryInterface.addIndex('faq', ['complaint_id']);
+    await queryInterface.addIndex('faq', ['channel_id']);
     await queryInterface.addIndex('faq', ['keywords']);
   },
 
