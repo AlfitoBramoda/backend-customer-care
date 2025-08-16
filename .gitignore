@@ -2,7 +2,7 @@
 .env
 
 # Node Modules
-node_modules/
+node_modules/   
 
-# Backup folder
+# Backup Folder
 backup/
