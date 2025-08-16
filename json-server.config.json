@@ -1,7 +1,0 @@
-{
-  "watch": true,
-  "port": 4000,
-  "delay": 400,
-  "routes": "routes.json",
-  "middlewares": ["middleware.js"]
-}
