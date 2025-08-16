@@ -1,4 +1,4 @@
-# Backend Customer Care B-Care (Havis)
+# Backend Customer Care B-Care
 
 Sistem Backend API untuk Customer Care B-Care menggunakan Node.js, Express, dan PostgreSQL.
 

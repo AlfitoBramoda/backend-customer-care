@@ -53,23 +53,156 @@ const swaggerDefinition = {
             },
             password: {
                 type: 'string',
-                example: 'bud1'
+                example: 'budi'
+            }
+            }
+        },
+        RefreshTokenRequest: {
+            type: 'object',
+            required: ['refresh_token'],
+            properties: {
+            refresh_token: {
+                type: 'string',
+                example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
             }
             }
         },
         LoginResponse: {
             type: 'object',
             properties: {
+            success: {
+                type: 'boolean',
+                example: true
+            },
             message: {
                 type: 'string',
-                example: 'Login Success'
+                example: 'Login successful'
             },
             access_token: {
                 type: 'string',
                 example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
             },
+            refresh_token: {
+                type: 'string',
+                example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+            },
+            token_type: {
+                type: 'string',
+                example: 'Bearer'
+            },
+            expires_in: {
+                type: 'integer',
+                example: 900
+            },
             data: {
-                type: 'object'
+                type: 'object',
+                properties: {
+                full_name: {
+                    type: 'string',
+                    example: 'Andi Saputra'
+                },
+                email: {
+                    type: 'string',
+                    example: 'andi.saputra@example.com'
+                },
+                accounts: {
+                    type: 'array',
+                    items: {
+                    type: 'object'
+                    }
+                },
+                tickets: {
+                    type: 'array',
+                    items: {
+                    type: 'object'
+                    }
+                }
+                }
+            }
+            }
+        },
+        RefreshTokenResponse: {
+            type: 'object',
+            properties: {
+            success: {
+                type: 'boolean',
+                example: true
+            },
+            message: {
+                type: 'string',
+                example: 'Token refreshed successfully'
+            },
+            access_token: {
+                type: 'string',
+                example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+            },
+            token_type: {
+                type: 'string',
+                example: 'Bearer'
+            },
+            expires_in: {
+                type: 'integer',
+                example: 900
+            }
+            }
+        },
+        CurrentUserResponse: {
+            type: 'object',
+            properties: {
+            success: {
+                type: 'boolean',
+                example: true
+            },
+            message: {
+                type: 'string',
+                example: 'User data retrieved successfully'
+            },
+            data: {
+                type: 'object',
+                properties: {
+                id: {
+                    type: 'integer',
+                    example: 1
+                },
+                role: {
+                    type: 'string',
+                    example: 'customer'
+                },
+                email: {
+                    type: 'string',
+                    example: 'andi.saputra@example.com'
+                },
+                full_name: {
+                    type: 'string',
+                    example: 'Andi Saputra'
+                },
+                token_info: {
+                    type: 'object',
+                    properties: {
+                    issued_at: {
+                        type: 'string',
+                        format: 'date-time'
+                    },
+                    expires_at: {
+                        type: 'string',
+                        format: 'date-time'
+                    }
+                    }
+                }
+                }
+            }
+            }
+        },
+        LogoutResponse: {
+            type: 'object',
+            properties: {
+            success: {
+                type: 'boolean',
+                example: true
+            },
+            message: {
+                type: 'string',
+                example: 'Logout successful'
             }
             }
         },
@@ -141,7 +274,7 @@ const swaggerDefinition = {
         post: {
         tags: ['Authentication'],
         summary: 'Customer login',
-        description: 'Authenticate customer with email and password',
+        description: 'Authenticate customer with email and password. Returns access token, refresh token, and customer data.',
         requestBody: {
             required: true,
             content: {
@@ -164,7 +297,7 @@ const swaggerDefinition = {
             }
             },
             400: {
-            description: 'Bad request - Invalid input',
+            description: 'Bad request - Invalid input or email format',
             content: {
                 'application/json': {
                 schema: {
@@ -200,7 +333,7 @@ const swaggerDefinition = {
         post: {
         tags: ['Authentication'],
         summary: 'Employee login',
-        description: 'Authenticate employee with NPP and password',
+        description: 'Authenticate employee with NPP and password. Returns access token, refresh token, and employee data.',
         requestBody: {
             required: true,
             content: {
@@ -223,7 +356,7 @@ const swaggerDefinition = {
             }
             },
             400: {
-            description: 'Bad request',
+            description: 'Bad request - NPP and password required',
             content: {
                 'application/json': {
                 schema: {
@@ -254,6 +387,133 @@ const swaggerDefinition = {
             },
             404: {
             description: 'Employee not found',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            }
+        }
+        }
+    },
+    '/auth/logout': {
+        post: {
+        tags: ['Authentication'],
+        summary: 'User logout',
+        description: 'Logout current user (both customer and employee). Invalidates the current session.',
+        security: [
+            {
+            bearerAuth: []
+            }
+        ],
+        responses: {
+            200: {
+            description: 'Logout successful',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/LogoutResponse'
+                }
+                }
+            }
+            },
+            401: {
+            description: 'Unauthorized - Invalid or missing token',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            }
+        }
+        }
+    },
+    '/auth/me': {
+        get: {
+        tags: ['Authentication'],
+        summary: 'Get current user',
+        description: 'Get current authenticated user information (customer or employee) with full profile data.',
+        security: [
+            {
+            bearerAuth: []
+            }
+        ],
+        responses: {
+            200: {
+            description: 'User data retrieved successfully',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/CurrentUserResponse'
+                }
+                }
+            }
+            },
+            401: {
+            description: 'Unauthorized - Invalid or expired token',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            },
+            404: {
+            description: 'User not found',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            }
+        }
+        }
+    },
+    '/auth/refresh': {
+        post: {
+        tags: ['Authentication'],
+        summary: 'Refresh access token',
+        description: 'Generate new access token using refresh token. Extends user session without re-login.',
+        requestBody: {
+            required: true,
+            content: {
+            'application/json': {
+                schema: {
+                $ref: '#/components/schemas/RefreshTokenRequest'
+                }
+            }
+            }
+        },
+        responses: {
+            200: {
+            description: 'Token refreshed successfully',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/RefreshTokenResponse'
+                }
+                }
+            }
+            },
+            400: {
+            description: 'Bad request - Refresh token required',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            },
+            401: {
+            description: 'Invalid or expired refresh token',
             content: {
                 'application/json': {
                 schema: {

@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "f2ae5699-c70a-42fd-b804-caf3ffd9c94c",
+		"_postman_id": "e3e5d228-fd61-44f8-bb78-cc58a7e5d516",
 		"name": "B‑Care Mock API new ERD",
 		"description": "Postman collection for B‑Care mock API endpoints with baseURL variable",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "29237812"
 	},
 	"item": [
@@ -11,1200 +11,1114 @@
 			"name": "Auth",
 			"item": [
 				{
-					"name": "/v1/auth/login/customer",
+					"name": "Auth ▸ Login Customer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const data = pm.response.json();",
+									"pm.test('contains access_token', () => data && data.access_token);",
+									"pm.environment.set('access_token', data.access_token.replace(/^Bearer\\s+/i,''));",
+									"pm.collectionVariables.set('access_token', data.access_token.replace(/^Bearer\\s+/i,''));",
+									"if (data.refresh_token) {",
+									"  pm.environment.set('refresh_token', data.refresh_token);",
+									"  pm.collectionVariables.set('refresh_token', data.refresh_token);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"andi.saputra@example.com\",\r\n  \"password\": \"andi\"\r\n}\r\n",
+							"raw": "{\n  \"email\": \"rudi.hartono@example.com\",\n  \"password\": \"rudi\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "{{baseURL}}/v1/auth/login/customer",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"v1",
-								"auth",
-								"login",
-								"customer"
-							]
-						}
+						"url": "{{base_url}}/v1/auth/login/customer"
 					},
 					"response": []
 				},
 				{
-					"name": "/v1/auth/login/employee",
+					"name": "Auth ▸ Login Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const data = pm.response.json();",
+									"pm.test('contains access_token', () => data && data.access_token);",
+									"pm.environment.set('access_token', data.access_token.replace(/^Bearer\\s+/i,''));",
+									"pm.collectionVariables.set('access_token', data.access_token.replace(/^Bearer\\s+/i,''));",
+									"if (data.refresh_token) {",
+									"  pm.environment.set('refresh_token', data.refresh_token);",
+									"  pm.collectionVariables.set('refresh_token', data.refresh_token);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"npp\": \"EMP00001\",\r\n  \"password\": \"budi\"\r\n}\r\n",
+							"raw": "{\n  \"npp\": \"EMP00001\",\n  \"password\": \"budi\"\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "{{baseURL}}/v1/auth/login/employee",
-							"host": [
-								"{{baseURL}}"
-							],
-							"path": [
-								"v1",
-								"auth",
-								"login",
-								"employee"
-							]
+						"url": "{{base_url}}/v1/auth/login/employee"
+					},
+					"response": []
+				},
+				{
+					"name": "Auth ▸ Me (authorized)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
 						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/v1/auth/me"
+					},
+					"response": []
+				},
+				{
+					"name": "Auth ▸ Me (negative — no auth)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('401/403 expected', () => [401,403].includes(pm.response.code));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/v1/auth/me"
+					},
+					"response": []
+				},
+				{
+					"name": "Auth ▸ Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const data = pm.response.json();",
+									"if (data.access_token) {",
+									"  const t = data.access_token.replace(/^Bearer\\s+/i,'');",
+									"  pm.environment.set('access_token', t);",
+									"  pm.collectionVariables.set('access_token', t);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/v1/auth/refresh"
+					},
+					"response": []
+				},
+				{
+					"name": "Auth ▸ Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200/204 OK', () => [200,204].includes(pm.response.code));",
+									"pm.environment.unset('access_token');",
+									"pm.environment.unset('refresh_token');",
+									"pm.collectionVariables.unset('access_token');",
+									"pm.collectionVariables.unset('refresh_token');"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": "{{base_url}}/v1/auth/logout"
 					},
 					"response": []
 				}
 			]
 		},
 		{
-			"name": "GET /v1/account",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/account",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"account"
-					]
+			"name": "Ticket",
+			"item": [
+				{
+					"name": "ticket-details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseURL}}/v1/ticket-detail/customer/1"
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "GET /v1/account/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/account/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"account",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+			"name": "Table Endpoint",
+			"item": [
+				{
+					"name": "GET /v1/account",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/account"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/account/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/account/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"account",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/account_type",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/account_type",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"account_type"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/account_type/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/account_type/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"account_type",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/account_type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/account_type"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/account_type/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/account_type/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"account_type",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/attachment",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/attachment",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"attachment"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/attachment/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/attachment/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"attachment",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/attachment",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/attachment"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/attachment/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/attachment/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"attachment",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/call_log",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/call_log",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"call_log"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/call_log/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/call_log/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"call_log",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/call_log",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/call_log"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/call_log/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/call_log/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"call_log",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/call_status_type",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/call_status_type",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"call_status_type"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/call_status_type/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/call_status_type/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"call_status_type",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/call_status_type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/call_status_type"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/call_status_type/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/call_status_type/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"call_status_type",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/card",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/card",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"card"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/card/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/card/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"card",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/card",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/card"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/card/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/card/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"card",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/card_statu/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/card_statu/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"card_statu",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/card_statu/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/card_statu/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"card_statu",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/card_status",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/card_status",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"card_status"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/channel",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/channel",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"channel"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/channel/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/channel/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"channel",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/card_status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/card_status"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/channel",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/channel"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/channel/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/channel/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"channel",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/chat_message",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/chat_message",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"chat_message"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/chat_message/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/chat_message/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"chat_message",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/chat_message",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/chat_message"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/chat_message/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/chat_message/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"chat_message",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/complaint_category",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/complaint_category",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"complaint_category"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/complaint_category/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/complaint_category/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"complaint_category",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/complaint_category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/complaint_category"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/complaint_category/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/complaint_category/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"complaint_category",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/complaint_policy",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/complaint_policy",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"complaint_policy"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/complaint_policy/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/complaint_policy/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"complaint_policy",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/complaint_policy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/complaint_policy"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/complaint_policy/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/complaint_policy/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"complaint_policy",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/customer",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/customer",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"customer"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/customer/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/customer/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"customer",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/customer",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/customer"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/customer/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/customer/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"customer",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/customer_statu/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/customer_statu/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"customer_statu",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/customer_status/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/customer_status/1"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/customer_status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/customer_status"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/division",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/division"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/division/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/division/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"division",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/customer_status",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/customer_status",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"customer_status"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/division",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/division",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"division"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/division/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/division/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"division",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/employee",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/employee"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/employee/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/employee/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"employee",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/employee",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/employee",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"employee"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/employee/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/employee/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"employee",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/employee_statu/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/employee_statu/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"employee_statu",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/employee_statu/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/employee_statu/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"employee_statu",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/employee_status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/employee_status"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/faq",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/faq"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/faq/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/faq/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"faq",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/employee_status",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/employee_status",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"employee_status"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/faq",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/faq",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"faq"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/faq/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/faq/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"faq",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/feedback",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/feedback"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/feedback/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/feedback/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"feedback",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/feedback",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/feedback",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"feedback"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/feedback/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/feedback/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"feedback",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/priority",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/priority"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/priority/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/priority/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"priority",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/priority",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/priority",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"priority"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/priority/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/priority/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"priority",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/role"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/role/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/role/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"role",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/role",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/role",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"role"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/role/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/role/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"role",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/sender_type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/sender_type"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/sender_type/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/sender_type/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"sender_type",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/sender_type",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/sender_type",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"sender_type"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/sender_type/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/sender_type/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"sender_type",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/source",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/source"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/source/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/source/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"source",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/source",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/source",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"source"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/source/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/source/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"source",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/terminal",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/terminal"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/terminal/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/terminal/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"terminal",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/terminal",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/terminal",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"terminal"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/terminal/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/terminal/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"terminal",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/terminal_type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/terminal_type"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/terminal_type/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/terminal_type/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"terminal_type",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/terminal_type",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/terminal_type",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"terminal_type"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/terminal_type/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/terminal_type/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"terminal_type",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/ticket",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/ticket"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/ticket/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/ticket/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"ticket",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/ticket",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/ticket",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"ticket"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/ticket/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/ticket/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"ticket",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/ticket_activity",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/ticket_activity"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/ticket_activity/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/ticket_activity/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"ticket_activity",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/ticket_activity",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/ticket_activity",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"ticket_activity"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/ticket_activity/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/ticket_activity/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"ticket_activity",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/ticket_activity_type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/ticket_activity_type"
+					},
+					"response": []
+				},
+				{
+					"name": "GET /v1/ticket_activity_type/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/v1/ticket_activity_type/:id",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"v1",
+								"ticket_activity_type",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
 						}
-					]
+					},
+					"response": []
 				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/ticket_activity_type",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/ticket_activity_type",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"ticket_activity_type"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /v1/ticket_activity_type/:id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseURL}}/v1/ticket_activity_type/:id",
-					"host": [
-						"{{baseURL}}"
-					],
-					"path": [
-						"v1",
-						"ticket_activity_type",
-						":id"
-					],
-					"variable": [
-						{
-							"key": "id"
-						}
-					]
-				}
-			},
-			"response": []
+			]
 		}
 	],
+	"auth": {
+		"type": "bearer",
+		"bearer": {
+			"0": {
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			},
+			"token": "{{access_token}}"
+		}
+	},
 	"event": [
 		{
 			"listen": "prerequest",
@@ -1229,7 +1143,7 @@
 	],
 	"variable": [
 		{
-			"key": "baseURL",
+			"key": "base_url",
 			"value": "https://4af813bf189d.ngrok-free.app",
 			"type": "string"
 		}

@@ -1,14 +1,165 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
+const crypto = require('crypto');
 
 class AuthController {
     constructor(db) {
         this.db = db;
+
+        // Load security config from environment
+        this.jwtConfig = {
+            secret: process.env.JWT_SECRET,
+            refreshSecret: process.env.JWT_REFRESH_SECRET,
+            expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+            refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+            issuer: process.env.JWT_ISSUER || 'bcare-api',
+            audience: process.env.JWT_AUDIENCE || 'bcare-client'
+        };
+        
+        this.bcryptRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 12;
     }
 
     static createInstance(db) {
         return new AuthController(db);
+    }
+
+    // Enhanced password hashing with environment config
+    async hashPassword(password) {
+        return await bcrypt.hash(password, this.bcryptRounds);
+    }
+
+    async verifyPassword(plainPassword, storedHash, userId, userType) {
+        let isValid = false;
+        let needsUpgrade = false;
+
+        if(storedHash.startsWith('hash$')) {
+            const oldPlainText = storedHash.substring(5);
+            isValid = oldPlainText === plainPassword;
+            needsUpgrade = true;
+        }
+        else {
+            isValid = await bcrypt.compare(plainPassword, storedHash);
+            needsUpgrade = false;
+        }
+
+        if(isValid && needsUpgrade) {
+            await this.upgradePasswordToBcrypt(userId, plainPassword, userType);
+        }
+
+        return isValid;
+    }
+
+    async upgradePasswordToBcrypt(userId, plainPassword, userType) {
+        try {
+            const bcryptHash = await this.hashPassword(plainPassword);
+
+            if(userType === 'customer') {
+                this.db.get('customer')
+                    .find({ customer_id: userId })
+                    .assign({ password_hash: bcryptHash })
+                    .write();
+            }
+            else if(userType === 'employee') {
+                this.db.get('employee')
+                    .find({ employee_id: userId })
+                    .assign({ password_hash: bcryptHash })
+                    .write();
+            }
+
+            if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
+                console.log(`🔐 Password upgraded to bcrypt for ${userType} ID: ${userId}`);
+            }
+        } catch (error) {
+            console.error(`❌ Failed to upgrade password for ${userType} ID: ${userId}`, error);
+        }
+    }
+
+    generateToken(payload) {
+        const accessToken = jwt.sign(payload, this.jwtConfig.secret, {
+            expiresIn: this.jwtConfig.expiresIn,
+            issuer: this.jwtConfig.issuer,
+            audience: this.jwtConfig.audience,
+            algorithm: 'HS256'
+        });
+
+        const refreshToken = jwt.sign(
+            { ...payload, type: 'refresh' },
+            this.jwtConfig.refreshSecret,
+            {
+                expiresIn: this.jwtConfig.refreshExpiresIn,
+                issuer: this.jwtConfig.issuer,
+                audience: this.jwtConfig.audience,
+                algorithm: 'HS256'
+            }
+        );
+
+        return { accessToken, refreshToken };
+    }
+
+    verifyToken(token, type = 'access') {
+        const secret = type === 'refresh' ? this.jwtConfig.refreshSecret : this.jwtConfig.secret;
+
+        return jwt.verify(token, secret, {
+            issuer: this.jwtConfig.issuer,
+            audience: this.jwtConfig.audience,
+            algorithms: ['HS256']
+        });
+    }
+
+    // Refresh Token Method
+    async refreshToken(req, res, next) {
+        try {
+            const { refresh_token } = req.body;
+            
+            if (!refresh_token) {
+                throw { status: 400, message: "Refresh token is required" };
+            }
+
+            // Remove 'Bearer ' prefix if exists
+            const token = refresh_token.startsWith('Bearer ') ? 
+                refresh_token.substring(7) : refresh_token;
+
+            // Verify refresh token
+            const decoded = this.verifyToken(token, 'refresh');
+
+            // Generate new access token
+            const newTokenPayload = {
+                id: decoded.id,
+                email: decoded.email,
+                role: decoded.role,
+                iat: Math.floor(Date.now() / 1000)
+            };
+
+            // Add role-specific data
+            if (decoded.role === 'employee') {
+                newTokenPayload.npp = decoded.npp;
+                newTokenPayload.role_code = decoded.role_code;
+                newTokenPayload.division_code = decoded.division_code;
+            }
+
+            const { accessToken } = this.generateToken(newTokenPayload);
+
+            // Security logging
+            if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
+                console.log(`🔄 Token refreshed for: ${decoded.email} (${decoded.role})`);
+            }
+
+            res.status(200).json({
+                success: true,
+                message: "Token refreshed successfully",
+                access_token: "Bearer " + accessToken,
+                token_type: "Bearer",
+                expires_in: this.parseExpirationTime(this.jwtConfig.expiresIn)
+            });
+
+        } catch (error) {
+            if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+                error.status = 401;
+                error.message = 'Invalid or expired refresh token';
+            }
+            next(error);
+        }
     }
 
     getCustomerFullData(customerId) {
@@ -104,7 +255,6 @@ class AuthController {
         };
     }
 
-
     async loginCustomer(req, res, next) {
         try {
             const { email, password } = req.body;
@@ -134,8 +284,13 @@ class AuthController {
                 };
             }
 
-            // Check password (demo format: hash$plaintext)
-            const isValidPassword = customer.password_hash === `hash$${password}`;
+            // Enhanced password verification with auto-upgrade
+            const isValidPassword = await this.verifyPassword(
+                password, 
+                customer.password_hash, 
+                customer.customer_id, 
+                'customer'
+            );
 
             if (!isValidPassword) {
                 throw {
@@ -147,23 +302,36 @@ class AuthController {
             // Get full customer data
             const customerFullData = this.getCustomerFullData(customer.customer_id);
 
-            // Generate token
-            const secret = process.env.JWT_SECRET || 'your-secret-key';
-            const access_token = jwt.sign({
+            // Enhanced token generation
+            const tokenPayload = {
                 id: customer.customer_id,
                 email: customer.email,
                 role: 'customer',
-                cif: customer.cif,
-                nik: customer.nik
-            }, secret);
+                iat: Math.floor(Date.now() / 1000)
+            };
+
+            const { accessToken, refreshToken } = this.generateToken(tokenPayload);
+
+            // Security logging
+            if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
+                console.log(`🔐 Customer login successful: ${email}`);
+            }
 
             res.status(200).json({
-                message: "Login Success",
-                access_token: "Bearer " + access_token,
+                success: true,
+                message: "Login successful",
+                access_token: "Bearer " + accessToken,
+                refresh_token: refreshToken,
+                token_type: "Bearer",
+                expires_in: this.parseExpirationTime(this.jwtConfig.expiresIn),
                 data: customerFullData
             });
 
         } catch (error) {
+            // Security logging for failed attempts
+            if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
+                console.log(`🚨 Customer login failed: ${req.body.email || 'unknown'}`);
+            }
             next(error);
         }
     }
@@ -221,8 +389,13 @@ class AuthController {
                 };
             }
 
-            // Check password
-            const isValidPassword = employee.password_hash === `hash$${password}`;
+            // Enhanced password verification with auto-upgrade
+            const isValidPassword = await this.verifyPassword(
+                password, 
+                employee.password_hash, 
+                employee.employee_id, 
+                'employee'
+            );
 
             if (!isValidPassword) {
                 throw {
@@ -234,24 +407,150 @@ class AuthController {
             // Get full employee data
             const employeeFullData = this.getEmployeeFullData(employee.employee_id);
 
-            // Generate token
-            const secret = process.env.JWT_SECRET || 'your-secret-key';
-            const access_token = jwt.sign({
+            // Enhanced token generation
+            const tokenPayload = {
                 id: employee.employee_id,
                 email: employee.email,
                 npp: employee.npp,
                 role: 'employee',
-                role_code: employeeFullData.role_details?.role_code,
-                division_code: employeeFullData.division_details?.division_code
-            }, secret);
+                iat: Math.floor(Date.now() / 1000)
+            };
+
+            const { accessToken, refreshToken } = this.generateToken(tokenPayload);
+
+            // Security logging
+            if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
+                console.log(`🔐 Employee login successful: ${npp}`);
+            }
 
             res.status(200).json({
-                message: "Login Success",
-                access_token: "Bearer " + access_token,
+                success: true,
+                message: "Login successful",
+                access_token: "Bearer " + accessToken,
+                refresh_token: refreshToken,
+                token_type: "Bearer",
+                expires_in: this.parseExpirationTime(this.jwtConfig.expiresIn),
                 data: employeeFullData
             });
 
         } catch (error) {
+            // Security logging for failed attempts
+            if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
+                console.log(`🚨 Employee login failed: ${req.body.npp || 'unknown'}`);
+            }
+            next(error);
+        }
+    }
+
+    // Helper method to parse expiration time
+    parseExpirationTime(expiresIn) {
+        const unit = expiresIn.slice(-1);
+        const value = parseInt(expiresIn.slice(0, -1));
+        
+        switch (unit) {
+            case 's': return value;
+            case 'm': return value * 60;
+            case 'h': return value * 3600;
+            case 'd': return value * 86400;
+            default: return 900; // 15 minutes default
+        }
+    }
+
+    // Logout Method - Handle both customer & employee
+    async logout(req, res, next) {
+        try {
+            const authHeader = req.headers.authorization;
+            
+            if (authHeader && process.env.ENABLE_SECURITY_LOGGING === 'true') {
+                try {
+                    const token = authHeader.split(' ')[1];
+                    const decoded = this.verifyToken(token);
+                    
+                    // Smart logging based on role
+                    let userIdentifier;
+                    if (decoded.role === 'customer') {
+                        userIdentifier = decoded.email;
+                    } else if (decoded.role === 'employee') {
+                        userIdentifier = `${decoded.npp} (${decoded.email})`;
+                    } else {
+                        userIdentifier = decoded.email || decoded.id;
+                    }
+                    
+                    console.log(`🔐 User logout: ${userIdentifier} (${decoded.role})`);
+                } catch (error) {
+                    // Token invalid, but logout should still succeed
+                    console.log(`🔐 User logout: invalid token`);
+                }
+            }
+
+            res.status(200).json({
+                success: true,
+                message: "Logout successful"
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Get Current User Method - Handle both customer & employee
+    async getCurrentUser(req, res, next) {
+        try {
+            const authHeader = req.headers.authorization;
+
+            console.log(authHeader)
+            
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                throw { status: 401, message: "Authorization token required" };
+            }
+
+            const token = authHeader.split(' ')[1];
+            const decoded = this.verifyToken(token);
+
+            let userData;
+            
+            if (decoded.role === 'customer') {
+                userData = this.getCustomerFullData(decoded.id);
+            } else if (decoded.role === 'employee') {
+                userData = this.getEmployeeFullData(decoded.id);
+            }
+
+            if (!userData) {
+                throw { status: 404, message: "User not found" };
+            }
+
+            // Enhanced response with proper user identification
+            const userInfo = {
+                id: decoded.id,
+                role: decoded.role,
+                email: decoded.email,
+                token_info: {
+                    issued_at: new Date(decoded.iat * 1000).toISOString(),
+                    expires_at: new Date(decoded.exp * 1000).toISOString()
+                }
+            };
+
+            // Add role-specific info
+            if (decoded.role === 'employee') {
+                userInfo.npp = decoded.npp;
+                userInfo.role_code = decoded.role_code;
+                userInfo.division_code = decoded.division_code;
+            }
+
+            res.status(200).json({
+                success: true,
+                message: "User data retrieved successfully",
+                data: {
+                    ...userInfo,
+                    ...userData
+                }
+            });
+
+        } catch (error) {
+            if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+                error.status = 401;
+                error.message = 'Invalid or expired token';
+            }
             next(error);
         }
     }

@@ -1,0 +1,364 @@
+# B-Care Customer Care API - Endpoint Implementation List
+
+## 📊 Project Overview
+- **Total Custom Endpoints**: 57 endpoints
+- **Current Status**: 2 custom endpoints implemented
+- **Need to Build**: 55 custom endpoints
+- **Target**: Full custom implementation for smooth PostgreSQL migration
+
+---
+
+## 📌 0. Identity & Access
+**Controller**: `auth_controller.js` (extend existing)  
+**Route**: `routes/auth.js` (extend existing)
+
+| Method |         Endpoint          |  Status   | Description |
+|--------|---------------------------|-----------|-------------|
+|  POST  | `/v1/auth/login/customer` | ✅ DONE  | Customer login (enhanced with bcrypt & JWT) |
+|  POST  | `/v1/auth/login/employee` | ✅ DONE  | Employee login (enhanced with bcrypt & JWT) |
+|  POST  | `/v1/auth/logout`         | ✅ DONE  | Logout functionality with smart logging |
+|  GET   | `/v1/auth/me`             | ✅ DONE  | Current user info with role detection |
+|  POST  | `/v1/auth/refresh`        | ✅ BONUS | Refresh token functionality |
+
+**Progress**: 5/5 (100%) - **COMPLETED + BONUS**
+
+---
+
+## 📌 1. Customer 360
+**Controller**: `customer_controller.js` (create new)  
+**Route**: `routes/customer.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| GET | `/v1/customers` | ❌ TODO | List customers dengan filter/search |
+| GET | `/v1/customers/:id` | ❌ TODO | Detail customer dengan relasi |
+| POST | `/v1/customers` | ❌ TODO | Create customer dengan validasi |
+| PATCH | `/v1/customers/:id` | ❌ TODO | Update customer |
+| DELETE | `/v1/customers/:id` | ❌ TODO | Delete customer |
+
+**Progress**: 0/5 (0%)
+
+---
+
+## 📌 2. Reference Data
+**Controller**: `reference_controller.js` (create new)  
+**Route**: `routes/reference.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| GET | `/v1/channels` | ❌ TODO | List channels |
+| GET | `/v1/complaint-categories` | ❌ TODO | List complaint categories |
+| GET | `/v1/slas` | ❌ TODO | Extract SLA dari complaint_policy |
+| GET | `/v1/uics` | ❌ TODO | Map division sebagai UIC |
+| GET | `/v1/policies` | ❌ TODO | List policies dengan filter |
+
+**Progress**: 0/5 (0%)
+
+---
+
+## 📌 3. Terminal Registry
+**Controller**: `terminal_controller.js` (create new)  
+**Route**: `routes/terminal.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| GET | `/v1/terminals` | ❌ TODO | List terminals dengan filter |
+| GET | `/v1/terminals/:id` | ❌ TODO | Detail terminal |
+| POST | `/v1/terminals` | ❌ TODO | Create terminal |
+| PATCH | `/v1/terminals/:id` | ❌ TODO | Update terminal |
+| DELETE | `/v1/terminals/:id` | ❌ TODO | Delete terminal |
+
+**Progress**: 0/5 (0%)
+
+---
+
+## 📌 4. Policy & Routing
+**Controller**: `routing_controller.js` (create new)  
+**Route**: `routes/routing.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| POST | `/v1/routing/resolve` | ❌ TODO | Resolve SLA+UIC berdasarkan Service×Channel×Category |
+
+**Progress**: 0/1 (0%)
+
+---
+
+## 📌 5. Ticketing
+**Controller**: `ticket_controller.js` (extend existing)  
+**Route**: `routes/ticket.js` (extend existing)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| GET | `/v1/ticket-detail/customer/:ticketId` | ✅ DONE | Customer ticket detail (existing) |
+| GET | `/v1/tickets` | ❌ TODO | List tickets dengan filter kompleks |
+| GET | `/v1/tickets/:id` | ❌ TODO | Detail ticket dengan semua relasi |
+| POST | `/v1/tickets` | ❌ TODO | Create ticket dengan business logic |
+| PATCH | `/v1/tickets/:id` | ❌ TODO | Update ticket dengan validasi |
+| DELETE | `/v1/tickets/:id` | ❌ TODO | Delete ticket |
+| GET | `/v1/tickets/:id/activities` | ❌ TODO | Get ticket activities dengan relasi |
+| GET | `/v1/tickets/:id/attachments` | ❌ TODO | Get ticket attachments |
+| GET | `/v1/tickets/:id/feedback` | ❌ TODO | Get ticket feedback |
+
+**Progress**: 1/9 (11%)
+
+---
+
+## 📌 6. Activities & Notes
+**Controller**: `activity_controller.js` (create new)  
+**Route**: `routes/activity.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| POST | `/v1/tickets/:id/activities` | ❌ TODO | Add activity (chat, call, note) |
+| GET | `/v1/activities/:id` | ❌ TODO | Get activity detail |
+
+**Progress**: 0/2 (0%)
+
+---
+
+## 📌 7. Attachments
+**Controller**: `attachment_controller.js` (create new)  
+**Route**: `routes/attachment.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| POST | `/v1/tickets/:id/attachments` | ❌ TODO | Upload file dengan multer |
+| GET | `/v1/attachments/:id` | ❌ TODO | Download/get attachment metadata |
+| DELETE | `/v1/attachments/:id` | ❌ TODO | Delete attachment |
+
+**Progress**: 0/3 (0%)
+
+---
+
+## 📌 8. Chat (Livechat)
+**Controller**: `chat_controller.js` (create new)  
+**Route**: `routes/chat.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| POST | `/v1/chats/sessions` | ❌ TODO | Create chat session |
+| POST | `/v1/chats/:session_id/messages` | ❌ TODO | Send message |
+| GET | `/v1/chats/:session_id/messages` | ❌ TODO | Get chat history |
+
+**Progress**: 0/3 (0%)
+
+---
+
+## 📌 9. Call / Voice Log
+**Controller**: `call_controller.js` (create new)  
+**Route**: `routes/call.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| POST | `/v1/calls/logs` | ❌ TODO | Create call log |
+| GET | `/v1/calls/logs/:id` | ❌ TODO | Get call log detail |
+
+**Progress**: 0/2 (0%)
+
+---
+
+## 📌 10. Feedback
+**Controller**: `feedback_controller.js` (create new)  
+**Route**: `routes/feedback.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| POST | `/v1/tickets/:id/feedback` | ❌ TODO | Submit feedback untuk ticket |
+| POST | `/v1/feedback/:id/comments` | ❌ TODO | Add comment to feedback |
+| GET | `/v1/feedback/:id` | ❌ TODO | Get feedback detail |
+
+**Progress**: 0/3 (0%)
+
+---
+
+## 📌 11. FAQ
+**Controller**: `faq_controller.js` (create new)  
+**Route**: `routes/faq.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| GET | `/v1/faqs` | ❌ TODO | List FAQs dengan search |
+| POST | `/v1/faqs` | ❌ TODO | Create FAQ |
+| PATCH | `/v1/faqs/:id` | ❌ TODO | Update FAQ |
+| DELETE | `/v1/faqs/:id` | ❌ TODO | Delete FAQ |
+| POST | `/v1/faq-logs` | ❌ TODO | Log FAQ search queries |
+
+**Progress**: 0/5 (0%)
+
+---
+
+## 📌 12. Work Management
+**Controller**: `employee_controller.js` (create new)  
+**Route**: `routes/employee.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| GET | `/v1/employees` | ❌ TODO | List employees dengan filter |
+| GET | `/v1/employees/:npp` | ❌ TODO | Get employee by NPP |
+| PATCH | `/v1/employees/:npp` | ❌ TODO | Update employee (shift, availability) |
+
+**Progress**: 0/3 (0%)
+
+---
+
+## 📌 13. Notifications
+**Controller**: `notification_controller.js` (create new)  
+**Route**: `routes/notification.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| GET | `/v1/notifications` | ❌ TODO | Get user notifications |
+| PATCH | `/v1/notifications/:id/read` | ❌ TODO | Mark notification as read |
+
+**Progress**: 0/2 (0%)
+
+---
+
+## 📌 14. Reporting & SLA Analytics
+**Controller**: `report_controller.js` (create new)  
+**Route**: `routes/report.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| GET | `/v1/reports/tickets` | ❌ TODO | Ticket summary reports |
+| GET | `/v1/reports/sla` | ❌ TODO | SLA compliance reports |
+| GET | `/v1/reports/feedback` | ❌ TODO | Feedback analytics |
+
+**Progress**: 0/3 (0%)
+
+---
+
+## 📌 15. Admin Console
+**Controller**: `admin_controller.js` (create new)  
+**Route**: `routes/admin.js` (create new)
+
+| Method | Endpoint | Status | Description |
+|--------|----------|--------|-------------|
+| POST | `/v1/admin/users` | ❌ TODO | Create user (customer/employee) |
+| PATCH | `/v1/admin/users/:id` | ❌ TODO | Update user |
+| DELETE | `/v1/admin/users/:id` | ❌ TODO | Delete user |
+| GET | `/v1/admin/audit-logs` | ❌ TODO | System audit logs |
+
+**Progress**: 0/4 (0%)
+
+---
+
+## 🎯 Implementation Priority
+
+### 🔥 HIGH PRIORITY (Foundation - Week 1-2)
+**Total: 21 endpoints**
+
+1. **Authentication Enhancement** (3 endpoints)
+   - `auth_controller.js` → POST `/v1/auth/login`, POST `/v1/auth/logout`, GET `/v1/auth/me`
+
+2. **Customer Management** (5 endpoints)
+   - `customer_controller.js` → Full CRUD `/v1/customers`
+
+3. **Reference Data** (5 endpoints)
+   - `reference_controller.js` → GET `/v1/channels`, `/complaint-categories`, `/slas`, `/uics`, `/policies`
+
+4. **Core Ticketing** (8 endpoints)
+   - `ticket_controller.js` → Full CRUD `/v1/tickets` + relations
+
+### 🟡 MEDIUM PRIORITY (Core Features - Week 3-4)
+**Total: 21 endpoints**
+
+5. **Employee Management** (3 endpoints)
+6. **Terminal Management** (5 endpoints)
+7. **Activities & Attachments** (5 endpoints)
+8. **Feedback System** (3 endpoints)
+9. **FAQ Management** (5 endpoints)
+
+### 🟢 LOW PRIORITY (Advanced Features - Week 5-6)
+**Total: 15 endpoints**
+
+10. **Policy & Routing** (1 endpoint)
+11. **Communication** (5 endpoints)
+12. **Notifications** (2 endpoints)
+13. **Reporting** (3 endpoints)
+14. **Admin Console** (4 endpoints)
+
+---
+
+## 📋 File Structure Required
+
+### Controllers (14 total)
+- ✅ `auth_controller.js` (existing - extend)
+- ✅ `ticket_controller.js` (existing - extend)
+- ❌ `customer_controller.js` (create new)
+- ❌ `employee_controller.js` (create new)
+- ❌ `reference_controller.js` (create new)
+- ❌ `terminal_controller.js` (create new)
+- ❌ `routing_controller.js` (create new)
+- ❌ `activity_controller.js` (create new)
+- ❌ `attachment_controller.js` (create new)
+- ❌ `chat_controller.js` (create new)
+- ❌ `call_controller.js` (create new)
+- ❌ `feedback_controller.js` (create new)
+- ❌ `faq_controller.js` (create new)
+- ❌ `notification_controller.js` (create new)
+- ❌ `report_controller.js` (create new)
+- ❌ `admin_controller.js` (create new)
+
+### Routes (14 total)
+- ✅ `routes/auth.js` (existing - extend)
+- ✅ `routes/ticket.js` (existing - extend)
+- ❌ `routes/customer.js` (create new)
+- ❌ `routes/employee.js` (create new)
+- ❌ `routes/reference.js` (create new)
+- ❌ `routes/terminal.js` (create new)
+- ❌ `routes/routing.js` (create new)
+- ❌ `routes/activity.js` (create new)
+- ❌ `routes/attachment.js` (create new)
+- ❌ `routes/chat.js` (create new)
+- ❌ `routes/call.js` (create new)
+- ❌ `routes/feedback.js` (create new)
+- ❌ `routes/faq.js` (create new)
+- ❌ `routes/notification.js` (create new)
+- ❌ `routes/report.js` (create new)
+- ❌ `routes/admin.js` (create new)
+
+### Services
+- ❌ `services/database_service.js` (abstraction layer for PostgreSQL migration)
+
+---
+
+## 📊 Overall Progress Tracking
+
+| Category | Done | Total | Progress |
+|----------|------|-------|----------|
+| **Identity & Access** | 2 | 5 | 40% |
+| **Customer 360** | 0 | 5 | 0% |
+| **Reference Data** | 0 | 5 | 0% |
+| **Terminal Registry** | 0 | 5 | 0% |
+| **Policy & Routing** | 0 | 1 | 0% |
+| **Ticketing** | 1 | 9 | 11% |
+| **Activities & Notes** | 0 | 2 | 0% |
+| **Attachments** | 0 | 3 | 0% |
+| **Chat** | 0 | 3 | 0% |
+| **Call Logs** | 0 | 2 | 0% |
+| **Feedback** | 0 | 3 | 0% |
+| **FAQ** | 0 | 5 | 0% |
+| **Work Management** | 0 | 3 | 0% |
+| **Notifications** | 0 | 2 | 0% |
+| **Reporting** | 0 | 3 | 0% |
+| **Admin Console** | 0 | 4 | 0% |
+
+**GRAND TOTAL**: 3/57 endpoints (5.3% complete)
+
+---
+
+## 🚀 Next Steps
+
+1. **Start with HIGH PRIORITY endpoints**
+2. **Create database abstraction layer**
+3. **Implement controllers one by one**
+4. **Test each endpoint thoroughly**
+5. **Prepare for PostgreSQL migration**
+
+---
+
+*Last Updated: [Current Date]*  
+*Project: B-Care Customer Care Backend API*  
+*Team: Backend B-Care*
