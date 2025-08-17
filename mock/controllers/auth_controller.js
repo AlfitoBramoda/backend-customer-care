@@ -134,6 +134,8 @@ class AuthController {
             // Add role-specific data
             if (decoded.role === 'employee') {
                 newTokenPayload.npp = decoded.npp;
+                newTokenPayload.role_id = decoded.role_id;
+                newTokenPayload.division_id = decoded.division_id;
                 newTokenPayload.role_code = decoded.role_code;
                 newTokenPayload.division_code = decoded.division_code;
             }
@@ -406,12 +408,20 @@ class AuthController {
                 };
             }
 
-            // Enhanced token generation
+            // Get role and division data
+            const role = this.db.get('role').find({ role_id: employee.role_id }).value();
+            const division = this.db.get('division').find({ division_id: employee.division_id }).value();
+
+            // Enhanced token generation with role_id and division_id
             const tokenPayload = {
                 id: employee.employee_id,
                 email: employee.email,
                 npp: employee.npp,
                 role: 'employee',
+                role_id: employee.role_id,
+                division_id: employee.division_id,
+                role_code: role?.role_code,
+                division_code: division?.division_code,
                 iat: Math.floor(Date.now() / 1000)
             };
 
@@ -538,6 +548,8 @@ class AuthController {
             // Add role-specific info
             if (decoded.role === 'employee') {
                 userInfo.npp = decoded.npp;
+                userInfo.role_id = decoded.role_id;
+                userInfo.division_id = decoded.division_id;
                 userInfo.role_code = decoded.role_code;
                 userInfo.division_code = decoded.division_code;
             }

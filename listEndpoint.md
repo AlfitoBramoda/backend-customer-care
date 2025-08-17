@@ -147,18 +147,25 @@
 **Progress**: 3/8 (37.5%)
 
 **Features Implemented in `POST /v1/tickets`:**
-- ✅ Customer-only access control
+- ✅ Granular role-based access control
+- ✅ Customer creates for self
+- ✅ Only CXC agents (role_id=1, division_id=1) can create for customers
+- ✅ Other employees blocked from creating tickets
 - ✅ Required field validation (description, issue_channel_id, complaint_id)
-- ✅ Reference validation (channel, complaint category)
+- ✅ CXC agent must provide customer_id field
+- ✅ Reference validation (channel, complaint category, customer)
 - ✅ Business logic: Policy & SLA resolution
-- ✅ Auto ticket number generation (TKT{YYYYMMDD}{sequence})
+- ✅ Auto ticket number generation (BNI-{YYYYMMDD}{sequence})
 - ✅ SLA due date calculation
-- ✅ Default status assignment (OPEN/NEW/MEDIUM)
-- ✅ Initial activity creation
+- ✅ Default status assignment (ACC/OPEN/REGULAR)
+- ✅ Role-aware initial activity creation
 - ✅ Comprehensive error handling (400, 401, 403, 404)
 
 **Features Implemented in `/v1/tickets`:**
-- ✅ Role-based access control (customer vs employee)
+- ✅ Granular role-based access control
+- ✅ Customer: sees only own tickets
+- ✅ CXC agents (role_id=1, division_id=1): sees all tickets
+- ✅ Other employees: sees only assigned tickets
 - ✅ Comprehensive filtering (status, priority, dates, search, etc.)
 - ✅ Pagination with metadata
 - ✅ Data enrichment with related entities

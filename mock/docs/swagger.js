@@ -341,6 +341,11 @@ const swaggerDefinition = {
                 type: 'integer',
                 example: 1,
                 description: 'Source of ticket intake (optional)'
+            },
+            customer_id: {
+                type: 'integer',
+                example: 1,
+                description: 'Customer ID (required for employee, ignored for customer)'
             }
             }
         },
@@ -911,7 +916,7 @@ const swaggerDefinition = {
         post: {
         tags: ['Tickets'],
         summary: 'Create new ticket',
-        description: 'Create a new support ticket. Only customers can create tickets. The system automatically resolves SLA and routing based on complaint category and channel.',
+        description: 'Create a new support ticket. Customers create for themselves, only CXC agents (role_id=1, division_id=1) can create for any customer by providing customer_id. Other employees cannot create tickets.',
         security: [
             {
             bearerAuth: []
@@ -959,7 +964,7 @@ const swaggerDefinition = {
             }
             },
             403: {
-            description: 'Forbidden - Only customers can create tickets',
+            description: 'Forbidden - Access denied',
             content: {
                 'application/json': {
                 schema: {

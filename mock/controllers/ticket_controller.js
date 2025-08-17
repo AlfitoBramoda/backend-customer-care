@@ -29,6 +29,14 @@ class TicketController {
             // Role-based access control
             if (req.user.role === 'customer') {
                 tickets = tickets.filter(ticket => ticket.customer_id == req.user.id);
+            } else if (req.user.role === 'employee') {
+                // Check role_id and division_id from JWT token
+                if (req.user.role_id === 1 && req.user.division_id === 1) {
+                    // CXC Agent can see all tickets - no filter
+                } else {
+                    // Other employees can only see tickets assigned to them
+                    tickets = tickets.filter(ticket => ticket.responsible_employee_id == req.user.id);
+                }
             }
 
             // Apply filters
@@ -298,6 +306,16 @@ class TicketController {
                     success: false,
                     message: 'Access denied'
                 });
+            } else if (req.user.role === 'employee') {
+                // Check role_id and division_id from JWT token
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
+                    if (ticket.responsible_employee_id !== req.user.id) {
+                        return res.status(403).json({
+                            success: false,
+                            message: 'Access denied - you can only view tickets assigned to you'
+                        });
+                    }
+                }
             }
 
             const detailedTicket = this.getDetailedTicketData(ticket, req.user.role);
@@ -546,7 +564,8 @@ class TicketController {
                 related_account_id,
                 related_card_id,
                 terminal_id,
-                intake_source_id
+                intake_source_id,
+                customer_id // For employee use
             } = req.body;
 
             // Validation
@@ -555,6 +574,25 @@ class TicketController {
                     success: false,
                     message: 'Required fields: description, issue_channel_id, complaint_id'
                 });
+            }
+
+            // Employee role and permission check
+            if (req.user.role === 'employee') {
+                // Check role_id and division_id from JWT token
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
+                    return res.status(403).json({
+                        success: false,
+                        message: 'Only CXC agents can create tickets'
+                    });
+                }
+                
+                // CXC agent must provide customer_id
+                if (!customer_id) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Employee must provide customer_id'
+                    });
+                }
             }
 
             // Validate references exist
@@ -574,8 +612,9 @@ class TicketController {
                 });
             }
 
-            // Get customer data
-            const customer = this.db.get('customer').find({ customer_id: req.user.id }).value();
+            // Get customer data (role-based)
+            const targetCustomerId = req.user.role === 'customer' ? req.user.id : parseInt(customer_id);
+            const customer = this.db.get('customer').find({ customer_id: targetCustomerId }).value();
             if (!customer) {
                 return res.status(404).json({
                     success: false,
@@ -609,7 +648,7 @@ class TicketController {
             const newTicket = {
                 ticket_id: this.getNextId('ticket'),
                 ticket_number: ticketNumber,
-                customer_id: req.user.id,
+                customer_id: targetCustomerId,
                 description: description,
                 transaction_date: transaction_date || null,
                 amount: amount || null,
@@ -637,10 +676,12 @@ class TicketController {
             const initialActivity = {
                 ticket_activity_id: this.getNextId('ticket_activity'),
                 ticket_id: newTicket.ticket_id,
-                ticket_activity_type_id: 2,
-                sender_type_id: 1,
+                ticket_activity_type_id: 1,
+                sender_type_id: req.user.role === 'customer' ? 1 : 2,
                 sender_id: req.user.id,
-                content: `Ticket created: ${description}`,
+                content: req.user.role === 'customer' 
+                    ? `Ticket created: ${description}`
+                    : `Ticket created by employee for customer ${customer.full_name}: ${description}`,
                 ticket_activity_time: new Date().toISOString()
             };
 
