@@ -25,6 +25,13 @@ const createTicketRoutes = (db) => {
         ticketController.createTicket.bind(ticketController)
     );
     
+    // PATCH /v1/tickets/:id - Update ticket (employee only)
+    router.patch('/:id', 
+        authenticateToken,
+        authorizeRole(['employee']),
+        ticketController.updateTicket.bind(ticketController)
+    );
+    
     return router;
 };
 

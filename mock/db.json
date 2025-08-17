@@ -1750,7 +1750,7 @@
       "ticket_id": 2,
       "ticket_number": "BNI-00002",
       "description": "Gagal tarik tunai, saldo terdebet",
-      "customer_status_id": 2,
+      "customer_status_id": 3,
       "employee_status_id": 2,
       "priority_id": 1,
       "issue_channel_id": 1,
@@ -1931,6 +1931,15 @@
       "content": "Status berubah dari Accepted ke Verification.",
       "ticket_activity_time": "2025-08-14T08:26:00Z",
       "id": 4
+    },
+    {
+      "ticket_activity_id": 5,
+      "ticket_id": 2,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 2,
+      "content": "Employee updated: customer status to PROCESS, employee status to HANDLEDCXC",
+      "ticket_activity_time": "2025-08-17T07:50:45.689Z"
     }
   ],
   "attachment": [

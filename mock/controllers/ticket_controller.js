@@ -759,6 +759,202 @@ class TicketController {
         return maxId + 1;
     }
 
+    async updateTicket(req, res, next) {
+        try {
+            const { id } = req.params;
+            const {
+                description,
+                customer_status,
+                employee_status,
+                priority,
+                responsible_employee_id,
+                division_notes,
+                transaction_date,
+                amount,
+                related_account_id,
+                related_card_id,
+                terminal_id
+            } = req.body;
+
+            const ticket = this.db.get('ticket')
+                .find({ ticket_id: parseInt(id) })
+                .value();
+
+            if (!ticket) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Ticket not found'
+                });
+            }
+
+            // Role-based access control - Only employees can update tickets
+            if (req.user.role === 'customer') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Customers cannot update tickets'
+                });
+            } else if (req.user.role === 'employee') {
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
+                    if (ticket.responsible_employee_id !== req.user.id) {
+                        return res.status(403).json({
+                            success: false,
+                            message: 'Access denied - you can only update tickets assigned to you'
+                        });
+                    }
+                    
+                    // Non-CXC employees can only update limited fields
+                    const allowedFields = ['customer_status', 'employee_status', 'division_notes'];
+                    const providedFields = Object.keys(req.body);
+                    const invalidFields = providedFields.filter(field => !allowedFields.includes(field));
+                    
+                    if (invalidFields.length > 0) {
+                        return res.status(403).json({
+                            success: false,
+                            message: `Non-CXC employees can only update: ${allowedFields.join(', ')}`
+                        });
+                    }
+                }
+            }
+
+            // Validate status codes if provided
+            let customerStatusId = ticket.customer_status_id;
+            let employeeStatusId = ticket.employee_status_id;
+            let priorityId = ticket.priority_id;
+
+            if (customer_status) {
+                const customerStatusData = this.db.get('customer_status')
+                    .find({ customer_status_code: customer_status.toUpperCase() })
+                    .value();
+                if (!customerStatusData) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Invalid customer_status code'
+                    });
+                }
+                customerStatusId = customerStatusData.customer_status_id;
+            }
+
+            if (employee_status) {
+                const employeeStatusData = this.db.get('employee_status')
+                    .find({ employee_status_code: employee_status.toUpperCase() })
+                    .value();
+                if (!employeeStatusData) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Invalid employee_status code'
+                    });
+                }
+                employeeStatusId = employeeStatusData.employee_status_id;
+            }
+
+            if (priority) {
+                const priorityData = this.db.get('priority')
+                    .find({ priority_code: priority.toUpperCase() })
+                    .value();
+                if (!priorityData) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Invalid priority code'
+                    });
+                }
+                priorityId = priorityData.priority_id;
+            }
+
+            // Validate responsible employee if provided
+            if (responsible_employee_id) {
+                const employee = this.db.get('employee')
+                    .find({ employee_id: parseInt(responsible_employee_id) })
+                    .value();
+                if (!employee) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Invalid responsible_employee_id'
+                    });
+                }
+            }
+
+            // Prepare update data
+            const updateData = {};
+            const isCXCAgent = req.user.role_id === 1 && req.user.division_id === 1;
+            
+            // Fields available for all employees
+            if (customer_status !== undefined) updateData.customer_status_id = customerStatusId;
+            if (employee_status !== undefined) updateData.employee_status_id = employeeStatusId;
+            if (division_notes !== undefined) updateData.division_notes = division_notes;
+            
+            // Fields only available for CXC agents
+            if (isCXCAgent) {
+                if (description !== undefined) updateData.description = description;
+                if (transaction_date !== undefined) updateData.transaction_date = transaction_date;
+                if (amount !== undefined) updateData.amount = amount;
+                if (related_account_id !== undefined) updateData.related_account_id = related_account_id ? parseInt(related_account_id) : null;
+                if (related_card_id !== undefined) updateData.related_card_id = related_card_id ? parseInt(related_card_id) : null;
+                if (terminal_id !== undefined) updateData.terminal_id = terminal_id ? parseInt(terminal_id) : null;
+                if (priority !== undefined) updateData.priority_id = priorityId;
+                if (responsible_employee_id !== undefined) updateData.responsible_employee_id = responsible_employee_id ? parseInt(responsible_employee_id) : null;
+            }
+            
+            // Auto-close ticket if status is resolved
+            if (employee_status && ['RESOLVED', 'CLOSED'].includes(employee_status.toUpperCase())) {
+                updateData.closed_time = new Date().toISOString();
+            }
+
+            // Update ticket
+            this.db.get('ticket')
+                .find({ ticket_id: parseInt(id) })
+                .assign(updateData)
+                .write();
+
+            // Create activity log
+            const activityContent = this.generateUpdateActivityContent(req.body, req.user.role);
+            const updateActivity = {
+                ticket_activity_id: this.getNextId('ticket_activity'),
+                ticket_id: parseInt(id),
+                ticket_activity_type_id: 2,
+                sender_type_id: req.user.role === 'customer' ? 1 : 2,
+                sender_id: req.user.id,
+                content: activityContent,
+                ticket_activity_time: new Date().toISOString()
+            };
+
+            this.db.get('ticket_activity').push(updateActivity).write();
+
+            // Get updated ticket
+            const updatedTicket = this.db.get('ticket')
+                .find({ ticket_id: parseInt(id) })
+                .value();
+
+            const enrichedTicket = this.enrichTicketData(updatedTicket, req.user.role);
+
+            res.status(200).json({
+                success: true,
+                message: 'Ticket updated successfully',
+                data: enrichedTicket
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    generateUpdateActivityContent(updateData, userRole) {
+        const changes = [];
+        
+        if (updateData.description) changes.push('description');
+        if (updateData.customer_status) changes.push(`customer status to ${updateData.customer_status}`);
+        if (updateData.employee_status) changes.push(`employee status to ${updateData.employee_status}`);
+        if (updateData.priority) changes.push(`priority to ${updateData.priority}`);
+        if (updateData.responsible_employee_id) changes.push('responsible employee');
+        if (updateData.division_notes) changes.push('division notes');
+        if (updateData.transaction_date) changes.push('transaction date');
+        if (updateData.amount) changes.push('amount');
+        if (updateData.related_account_id) changes.push('related account');
+        if (updateData.related_card_id) changes.push('related card');
+        if (updateData.terminal_id) changes.push('terminal');
+        
+        return `Employee updated: ${changes.join(', ')}`;
+    }
+
     calculateSLAInfo(ticket) {
         if (!ticket.committed_due_at) return null;
 

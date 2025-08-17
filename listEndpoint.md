@@ -138,13 +138,13 @@
 | GET | `/v1/tickets` | ✅ DONE | List tickets dengan filter kompleks & role-based access |
 | GET | `/v1/tickets/:id` | ✅ DONE | Detail ticket dengan semua relasi |
 | POST | `/v1/tickets` | ✅ DONE | Create ticket dengan business logic |
-| PATCH | `/v1/tickets/:id` | ❌ TODO | Update ticket dengan validasi |
+| PATCH | `/v1/tickets/:id` | ✅ DONE | Update ticket dengan validasi |
 | DELETE | `/v1/tickets/:id` | ❌ TODO | Delete ticket |
 | GET | `/v1/tickets/:id/activities` | ❌ TODO | Get ticket activities dengan relasi |
 | GET | `/v1/tickets/:id/attachments` | ❌ TODO | Get ticket attachments |
 | GET | `/v1/tickets/:id/feedback` | ❌ TODO | Get ticket feedback |
 
-**Progress**: 3/8 (37.5%)
+**Progress**: 4/8 (50%)
 
 **Features Implemented in `POST /v1/tickets`:**
 - ✅ Granular role-based access control
@@ -178,6 +178,17 @@
 - ✅ Different data structure per role (customer vs employee)
 - ✅ SLA information for employees
 - ✅ Error handling (404, 403)
+
+**Features Implemented in `PATCH /v1/tickets/:id`:**
+- ✅ Employee-only access control (customers cannot update tickets)
+- ✅ CXC agents (role_id=1, division_id=1): can update all tickets with full field access
+- ✅ Non-CXC employees: can only update assigned tickets with limited fields (customer_status, employee_status, division_notes)
+- ✅ Granular field-level permissions based on employee role
+- ✅ Status validation (customer_status, employee_status, priority codes)
+- ✅ Reference validation (employee, account, card, terminal)
+- ✅ Auto-close ticket when status is RESOLVED/CLOSED
+- ✅ Activity logging for all updates
+- ✅ Comprehensive error handling (400, 403, 404)
 
 ---
 
