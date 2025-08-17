@@ -2,13 +2,14 @@
 
 ## 📊 Project Overview
 - **Total Custom Endpoints**: 56 endpoints
-- **Current Status**: 6 custom endpoints implemented
-- **Need to Build**: 50 custom endpoints
+- **Current Status**: 7 custom endpoints implemented
+- **Need to Build**: 49 custom endpoints
 - **Target**: Full custom implementation for smooth PostgreSQL migration
 
 ## 🎆 Recent Updates
 - ✅ **Authentication Module**: Completed all 5 endpoints with enhanced security
 - ✅ **Tickets Listing**: Implemented comprehensive filtering with role-based access
+- ✅ **Ticket Detail**: Implemented GET /v1/tickets/:id with complete relations
 - ✅ **Swagger Documentation**: Updated with all current endpoints and parameters
 
 ---
@@ -96,7 +97,7 @@
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
 | GET | `/v1/tickets` | ✅ DONE | List tickets dengan filter kompleks & role-based access |
-| GET | `/v1/tickets/:id` | ❌ TODO | Detail ticket dengan semua relasi |
+| GET | `/v1/tickets/:id` | ✅ DONE | Detail ticket dengan semua relasi |
 | POST | `/v1/tickets` | ❌ TODO | Create ticket dengan business logic |
 | PATCH | `/v1/tickets/:id` | ❌ TODO | Update ticket dengan validasi |
 | DELETE | `/v1/tickets/:id` | ❌ TODO | Delete ticket |
@@ -104,7 +105,7 @@
 | GET | `/v1/tickets/:id/attachments` | ❌ TODO | Get ticket attachments |
 | GET | `/v1/tickets/:id/feedback` | ❌ TODO | Get ticket feedback |
 
-**Progress**: 1/8 (12.5%)
+**Progress**: 2/8 (25%)
 
 **Features Implemented in `/v1/tickets`:**
 - ✅ Role-based access control (customer vs employee)
@@ -112,6 +113,14 @@
 - ✅ Pagination with metadata
 - ✅ Data enrichment with related entities
 - ✅ Different response structure per role
+
+**Features Implemented in `/v1/tickets/:id`:**
+- ✅ Role-based access control (customer can only access own tickets)
+- ✅ Complete ticket details with all relations
+- ✅ Activities, attachments, and feedback included
+- ✅ Different data structure per role (customer vs employee)
+- ✅ SLA information for employees
+- ✅ Error handling (404, 403)
 
 ---
 

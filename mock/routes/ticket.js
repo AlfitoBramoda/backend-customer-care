@@ -12,6 +12,12 @@ const createTicketRoutes = (db) => {
         ticketController.getAllTickets.bind(ticketController)
     );
     
+    // GET /v1/tickets/:id - Get ticket detail by ID
+    router.get('/:id', 
+        authenticateToken, 
+        ticketController.getTicketById.bind(ticketController)
+    );
+    
     return router;
 };
 

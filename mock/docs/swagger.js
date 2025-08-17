@@ -4,12 +4,12 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDefinition = {
     openapi: '3.0.0',
     info: {
-        title: 'B-Care Mock API',
+        title: 'B-Care API',
         version: '1.0.0',
-        description: 'Contract-first mock backend for B-Care Customer Care System',
+        description: 'Contract-first backend for B-Care Customer Care System',
         contact: {
         name: 'Tim Backend B-Care',
-        email: 'backend@bcare.com'
+        email: 'alfitobramoda@gmail.com'
         }
     },
     servers: [
@@ -767,6 +767,85 @@ const swaggerDefinition = {
             },
             400: {
             description: 'Bad Request - Invalid query parameters',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            }
+        }
+        }
+    },
+    '/tickets/{id}': {
+        get: {
+        tags: ['Tickets'],
+        summary: 'Get ticket by ID',
+        description: 'Retrieve detailed ticket information by ID with all related data (activities, attachments, feedback). Response structure depends on user role.',
+        security: [
+            {
+            bearerAuth: []
+            }
+        ],
+        parameters: [
+            {
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: {
+                type: 'integer'
+            },
+            description: 'Ticket ID'
+            }
+        ],
+        responses: {
+            200: {
+            description: 'Ticket retrieved successfully',
+            content: {
+                'application/json': {
+                schema: {
+                    type: 'object',
+                    properties: {
+                    success: {
+                        type: 'boolean',
+                        example: true
+                    },
+                    message: {
+                        type: 'string',
+                        example: 'Ticket retrieved successfully'
+                    },
+                    data: {
+                        type: 'object',
+                        description: 'Detailed ticket data with all relations (structure varies by user role)'
+                    }
+                    }
+                }
+                }
+            }
+            },
+            404: {
+            description: 'Ticket not found',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            },
+            403: {
+            description: 'Access denied - Customer can only access their own tickets',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            },
+            401: {
+            description: 'Unauthorized - Valid token required',
             content: {
                 'application/json': {
                 schema: {
