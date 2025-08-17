@@ -1928,6 +1928,16 @@
       "content": "Lampiran bukti transaksi ditambahkan.",
       "ticket_activity_time": "2025-08-14T08:26:00Z",
       "id": 3
+    },
+    {
+      "ticket_activity_id": 4,
+      "ticket_id": 4,
+      "sender_id": 1,
+      "sender_type_id": 2,
+      "ticket_activity_type_id": 2,
+      "content": "Status berubah dari Accepted ke Verification.",
+      "ticket_activity_time": "2025-08-14T08:26:00Z",
+      "id": 4
     }
   ],
   "attachment": [

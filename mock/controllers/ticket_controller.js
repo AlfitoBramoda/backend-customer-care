@@ -348,35 +348,55 @@ class TicketController {
             .find({ card_id: ticket.related_card_id })
             .value();
 
-        // Get activities
-        const activities = this.db.get('ticket_activity')
+        // Get activities first
+        const rawActivities = this.db.get('ticket_activity')
             .filter({ ticket_id: ticket.ticket_id })
-            .value()
-            .map(activity => {
-                const activityType = this.db.get('ticket_activity_type')
-                    .find({ activity_type_id: activity.activity_type_id })
-                    .value();
-                
-                return {
-                    activity_id: activity.activity_id,
-                    activity_type: activityType?.activity_type_name,
-                    description: activity.description,
-                    created_time: activity.created_time,
-                    created_by: activity.created_by
-                };
-            });
+            .value();
 
-        // Get attachments
-        const attachments = this.db.get('attachment')
-            .filter({ ticket_id: ticket.ticket_id })
-            .value()
-            .map(attachment => ({
-                attachment_id: attachment.attachment_id,
-                file_name: attachment.file_name,
-                file_size: attachment.file_size,
-                file_type: attachment.file_type,
-                uploaded_time: attachment.uploaded_time
-            }));
+        const activities = rawActivities.map(activity => {
+            const activityType = this.db.get('ticket_activity_type')
+                .find({ ticket_activity_type_id: activity.ticket_activity_type_id })
+                .value();
+            
+            const senderType = this.db.get('sender_type')
+                .find({ sender_type_id: activity.sender_type_id })
+                .value();
+            
+            return {
+                ticket_activity_id: activity.ticket_activity_id,
+                activity_type: activityType ? {
+                    ticket_activity_type_id: activityType.ticket_activity_type_id,
+                    ticket_activity_code: activityType.ticket_activity_code,
+                    ticket_activity_name: activityType.ticket_activity_name
+                } : null,
+                sender_type: senderType ? {
+                    sender_type_id: senderType.sender_type_id,
+                    sender_type_code: senderType.sender_type_code,
+                    sender_type_name: senderType.sender_type_name
+                } : null,
+                sender_id: activity.sender_id,
+                content: activity.content,
+                ticket_activity_time: activity.ticket_activity_time
+            };
+        });
+
+        // Get attachments (through ticket activities)
+        const attachments = [];
+        rawActivities.forEach(activity => {
+            const activityAttachments = this.db.get('attachment')
+                .filter({ ticket_activity_id: activity.ticket_activity_id })
+                .value()
+                .map(attachment => ({
+                    attachment_id: attachment.attachment_id,
+                    ticket_activity_id: attachment.ticket_activity_id,
+                    file_name: attachment.file_name,
+                    file_path: attachment.file_path,
+                    file_size: attachment.file_size,
+                    file_type: attachment.file_type,
+                    upload_time: attachment.upload_time
+                }));
+            attachments.push(...activityAttachments);
+        });
 
         // Get feedback
         const feedback = this.db.get('feedback')
