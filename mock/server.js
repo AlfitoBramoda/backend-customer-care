@@ -104,11 +104,9 @@ server.use('/v1', (req, res, next) => {
 // JSON Server router (LAST, for non-custom routes)
 
 
-// Global JSON error handler (hindari HTML error page)
-server.use((err, req, res, _next) => {
-  console.error(err);
-  res.status(err.status || 500).json({ success: false, message: err.message || 'Internal Server Error' });
-});
+// Global error handler
+const { errorHandler } = require('./middlewares/error_handler');
+server.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;

@@ -139,12 +139,12 @@
 | GET | `/v1/tickets/:id` | ✅ DONE | Detail ticket dengan semua relasi |
 | POST | `/v1/tickets` | ✅ DONE | Create ticket dengan business logic |
 | PATCH | `/v1/tickets/:id` | ✅ DONE | Update ticket dengan validasi |
-| DELETE | `/v1/tickets/:id` | ❌ TODO | Delete ticket |
+| DELETE | `/v1/tickets/:id` | ✅ DONE | Delete ticket |
 | GET | `/v1/tickets/:id/activities` | ❌ TODO | Get ticket activities dengan relasi |
 | GET | `/v1/tickets/:id/attachments` | ❌ TODO | Get ticket attachments |
 | GET | `/v1/tickets/:id/feedback` | ❌ TODO | Get ticket feedback |
 
-**Progress**: 4/8 (50%)
+**Progress**: 5/8 (62.5%)
 
 **Features Implemented in `POST /v1/tickets`:**
 - ✅ Granular role-based access control

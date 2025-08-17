@@ -32,6 +32,13 @@ const createTicketRoutes = (db) => {
         ticketController.updateTicket.bind(ticketController)
     );
     
+    // DELETE /v1/tickets/:id - Delete ticket (admin/manager only)
+    router.delete('/:id', 
+        authenticateToken,
+        authorizeRole(['employee']),
+        ticketController.deleteTicket.bind(ticketController)
+    );
+    
     return router;
 };
 

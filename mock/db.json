@@ -102,6 +102,14 @@
       "account_type_id": 3,
       "is_primary": false,
       "id": 3
+    },
+    {
+      "account_id": 4,
+      "customer_id": 3,
+      "account_number": 5496512384,
+      "account_type_id": 1,
+      "is_primary": true,
+      "id": 4
     }
   ],
   "card_status": [
@@ -1699,6 +1707,13 @@
       "employee_status_name": "Declined",
       "description": "Ticket ditolak",
       "id": 5
+    },
+    {
+      "employee_status_id": 6,
+      "employee_status_code": "DONE_BY_UIC",
+      "employee_status_name": "Done by UIC",
+      "description": "UIC done ticket",
+      "id": 6
     }
   ],
   "ticket_activity_type": [

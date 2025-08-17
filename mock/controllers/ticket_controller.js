@@ -1,3 +1,5 @@
+const { NotFoundError, ForbiddenError, ValidationError, ConflictError } = require('../middlewares/error_handler');
+
 class TicketController {
     constructor(db) {
         this.db = db;
@@ -294,18 +296,12 @@ class TicketController {
                 .value();
 
             if (!ticket) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Ticket not found'
-                });
+                throw new NotFoundError('Ticket');
             }
 
             // Role-based access control
             if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
-                return res.status(403).json({
-                    success: false,
-                    message: 'Access denied'
-                });
+                throw new ForbiddenError('Access denied');
             } else if (req.user.role === 'employee') {
                 // Check role_id and division_id from JWT token
                 if (req.user.role_id !== 1 || req.user.division_id !== 1) {
@@ -570,10 +566,7 @@ class TicketController {
 
             // Validation
             if (!description || !issue_channel_id || !complaint_id) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Required fields: description, issue_channel_id, complaint_id'
-                });
+                throw new ValidationError('Required fields: description, issue_channel_id, complaint_id');
             }
 
             // Employee role and permission check
@@ -953,6 +946,85 @@ class TicketController {
         if (updateData.terminal_id) changes.push('terminal');
         
         return `Employee updated: ${changes.join(', ')}`;
+    }
+
+    async deleteTicket(req, res, next) {
+        try {
+            const { id } = req.params;
+
+            const ticket = this.db.get('ticket')
+                .find({ ticket_id: parseInt(id) })
+                .value();
+
+            if (!ticket) {
+                throw new NotFoundError('Ticket');
+            }
+
+            // Check if already deleted
+            if (ticket.deleted_at) {
+                throw new ConflictError('Ticket already deleted');
+            }
+
+            // Role-based access control - Only CXC employees can delete tickets
+            if (req.user.role !== 'employee') {
+                throw new ForbiddenError('Only employees can delete tickets');
+            }
+
+            // Check if user is CXC employee (role_id=1 AND division_id=1)
+            if (req.user.role_id !== 1 || req.user.division_id !== 1) {
+                throw new ForbiddenError('Only CXC employees can delete tickets');
+            }
+
+            // Business rule: Cannot delete closed tickets
+            const employeeStatus = this.db.get('employee_status')
+                .find({ employee_status_id: ticket.employee_status_id })
+                .value();
+
+            if (employeeStatus && ['CLOSED', 'RESOLVED'].includes(employeeStatus.employee_status_code)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Cannot delete closed or resolved tickets'
+                });
+            }
+
+            // Soft delete - add deleted_at timestamp and deleted_by
+            const deleteData = {
+                deleted_at: new Date().toISOString(),
+                deleted_by: req.user.id
+            };
+
+            this.db.get('ticket')
+                .find({ ticket_id: parseInt(id) })
+                .assign(deleteData)
+                .write();
+
+            // Create activity log for deletion
+            const deleteActivity = {
+                ticket_activity_id: this.getNextId('ticket_activity'),
+                ticket_id: parseInt(id),
+                ticket_activity_type_id: 4, // Assuming 4 = delete activity
+                sender_type_id: 2, // Employee
+                sender_id: req.user.id,
+                content: `Ticket deleted by ${req.user.full_name || req.user.npp}`,
+                ticket_activity_time: new Date().toISOString()
+            };
+
+            this.db.get('ticket_activity').push(deleteActivity).write();
+
+            res.status(200).json({
+                success: true,
+                message: 'Ticket deleted successfully',
+                data: {
+                    ticket_id: ticket.ticket_id,
+                    ticket_number: ticket.ticket_number,
+                    deleted_at: deleteData.deleted_at,
+                    deleted_by: deleteData.deleted_by
+                }
+            });
+
+        } catch (error) {
+            next(error);
+        }
     }
 
     calculateSLAInfo(ticket) {

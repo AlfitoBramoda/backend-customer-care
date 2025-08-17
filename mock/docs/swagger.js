@@ -443,6 +443,39 @@ const swaggerPaths = {
         '404': { description: 'Not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
       },
     },
+    delete: {
+      tags: ['Tickets'],
+      summary: 'Delete ticket (CXC Employee only)',
+      description: 'Soft delete ticket - only CXC employees (role_id=1, division_id=1) can delete tickets.',
+      security: [{ bearerAuth: [] }],
+      parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Ticket ID' }],
+      responses: {
+        '200': {
+          description: 'Ticket deleted successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Ticket deleted successfully' },
+              data: {
+                type: 'object',
+                properties: {
+                  ticket_id: { type: 'integer', example: 1 },
+                  ticket_number: { type: 'string', example: 'BNI-20250115001' },
+                  deleted_at: { type: 'string', format: 'date-time', example: '2025-01-15T15:30:00Z' },
+                  deleted_by: { type: 'integer', example: 2 },
+                },
+              },
+            },
+          } } },
+        },
+        '400': { description: 'Bad request - Cannot delete closed ticket', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '403': { description: 'Forbidden - Only CXC employees allowed', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '404': { description: 'Ticket not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '409': { description: 'Conflict - Ticket already deleted', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+      },
+    },
   },
 };
 

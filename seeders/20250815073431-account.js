@@ -30,6 +30,15 @@ module.exports = {
         is_primary: false,
         created_at: new Date(),
         updated_at: new Date()
+      },
+      {
+        account_id: 4,
+        customer_id: 3,
+        account_number: '5496512384',
+        account_type_id: 1,
+        is_primary: true,
+        created_at: new Date(),
+        updated_at: new Date()
       }
     ], {});            
   },
