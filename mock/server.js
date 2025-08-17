@@ -90,7 +90,7 @@ server.use((req, _res, next) => {
 const createAuthRoutes   = require('./routes/auth');
 const createTicketRoutes = require('./routes/ticket');
 server.use('/v1/auth', createAuthRoutes(db));
-server.use('/v1/ticket-detail', createTicketRoutes(db));
+server.use('/v1/tickets', createTicketRoutes(db));
 
 // // Rewrites → lalu router
 // const rewriter = jsonServer.rewriter(require(path.join(__dirname, 'routes.json')));

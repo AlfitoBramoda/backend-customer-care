@@ -1,13 +1,17 @@
 const express = require('express');
 const TicketController = require('../controllers/ticket_controller');
+const { authenticateToken, authorizeRole } = require('../middlewares/auth');
 
 const createTicketRoutes = (db) => {
     const router = express.Router();
     const ticketController = TicketController.createInstance(db);
-
-    // Customer version - simplified ticket details
-    router.get('/customer/:ticketId', ticketController.getCustomerTicket.bind(ticketController));
-
+    
+    // GET /v1/tickets - List tickets dengan role-based filtering
+    router.get('/', 
+        authenticateToken, 
+        ticketController.getAllTickets.bind(ticketController)
+    );
+    
     return router;
 };
 

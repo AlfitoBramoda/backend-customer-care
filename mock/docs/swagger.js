@@ -287,6 +287,36 @@ const swaggerDefinition = {
             }
         },
         // Ticket Schemas
+        TicketListResponse: {
+            type: 'object',
+            properties: {
+            success: {
+                type: 'boolean',
+                example: true
+            },
+            message: {
+                type: 'string',
+                example: 'Tickets retrieved successfully'
+            },
+            data: {
+                type: 'array',
+                items: {
+                type: 'object'
+                },
+                description: 'Array of tickets (structure depends on user role)'
+            },
+            pagination: {
+                type: 'object',
+                properties: {
+                total: { type: 'integer', example: 150, description: 'Total number of tickets' },
+                limit: { type: 'integer', example: 10, description: 'Number of items per page' },
+                offset: { type: 'integer', example: 0, description: 'Starting position' },
+                pages: { type: 'integer', example: 15, description: 'Total number of pages' }
+                },
+                description: 'Pagination information'
+            }
+            }
+        },
         TicketCustomerResponse: {
             type: 'object',
             properties: {
@@ -605,11 +635,11 @@ const swaggerDefinition = {
         }
         }
     },
-    '/ticket-detail/customer/{ticketId}': {
+    '/tickets': {
         get: {
         tags: ['Tickets'],
-        summary: 'Get customer ticket detail',
-        description: 'Get simplified ticket details for customer (customer can only access their own tickets)',
+        summary: 'Get tickets list with filters',
+        description: 'Retrieve tickets with comprehensive filtering and pagination. Response structure depends on user role (customer sees limited data, employee sees full data).',
         security: [
             {
             bearerAuth: []
@@ -617,38 +647,116 @@ const swaggerDefinition = {
         ],
         parameters: [
             {
-            in: 'path',
-            name: 'ticketId',
-            required: true,
+            in: 'query',
+            name: 'limit',
             schema: {
                 type: 'integer',
-                example: 1
+                minimum: 1,
+                maximum: 100,
+                default: 10
             },
-            description: 'Ticket ID'
+            description: 'Number of tickets per page (1-100)'
+            },
+            {
+            in: 'query',
+            name: 'offset',
+            schema: {
+                type: 'integer',
+                minimum: 0,
+                default: 0
+            },
+            description: 'Starting position for pagination (0-based)'
+            },
+            {
+            in: 'query',
+            name: 'status',
+            schema: {
+                type: 'string',
+                enum: ['ACC', 'VERIF', 'PROCESS', 'CLOSED', 'DECLINED', 'OPEN', 'HANDLEDCXC', 'ESCALATED']
+            },
+            description: 'Filter by ticket status code. Customer Status: ACC (Accepted), VERIF (Verification), PROCESS (Processing), CLOSED (Closed), DECLINED (Declined). Employee Status: OPEN (Open), HANDLEDCXC (Handled by CxC), ESCALATED (Escalated), CLOSED (Closed), DECLINED (Declined)'
+            },
+            {
+            in: 'query',
+            name: 'customer_id',
+            schema: {
+                type: 'integer'
+            },
+            description: 'Filter by customer ID (employee only - customers automatically see only their tickets)'
+            },
+            {
+            in: 'query',
+            name: 'employee_id',
+            schema: {
+                type: 'integer'
+            },
+            description: 'Filter by assigned employee ID (employee only)'
+            },
+            {
+            in: 'query',
+            name: 'priority',
+            schema: {
+                type: 'string',
+                enum: ['CRITICAL', 'HIGH', 'REGULAR']
+            },
+            description: 'Filter by priority level. Values: CRITICAL (Critical), HIGH (High), REGULAR (Regular)'
+            },
+            {
+            in: 'query',
+            name: 'channel_id',
+            schema: {
+                type: 'integer'
+            },
+            description: 'Filter by issue channel ID (1=ATM, 2=Internet Banking, 3=Mobile Banking, etc.)'
+            },
+            {
+            in: 'query',
+            name: 'complaint_id',
+            schema: {
+                type: 'integer'
+            },
+            description: 'Filter by complaint category ID'
+            },
+            {
+            in: 'query',
+            name: 'date_from',
+            schema: {
+                type: 'string',
+                format: 'date'
+            },
+            description: 'Filter tickets created from this date (YYYY-MM-DD format)'
+            },
+            {
+            in: 'query',
+            name: 'date_to',
+            schema: {
+                type: 'string',
+                format: 'date'
+            },
+            description: 'Filter tickets created until this date (YYYY-MM-DD format)'
+            },
+            {
+            in: 'query',
+            name: 'search',
+            schema: {
+                type: 'string'
+            },
+            description: 'Search in ticket description and ticket number (case-insensitive)'
             }
         ],
         responses: {
             200: {
-            description: 'Ticket details retrieved successfully',
+            description: 'Tickets retrieved successfully',
             content: {
                 'application/json': {
                 schema: {
-                    type: 'object',
-                    properties: {
-                    message: {
-                        type: 'string',
-                        example: 'Success get ticket details'
-                    },
-                    data: {
-                        $ref: '#/components/schemas/TicketCustomerResponse'
-                    }
-                    }
+                    $ref: '#/components/schemas/TicketListResponse'
                 }
                 }
             }
             },
             401: {
-            description: 'Unauthorized - Token required',
+            description: 'Unauthorized - Valid token required',
             content: {
                 'application/json': {
                 schema: {
@@ -657,18 +765,8 @@ const swaggerDefinition = {
                 }
             }
             },
-            403: {
-            description: 'Access denied - Can only view own tickets',
-            content: {
-                'application/json': {
-                schema: {
-                    $ref: '#/components/schemas/ErrorResponse'
-                }
-                }
-            }
-            },
-            404: {
-            description: 'Ticket not found',
+            400: {
+            description: 'Bad Request - Invalid query parameters',
             content: {
                 'application/json': {
                 schema: {
