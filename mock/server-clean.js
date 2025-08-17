@@ -57,37 +57,34 @@ server.use(rateLimit({
   legacyHeaders: false,
 }));
 
-// ===== json-server router & DB =====
+// ===== Database setup =====
 const router = jsonServer.router(path.join(__dirname, 'db.json'));
 const db = router.db;
 
-// Global body parser
-server.use(express.json({ limit: '10mb' }));
-server.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// ===== Custom routes with separate body parser =====
+const customApp = express();
+customApp.use(express.json({ limit: '10mb' }));
+customApp.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Swagger
 const { swaggerSpec, swaggerUi } = require('./docs/swagger');
 server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Custom routes FIRST (higher priority)
+// Custom routes on separate app
 const createAuthRoutes   = require('./routes/auth');
 const createTicketRoutes = require('./routes/ticket');
-server.use('/v1/auth', createAuthRoutes(db));
-server.use('/v1/tickets', createTicketRoutes(db));
+customApp.use('/auth', createAuthRoutes(db));
+customApp.use('/tickets', createTicketRoutes(db));
 
-// Static files middleware
-server.use(express.static('public'));
+// Mount custom app
+server.use('/v1', customApp);
 
-// JSON Server router for OTHER routes only (exclude auth and tickets)
-server.use('/v1', (req, res, next) => {
-  const pathname = req.path || req.url || '';
-  const isCustomRoute = pathname.startsWith('/auth') || pathname.startsWith('/tickets');
-  
-  if (isCustomRoute) {
-    return res.status(404).json({ success: false, message: 'Route handled by custom controller' });
-  }
-  
-  // Timestamp middleware for json-server routes
+// ===== JSON Server setup =====
+const jsonApp = jsonServer.create();
+jsonApp.use(jsonServer.defaults());
+
+// Timestamp middleware for json-server only
+jsonApp.use((req, _res, next) => {
   const isWrite = ['POST','PUT','PATCH'].includes(req.method);
   if (isWrite) {
     const b = req.body;
@@ -97,14 +94,15 @@ server.use('/v1', (req, res, next) => {
       b.updated_at = now;
     }
   }
-  
   next();
 });
 
-// JSON Server router (LAST, for non-custom routes)
+jsonApp.use(router);
 
+// Mount json-server app for other routes
+server.use('/v1', jsonApp);
 
-// Global JSON error handler (hindari HTML error page)
+// Global JSON error handler
 server.use((err, req, res, _next) => {
   console.error(err);
   res.status(err.status || 500).json({ success: false, message: err.message || 'Internal Server Error' });

@@ -17,6 +17,10 @@ const swaggerDefinition = {
         url: 'https://4af813bf189d.ngrok-free.app/v1',
         description: 'Development server',
         },
+        {
+        url: 'https://4af813bf189d.ngrok-free.app/v1',
+        description: 'Ngrok tunnel',
+        },
     ],
     components: {
         securitySchemes: {
@@ -287,6 +291,132 @@ const swaggerDefinition = {
             }
         },
         // Ticket Schemas
+        CreateTicketRequest: {
+            type: 'object',
+            required: ['description', 'issue_channel_id', 'complaint_id'],
+            properties: {
+            description: {
+                type: 'string',
+                example: 'Kartu ATM saya tertelan di mesin ATM BNI Sudirman',
+                description: 'Detailed description of the issue'
+            },
+            transaction_date: {
+                type: 'string',
+                format: 'date-time',
+                example: '2025-01-15T14:30:00Z',
+                description: 'Date and time when the issue occurred (optional)'
+            },
+            amount: {
+                type: 'number',
+                format: 'decimal',
+                example: 500000,
+                description: 'Transaction amount if applicable (optional)'
+            },
+            issue_channel_id: {
+                type: 'integer',
+                example: 1,
+                description: 'Channel where issue occurred (1=ATM, 2=Internet Banking, etc.)'
+            },
+            complaint_id: {
+                type: 'integer',
+                example: 1,
+                description: 'Complaint category ID'
+            },
+            related_account_id: {
+                type: 'integer',
+                example: 1,
+                description: 'Related account ID (optional)'
+            },
+            related_card_id: {
+                type: 'integer',
+                example: 1,
+                description: 'Related card ID (optional)'
+            },
+            terminal_id: {
+                type: 'integer',
+                example: 1,
+                description: 'Terminal ID where issue occurred (optional)'
+            },
+            intake_source_id: {
+                type: 'integer',
+                example: 1,
+                description: 'Source of ticket intake (optional)'
+            }
+            }
+        },
+        CreateTicketResponse: {
+            type: 'object',
+            properties: {
+            success: {
+                type: 'boolean',
+                example: true
+            },
+            message: {
+                type: 'string',
+                example: 'Ticket created successfully'
+            },
+            data: {
+                type: 'object',
+                properties: {
+                ticket_id: {
+                    type: 'integer',
+                    example: 101
+                },
+                ticket_number: {
+                    type: 'string',
+                    example: 'BNI-20250115001'
+                },
+                description: {
+                    type: 'string',
+                    example: 'Kartu ATM saya tertelan di mesin ATM BNI Sudirman'
+                },
+                customer_status: {
+                    type: 'object',
+                    properties: {
+                    customer_status_id: { type: 'integer', example: 1 },
+                    customer_status_name: { type: 'string', example: 'Open' },
+                    customer_status_code: { type: 'string', example: 'OPEN' }
+                    }
+                },
+                issue_channel: {
+                    type: 'object',
+                    properties: {
+                    channel_id: { type: 'integer', example: 1 },
+                    channel_name: { type: 'string', example: 'Automated Teller Machine' },
+                    channel_code: { type: 'string', example: 'ATM' }
+                    }
+                },
+                complaint: {
+                    type: 'object',
+                    properties: {
+                    complaint_id: { type: 'integer', example: 1 },
+                    complaint_name: { type: 'string', example: 'Card Swallowed' },
+                    complaint_code: { type: 'string', example: 'CARD_SWALLOWED' }
+                    }
+                },
+                created_time: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2025-01-15T10:30:00.000Z'
+                },
+                sla_info: {
+                    type: 'object',
+                    properties: {
+                    committed_due_at: {
+                        type: 'string',
+                        format: 'date-time',
+                        example: '2025-01-16T10:30:00.000Z'
+                    },
+                    sla_hours: {
+                        type: 'integer',
+                        example: 24
+                    }
+                    }
+                }
+                }
+            }
+            }
+        },
         TicketListResponse: {
             type: 'object',
             properties: {
@@ -635,6 +765,7 @@ const swaggerDefinition = {
         }
         }
     },
+
     '/tickets': {
         get: {
         tags: ['Tickets'],
@@ -767,6 +898,78 @@ const swaggerDefinition = {
             },
             400: {
             description: 'Bad Request - Invalid query parameters',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            }
+        }
+        },
+        post: {
+        tags: ['Tickets'],
+        summary: 'Create new ticket',
+        description: 'Create a new support ticket. Only customers can create tickets. The system automatically resolves SLA and routing based on complaint category and channel.',
+        security: [
+            {
+            bearerAuth: []
+            }
+        ],
+        requestBody: {
+            required: true,
+            content: {
+            'application/json': {
+                schema: {
+                $ref: '#/components/schemas/CreateTicketRequest'
+                }
+            }
+            }
+        },
+        responses: {
+            201: {
+            description: 'Ticket created successfully',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/CreateTicketResponse'
+                }
+                }
+            }
+            },
+            400: {
+            description: 'Bad request - Missing required fields or invalid references',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            },
+            401: {
+            description: 'Unauthorized - Valid token required',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            },
+            403: {
+            description: 'Forbidden - Only customers can create tickets',
+            content: {
+                'application/json': {
+                schema: {
+                    $ref: '#/components/schemas/ErrorResponse'
+                }
+                }
+            }
+            },
+            404: {
+            description: 'Customer not found',
             content: {
                 'application/json': {
                 schema: {

@@ -535,6 +535,189 @@ class TicketController {
         return commonData;
     }
 
+    async createTicket(req, res, next) {
+        try {
+            const {
+                description,
+                transaction_date,
+                amount,
+                issue_channel_id,
+                complaint_id,
+                related_account_id,
+                related_card_id,
+                terminal_id,
+                intake_source_id
+            } = req.body;
+
+            // Validation
+            if (!description || !issue_channel_id || !complaint_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Required fields: description, issue_channel_id, complaint_id'
+                });
+            }
+
+            // Validate references exist
+            const channel = this.db.get('channel').find({ channel_id: parseInt(issue_channel_id) }).value();
+            if (!channel) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid issue_channel_id'
+                });
+            }
+
+            const complaint = this.db.get('complaint_category').find({ complaint_id: parseInt(complaint_id) }).value();
+            if (!complaint) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid complaint_id'
+                });
+            }
+
+            // Get customer data
+            const customer = this.db.get('customer').find({ customer_id: req.user.id }).value();
+            if (!customer) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Customer not found'
+                });
+            }
+
+            // Business Logic: Resolve Policy & SLA
+            const policy = this.resolvePolicy(complaint.complaint_id, channel.channel_id);
+            
+            // Generate ticket number
+            const ticketNumber = this.generateTicketNumber();
+            
+            // Calculate SLA due date
+            const committedDueAt = this.calculateSLADueDate(policy?.sla || 24);
+            
+            // Get default statuses
+            const defaultCustomerStatus = this.db.get('customer_status')
+                .find({ customer_status_code: 'OPEN' })
+                .value();
+            
+            const defaultEmployeeStatus = this.db.get('employee_status')
+                .find({ employee_status_code: 'NEW' })
+                .value();
+            
+            const defaultPriority = this.db.get('priority')
+                .find({ priority_code: 'MEDIUM' })
+                .value();
+
+            // Create ticket
+            const newTicket = {
+                ticket_id: this.getNextId('ticket'),
+                ticket_number: ticketNumber,
+                customer_id: req.user.id,
+                description: description,
+                transaction_date: transaction_date || null,
+                amount: amount || null,
+                issue_channel_id: parseInt(issue_channel_id),
+                complaint_id: parseInt(complaint_id),
+                related_account_id: related_account_id ? parseInt(related_account_id) : null,
+                related_card_id: related_card_id ? parseInt(related_card_id) : null,
+                terminal_id: terminal_id ? parseInt(terminal_id) : null,
+                intake_source_id: intake_source_id ? parseInt(intake_source_id) : null,
+                customer_status_id: defaultCustomerStatus?.customer_status_id || 1,
+                employee_status_id: defaultEmployeeStatus?.employee_status_id || 1,
+                priority_id: defaultPriority?.priority_id || 3,
+                policy_id: policy?.policy_id || null,
+                committed_due_at: committedDueAt,
+                responsible_employee_id: null, // Will be assigned later
+                division_notes: null,
+                created_time: new Date().toISOString(),
+                closed_time: null
+            };
+
+            // Save ticket
+            this.db.get('ticket').push(newTicket).write();
+
+            // Create initial activity
+            const initialActivity = {
+                ticket_activity_id: this.getNextId('ticket_activity'),
+                ticket_id: newTicket.ticket_id,
+                ticket_activity_type_id: 2,
+                sender_type_id: 1,
+                sender_id: req.user.id,
+                content: `Ticket created: ${description}`,
+                ticket_activity_time: new Date().toISOString()
+            };
+
+            this.db.get('ticket_activity').push(initialActivity).write();
+
+            // Return created ticket with enriched data
+            const enrichedTicket = this.enrichTicketData(newTicket, 'customer');
+
+            res.status(201).json({
+                success: true,
+                message: 'Ticket created successfully',
+                data: {
+                    ...enrichedTicket,
+                    ticket_id: newTicket.ticket_id,
+                    sla_info: {
+                        committed_due_at: committedDueAt,
+                        sla_hours: policy?.sla || 24
+                    }
+                }
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    resolvePolicy(complaintId, channelId) {
+        // Find policy based on complaint and channel
+        const policy = this.db.get('complaint_policy')
+            .find(p => p.complaint_id === complaintId && p.channel_id === channelId)
+            .value();
+        
+        if (policy) return policy;
+        
+        // Fallback: find policy by complaint only
+        return this.db.get('complaint_policy')
+            .find({ complaint_id: complaintId })
+            .value();
+    }
+
+    generateTicketNumber() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        
+        // Get today's ticket count
+        const todayStart = new Date(year, now.getMonth(), now.getDate()).toISOString();
+        const todayEnd = new Date(year, now.getMonth(), now.getDate() + 1).toISOString();
+        
+        const todayTickets = this.db.get('ticket')
+            .filter(ticket => ticket.created_time >= todayStart && ticket.created_time < todayEnd)
+            .value();
+        
+        const sequence = String(todayTickets.length + 1).padStart(4, '0');
+        
+        return `BNI-${year}${month}${day}${sequence}`;
+    }
+
+    calculateSLADueDate(slaHours) {
+        const now = new Date();
+        const dueDate = new Date(now.getTime() + (slaHours * 60 * 60 * 1000));
+        return dueDate.toISOString();
+    }
+
+    getNextId(tableName) {
+        const records = this.db.get(tableName).value();
+        if (!records || records.length === 0) return 1;
+        
+        const maxId = Math.max(...records.map(record => {
+            const idField = `${tableName}_id`;
+            return record[idField] || 0;
+        }));
+        
+        return maxId + 1;
+    }
+
     calculateSLAInfo(ticket) {
         if (!ticket.committed_due_at) return null;
 

@@ -18,6 +18,13 @@ const createTicketRoutes = (db) => {
         ticketController.getTicketById.bind(ticketController)
     );
     
+    // POST /v1/tickets - Create new ticket (customer only)
+    router.post('/', 
+        authenticateToken,
+        authorizeRole(['customer']),
+        ticketController.createTicket.bind(ticketController)
+    );
+    
     return router;
 };
 

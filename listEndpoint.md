@@ -28,6 +28,45 @@
 
 **Progress**: 5/5 (100%) - **COMPLETED**
 
+**Features Implemented in `/v1/auth/login/customer`:**
+- ✅ Email format validation
+- ✅ Password encryption with bcrypt
+- ✅ JWT token generation (access + refresh)
+- ✅ Customer data enrichment with accounts & tickets
+- ✅ Comprehensive error handling (400, 401, 404)
+- ✅ Security logging for failed attempts
+
+**Features Implemented in `/v1/auth/login/employee`:**
+- ✅ NPP-based authentication
+- ✅ Password encryption with bcrypt
+- ✅ JWT token generation (access + refresh)
+- ✅ Employee status validation (active check)
+- ✅ Employee data enrichment with division info
+- ✅ Comprehensive error handling (400, 401, 403, 404)
+
+**Features Implemented in `/v1/auth/logout`:**
+- ✅ Token validation and invalidation
+- ✅ Role-aware logout logging
+- ✅ Graceful session termination
+- ✅ Cross-platform compatibility (customer & employee)
+- ✅ Error handling for invalid tokens
+
+**Features Implemented in `/v1/auth/me`:**
+- ✅ Role-based user data retrieval
+- ✅ Token validation and expiry check
+- ✅ Complete profile data with relations
+- ✅ Different response structure per role
+- ✅ Token metadata (issued_at, expires_at)
+- ✅ Error handling (401, 404)
+
+**Features Implemented in `/v1/auth/refresh`:**
+- ✅ Refresh token validation
+- ✅ New access token generation
+- ✅ Token expiry management
+- ✅ Security validation for token authenticity
+- ✅ Error handling for expired/invalid refresh tokens
+- ✅ Maintains user session continuity
+
 ---
 
 ## 📌 1. Customer 360
@@ -98,14 +137,25 @@
 |--------|----------|--------|-------------|
 | GET | `/v1/tickets` | ✅ DONE | List tickets dengan filter kompleks & role-based access |
 | GET | `/v1/tickets/:id` | ✅ DONE | Detail ticket dengan semua relasi |
-| POST | `/v1/tickets` | ❌ TODO | Create ticket dengan business logic |
+| POST | `/v1/tickets` | ✅ DONE | Create ticket dengan business logic |
 | PATCH | `/v1/tickets/:id` | ❌ TODO | Update ticket dengan validasi |
 | DELETE | `/v1/tickets/:id` | ❌ TODO | Delete ticket |
 | GET | `/v1/tickets/:id/activities` | ❌ TODO | Get ticket activities dengan relasi |
 | GET | `/v1/tickets/:id/attachments` | ❌ TODO | Get ticket attachments |
 | GET | `/v1/tickets/:id/feedback` | ❌ TODO | Get ticket feedback |
 
-**Progress**: 2/8 (25%)
+**Progress**: 3/8 (37.5%)
+
+**Features Implemented in `POST /v1/tickets`:**
+- ✅ Customer-only access control
+- ✅ Required field validation (description, issue_channel_id, complaint_id)
+- ✅ Reference validation (channel, complaint category)
+- ✅ Business logic: Policy & SLA resolution
+- ✅ Auto ticket number generation (TKT{YYYYMMDD}{sequence})
+- ✅ SLA due date calculation
+- ✅ Default status assignment (OPEN/NEW/MEDIUM)
+- ✅ Initial activity creation
+- ✅ Comprehensive error handling (400, 401, 403, 404)
 
 **Features Implemented in `/v1/tickets`:**
 - ✅ Role-based access control (customer vs employee)
@@ -353,7 +403,7 @@
 | **Reference Data** | 0 | 5 | 0% |
 | **Terminal Registry** | 0 | 5 | 0% |
 | **Policy & Routing** | 0 | 1 | 0% |
-| **Ticketing** | 1 | 8 | 12.5% |
+| **Ticketing** | 3 | 8 | 37.5% |
 | **Activities & Notes** | 0 | 2 | 0% |
 | **Attachments** | 0 | 3 | 0% |
 | **Chat** | 0 | 3 | 0% |
@@ -365,7 +415,7 @@
 | **Reporting** | 0 | 3 | 0% |
 | **Admin Console** | 0 | 4 | 0% |
 
-**GRAND TOTAL**: 6/56 endpoints (10.7% complete)
+**GRAND TOTAL**: 8/56 endpoints (14.3% complete)
 
 ---
 
