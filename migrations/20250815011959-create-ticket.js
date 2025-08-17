@@ -177,6 +177,22 @@ module.exports = {
         type: Sequelize.JSON, // Array stored as JSON in most DBs
         allowNull: true
       },
+      delete_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        comment: 'Soft delete timestamp'
+      },
+      delete_by: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'employee',
+          key: 'employee_id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        comment: 'Employee who performed soft delete'
+      },
       
       // Sequelize timestamps
       created_at: {
@@ -205,6 +221,8 @@ module.exports = {
     await queryInterface.addIndex('ticket', ['closed_time']);
     await queryInterface.addIndex('ticket', ['committed_due_at']);
     await queryInterface.addIndex('ticket', ['transaction_date']);
+    await queryInterface.addIndex('ticket', ['delete_at']);
+    await queryInterface.addIndex('ticket', ['delete_by']); 
   },
 
   async down(queryInterface, Sequelize) {
