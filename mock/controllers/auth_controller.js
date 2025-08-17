@@ -443,7 +443,9 @@ class AuthController {
                     id: employee.employee_id,
                     full_name: employee.full_name,
                     npp: employee.npp,
-                    role: 'employee',
+                    role: role?.role_name,
+                    division_code: division?.division_code,
+                    role_code: role?.role_code,
                     email: employee.email
                 }
             });
