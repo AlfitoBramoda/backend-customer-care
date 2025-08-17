@@ -1,10 +1,15 @@
 # B-Care Customer Care API - Endpoint Implementation List
 
 ## 📊 Project Overview
-- **Total Custom Endpoints**: 57 endpoints
-- **Current Status**: 2 custom endpoints implemented
-- **Need to Build**: 55 custom endpoints
+- **Total Custom Endpoints**: 56 endpoints
+- **Current Status**: 6 custom endpoints implemented
+- **Need to Build**: 50 custom endpoints
 - **Target**: Full custom implementation for smooth PostgreSQL migration
+
+## 🎆 Recent Updates
+- ✅ **Authentication Module**: Completed all 5 endpoints with enhanced security
+- ✅ **Tickets Listing**: Implemented comprehensive filtering with role-based access
+- ✅ **Swagger Documentation**: Updated with all current endpoints and parameters
 
 ---
 
@@ -18,9 +23,9 @@
 |  POST  | `/v1/auth/login/employee` | ✅ DONE  | Employee login (enhanced with bcrypt & JWT) |
 |  POST  | `/v1/auth/logout`         | ✅ DONE  | Logout functionality with smart logging |
 |  GET   | `/v1/auth/me`             | ✅ DONE  | Current user info with role detection |
-|  POST  | `/v1/auth/refresh`        | ✅ BONUS | Refresh token functionality |
+|  POST  | `/v1/auth/refresh`        | ✅ DONE  | Refresh token functionality |
 
-**Progress**: 5/5 (100%) - **COMPLETED + BONUS**
+**Progress**: 5/5 (100%) - **COMPLETED**
 
 ---
 
@@ -90,8 +95,7 @@
 
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
-| GET | `/v1/ticket-detail/customer/:ticketId` | ✅ DONE | Customer ticket detail (existing) |
-| GET | `/v1/tickets` | ❌ TODO | List tickets dengan filter kompleks |
+| GET | `/v1/tickets` | ✅ DONE | List tickets dengan filter kompleks & role-based access |
 | GET | `/v1/tickets/:id` | ❌ TODO | Detail ticket dengan semua relasi |
 | POST | `/v1/tickets` | ❌ TODO | Create ticket dengan business logic |
 | PATCH | `/v1/tickets/:id` | ❌ TODO | Update ticket dengan validasi |
@@ -100,7 +104,14 @@
 | GET | `/v1/tickets/:id/attachments` | ❌ TODO | Get ticket attachments |
 | GET | `/v1/tickets/:id/feedback` | ❌ TODO | Get ticket feedback |
 
-**Progress**: 1/9 (11%)
+**Progress**: 1/8 (12.5%)
+
+**Features Implemented in `/v1/tickets`:**
+- ✅ Role-based access control (customer vs employee)
+- ✅ Comprehensive filtering (status, priority, dates, search, etc.)
+- ✅ Pagination with metadata
+- ✅ Data enrichment with related entities
+- ✅ Different response structure per role
 
 ---
 
@@ -328,12 +339,12 @@
 
 | Category | Done | Total | Progress |
 |----------|------|-------|----------|
-| **Identity & Access** | 2 | 5 | 40% |
+| **Identity & Access** | 5 | 5 | 100% |
 | **Customer 360** | 0 | 5 | 0% |
 | **Reference Data** | 0 | 5 | 0% |
 | **Terminal Registry** | 0 | 5 | 0% |
 | **Policy & Routing** | 0 | 1 | 0% |
-| **Ticketing** | 1 | 9 | 11% |
+| **Ticketing** | 1 | 8 | 12.5% |
 | **Activities & Notes** | 0 | 2 | 0% |
 | **Attachments** | 0 | 3 | 0% |
 | **Chat** | 0 | 3 | 0% |
@@ -345,7 +356,7 @@
 | **Reporting** | 0 | 3 | 0% |
 | **Admin Console** | 0 | 4 | 0% |
 
-**GRAND TOTAL**: 3/57 endpoints (5.3% complete)
+**GRAND TOTAL**: 6/56 endpoints (10.7% complete)
 
 ---
 
