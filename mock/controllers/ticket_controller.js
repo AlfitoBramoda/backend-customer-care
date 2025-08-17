@@ -633,15 +633,15 @@ class TicketController {
             
             // Get default statuses
             const defaultCustomerStatus = this.db.get('customer_status')
-                .find({ customer_status_code: 'OPEN' })
+                .find({ customer_status_code: 'ACC' })
                 .value();
             
             const defaultEmployeeStatus = this.db.get('employee_status')
-                .find({ employee_status_code: 'NEW' })
+                .find({ employee_status_code: 'OPEN' })
                 .value();
             
             const defaultPriority = this.db.get('priority')
-                .find({ priority_code: 'MEDIUM' })
+                .find({ priority_code: 'REGULAR' })
                 .value();
 
             // Create ticket
