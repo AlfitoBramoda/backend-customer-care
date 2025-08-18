@@ -650,7 +650,7 @@ class TicketController {
                 related_account_id: related_account_id ? parseInt(related_account_id) : null,
                 related_card_id: related_card_id ? parseInt(related_card_id) : null,
                 terminal_id: terminal_id ? parseInt(terminal_id) : null,
-                intake_source_id: intake_source_id ? parseInt(intake_source_id) : null,
+                intake_source_id: req.user.role === 'employee' ? 1 : 2, // 1 for employee, 2 for customer
                 customer_status_id: defaultCustomerStatus?.customer_status_id || 1,
                 employee_status_id: defaultEmployeeStatus?.employee_status_id || 1,
                 priority_id: defaultPriority?.priority_id || 3,
