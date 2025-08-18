@@ -377,6 +377,7 @@ const swaggerDefinition = {
     { name: 'Authentication', description: 'User authentication endpoints' },
     { name: 'Tickets', description: 'Ticket management endpoints' },
     { name: 'Customers', description: 'Customer management endpoints' },
+    { name: 'Reference Data', description: 'Reference data endpoints for channels, categories, SLAs, UICs, and policies' },
   ],
 };
 
@@ -839,6 +840,271 @@ const swaggerPaths = {
         '403': { description: 'Access denied', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
         '404': { description: 'Ticket not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
         '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+      },
+    },
+  },
+
+  // Reference Data Endpoints
+  '/channels': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get all channels',
+      description: 'List all available channels with terminal and policy counts. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'Channels retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Channels retrieved successfully' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    channel_id: { type: 'integer', example: 1 },
+                    channel_code: { type: 'string', example: 'ATM' },
+                    channel_name: { type: 'string', example: 'Automated Teller Machine' },
+                    supports_terminal: { type: 'boolean', example: true },
+                    terminals_count: { type: 'integer', example: 150 },
+                    policies_count: { type: 'integer', example: 25 },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+      },
+    },
+  },
+
+  '/complaint-categories': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get all complaint categories',
+      description: 'List all complaint categories with tickets, FAQs, and policies counts. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'Complaint categories retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Complaint categories retrieved successfully' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    complaint_id: { type: 'integer', example: 1 },
+                    complaint_code: { type: 'string', example: 'CARD_SWALLOWED' },
+                    complaint_name: { type: 'string', example: 'Card Swallowed' },
+                    tickets_count: { type: 'integer', example: 45 },
+                    faqs_count: { type: 'integer', example: 3 },
+                    policies_count: { type: 'integer', example: 8 },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+      },
+    },
+  },
+
+  '/slas': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get SLA data from policies',
+      description: 'Extract SLA information from complaint policies with filtering options. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'service', schema: { type: 'string' }, description: 'Filter by service type' },
+        { in: 'query', name: 'channel_id', schema: { type: 'integer' }, description: 'Filter by channel ID' },
+        { in: 'query', name: 'complaint_id', schema: { type: 'integer' }, description: 'Filter by complaint category ID' },
+      ],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'SLA data retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'SLA data retrieved successfully' },
+              summary: {
+                type: 'object',
+                properties: {
+                  total_policies: { type: 'integer', example: 50 },
+                  unique_sla_levels: { type: 'integer', example: 4 },
+                  sla_groups: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        sla_hours: { type: 'integer', example: 24 },
+                        sla_days: { type: 'integer', example: 1 },
+                        policies_count: { type: 'integer', example: 15 },
+                      },
+                    },
+                  },
+                },
+              },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    policy_id: { type: 'integer', example: 1 },
+                    service: { type: 'string', example: 'ATM Service' },
+                    sla_hours: { type: 'integer', example: 24 },
+                    sla_days: { type: 'integer', example: 1 },
+                    channel: { type: 'object' },
+                    complaint_category: { type: 'object' },
+                    uic: { type: 'object' },
+                    description: { type: 'string' },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+      },
+    },
+  },
+
+  '/uics': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get UICs (Units in Charge)',
+      description: 'List all divisions mapped as UICs with employee and workload statistics. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'UICs retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'UICs retrieved successfully' },
+              summary: {
+                type: 'object',
+                properties: {
+                  total_uics: { type: 'integer', example: 8 },
+                  operational_uics: { type: 'integer', example: 6 },
+                  total_employees: { type: 'integer', example: 45 },
+                  total_active_employees: { type: 'integer', example: 38 },
+                },
+              },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    uic_id: { type: 'integer', example: 1 },
+                    uic_code: { type: 'string', example: 'CXC' },
+                    uic_name: { type: 'string', example: 'Customer Experience Center' },
+                    employees_count: { type: 'integer', example: 12 },
+                    active_employees_count: { type: 'integer', example: 10 },
+                    policies_count: { type: 'integer', example: 25 },
+                    tickets_count: { type: 'integer', example: 150 },
+                    is_operational: { type: 'boolean', example: true },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+      },
+    },
+  },
+
+  '/policies': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get complaint policies',
+      description: 'List all complaint policies with comprehensive filtering and pagination. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'service', schema: { type: 'string' }, description: 'Filter by service type' },
+        { in: 'query', name: 'channel_id', schema: { type: 'integer' }, description: 'Filter by channel ID' },
+        { in: 'query', name: 'complaint_id', schema: { type: 'integer' }, description: 'Filter by complaint category ID' },
+        { in: 'query', name: 'uic_id', schema: { type: 'integer' }, description: 'Filter by UIC (division) ID' },
+        { in: 'query', name: 'sla_min', schema: { type: 'integer' }, description: 'Minimum SLA hours' },
+        { in: 'query', name: 'sla_max', schema: { type: 'integer' }, description: 'Maximum SLA hours' },
+        { in: 'query', name: 'page', schema: { type: 'integer', minimum: 1, default: 1 }, description: 'Page number' },
+        { in: 'query', name: 'limit', schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 }, description: 'Items per page' },
+        { in: 'query', name: 'sort_by', schema: { type: 'string', enum: ['policy_id', 'service', 'sla'], default: 'policy_id' }, description: 'Sort field' },
+        { in: 'query', name: 'sort_order', schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' }, description: 'Sort order' },
+      ],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'Policies retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Policies retrieved successfully' },
+              pagination: {
+                type: 'object',
+                properties: {
+                  current_page: { type: 'integer', example: 1 },
+                  per_page: { type: 'integer', example: 50 },
+                  total_items: { type: 'integer', example: 125 },
+                  total_pages: { type: 'integer', example: 3 },
+                  has_next: { type: 'boolean', example: true },
+                  has_prev: { type: 'boolean', example: false },
+                },
+              },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    policy_id: { type: 'integer', example: 1 },
+                    service: { type: 'string', example: 'ATM Service' },
+                    sla_hours: { type: 'integer', example: 24 },
+                    sla_days: { type: 'integer', example: 1 },
+                    description: { type: 'string', example: 'Standard ATM service policy' },
+                    tickets_count: { type: 'integer', example: 45 },
+                    channel: {
+                      type: 'object',
+                      properties: {
+                        channel_id: { type: 'integer', example: 1 },
+                        channel_code: { type: 'string', example: 'ATM' },
+                        channel_name: { type: 'string', example: 'Automated Teller Machine' },
+                        supports_terminal: { type: 'boolean', example: true },
+                      },
+                    },
+                    complaint_category: {
+                      type: 'object',
+                      properties: {
+                        complaint_id: { type: 'integer', example: 1 },
+                        complaint_code: { type: 'string', example: 'CARD_SWALLOWED' },
+                        complaint_name: { type: 'string', example: 'Card Swallowed' },
+                      },
+                    },
+                    uic: {
+                      type: 'object',
+                      properties: {
+                        division_id: { type: 'integer', example: 1 },
+                        division_code: { type: 'string', example: 'CXC' },
+                        division_name: { type: 'string', example: 'Customer Experience Center' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          } } },
+        },
       },
     },
   },

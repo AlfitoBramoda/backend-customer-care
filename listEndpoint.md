@@ -2,8 +2,8 @@
 
 ## 📊 Project Overview
 - **Total Custom Endpoints**: 56 endpoints
-- **Current Status**: 7 custom endpoints implemented
-- **Need to Build**: 49 custom endpoints
+- **Current Status**: 12 custom endpoints implemented
+- **Need to Build**: 44 custom endpoints
 - **Target**: Full custom implementation for smooth PostgreSQL migration
 
 ## 🎆 Recent Updates
@@ -108,18 +108,62 @@
 ---
 
 ## 📌 2. Reference Data
-**Controller**: `reference_controller.js` (create new)  
-**Route**: `routes/reference.js` (create new)
+**Controller**: `reference_controller.js` ✅ CREATED  
+**Route**: `routes/reference.js` ✅ CREATED
 
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
-| GET | `/v1/channels` | ❌ TODO | List channels |
-| GET | `/v1/complaint-categories` | ❌ TODO | List complaint categories |
-| GET | `/v1/slas` | ❌ TODO | Extract SLA dari complaint_policy |
-| GET | `/v1/uics` | ❌ TODO | Map division sebagai UIC |
-| GET | `/v1/policies` | ❌ TODO | List policies dengan filter |
+| GET | `/v1/channels` | ✅ DONE | List channels dengan terminal & policy counts |
+| GET | `/v1/complaint-categories` | ✅ DONE | List complaint categories dengan tickets, FAQs & policies counts |
+| GET | `/v1/slas` | ✅ DONE | Extract SLA dari complaint_policy dengan filtering |
+| GET | `/v1/uics` | ✅ DONE | Map division sebagai UIC dengan employee & workload stats |
+| GET | `/v1/policies` | ✅ DONE | List policies dengan comprehensive filtering & pagination |
 
-**Progress**: 0/5 (0%)
+**Progress**: 5/5 (100%) - **COMPLETED**
+
+**Features Implemented in `GET /v1/channels`:**
+- ✅ Authentication required (JWT token)
+- ✅ Complete channel listing with metadata
+- ✅ Terminal count per channel
+- ✅ Policy count per channel
+- ✅ Support terminal flag information
+- ✅ Clean structured response
+
+**Features Implemented in `GET /v1/complaint-categories`:**
+- ✅ Authentication required (JWT token)
+- ✅ Complete complaint category listing
+- ✅ Tickets count per category
+- ✅ FAQs count per category
+- ✅ Policies count per category
+- ✅ Usage statistics for each category
+
+**Features Implemented in `GET /v1/slas`:**
+- ✅ Authentication required (JWT token)
+- ✅ SLA extraction from complaint policies
+- ✅ Filtering by service, channel_id, complaint_id
+- ✅ SLA days and hours calculation (SLA stored as days in DB)
+- ✅ Related data enrichment (channel, complaint, UIC)
+- ✅ SLA grouping and summary statistics
+- ✅ Comprehensive SLA analytics
+
+**Features Implemented in `GET /v1/uics`:**
+- ✅ Authentication required (JWT token)
+- ✅ Division mapping as UIC (Unit in Charge)
+- ✅ Employee count per UIC (total & active)
+- ✅ Policy count handled by each UIC
+- ✅ Ticket count assigned to each UIC
+- ✅ Operational status based on active employees
+- ✅ Summary statistics across all UICs
+
+**Features Implemented in `GET /v1/policies`:**
+- ✅ Authentication required (JWT token)
+- ✅ Comprehensive policy listing with pagination
+- ✅ Multi-field filtering (service, channel, complaint, UIC, SLA range)
+- ✅ Flexible sorting (policy_id, service, sla)
+- ✅ Complete data enrichment with related entities
+- ✅ Ticket usage count per policy
+- ✅ SLA days to hours conversion (SLA stored as days in DB)
+- ✅ Pagination metadata with navigation info
 
 ---
 

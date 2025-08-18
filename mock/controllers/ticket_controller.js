@@ -273,7 +273,8 @@ class TicketController {
                 
                 policy: policy ? {
                     policy_id: policy.policy_id,
-                    sla: policy.sla,
+                    sla_days: policy.sla,
+                    sla_hours: policy.sla * 24,
                     uic_id: policy.uic_id
                 } : null,
                 
@@ -626,7 +627,7 @@ class TicketController {
             const ticketNumber = this.generateTicketNumber();
             
             // Calculate SLA due date
-            const committedDueAt = this.calculateSLADueDate(policy?.sla || 24);
+            const committedDueAt = this.calculateSLADueDate(policy?.sla || 1);
             
             // Get default statuses
             const defaultCustomerStatus = this.db.get('customer_status')
@@ -695,7 +696,8 @@ class TicketController {
                     ticket_id: newTicket.ticket_id,
                     sla_info: {
                         committed_due_at: committedDueAt,
-                        sla_hours: policy?.sla || 24
+                        sla_days: policy?.sla || 1,
+                        sla_hours: (policy?.sla || 1) * 24
                     }
                 }
             });
@@ -738,9 +740,9 @@ class TicketController {
         return `BNI-${year}${month}${day}${sequence}`;
     }
 
-    calculateSLADueDate(slaHours) {
+    calculateSLADueDate(slaDays) {
         const now = new Date();
-        const dueDate = new Date(now.getTime() + (slaHours * 60 * 60 * 1000));
+        const dueDate = new Date(now.getTime() + (slaDays * 24 * 60 * 60 * 1000));
         return dueDate.toISOString();
     }
 
