@@ -91,6 +91,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'ticket_id',
         as: 'call_logs'
       });
+
+      // Employee who performed soft delete
+      Ticket.belongsTo(models.employee, {
+        foreignKey: 'delete_by',
+        as: 'deleted_by_employee'
+      });
     }
   }
   Ticket.init({
@@ -146,7 +152,15 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW
     },
     closed_time: DataTypes.DATE,
-    division_notes: DataTypes.JSON
+    division_notes: DataTypes.JSON,
+    delete_at: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    delete_by: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'ticket',
