@@ -76,20 +76,22 @@ server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 const io = setupSocketIO(httpServer, allowlist);
 
 // Custom routes FIRST (higher priority)
-const createAuthRoutes   = require('./routes/auth');
-const createTicketRoutes = require('./routes/ticket');
-const createSocketRoutes = require('./routes/socket');
+const createAuthRoutes     = require('./routes/auth');
+const createTicketRoutes   = require('./routes/ticket');
+const createCustomerRoutes = require('./routes/customer');
+const createSocketRoutes   = require('./routes/socket');
 server.use('/v1/auth', createAuthRoutes(db));
 server.use('/v1/tickets', createTicketRoutes(db));
+server.use('/v1/customers', createCustomerRoutes(db));
 server.use('/v1/socket', createSocketRoutes(db, io));
 
 // Static files middleware
 server.use(express.static('public'));
 
-// JSON Server router for OTHER routes only (exclude auth, tickets, socket)
+// JSON Server router for OTHER routes only (exclude auth, tickets, customers, socket)
 server.use('/v1', (req, res, next) => {
   const pathname = req.path || req.url || '';
-  const isCustomRoute = pathname.startsWith('/auth') || pathname.startsWith('/tickets') || pathname.startsWith('/socket');
+  const isCustomRoute = pathname.startsWith('/auth') || pathname.startsWith('/tickets') || pathname.startsWith('/customers') || pathname.startsWith('/socket');
   
   if (isCustomRoute) {
     return res.status(404).json({ success: false, message: 'Route handled by custom controller' });

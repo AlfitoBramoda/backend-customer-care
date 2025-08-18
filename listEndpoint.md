@@ -75,13 +75,23 @@
 
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
-| GET | `/v1/customers` | ❌ TODO | List customers dengan filter/search |
+| GET | `/v1/customers` | ✅ DONE | List customers dengan filter/search |
 | GET | `/v1/customers/:id` | ❌ TODO | Detail customer dengan relasi |
 | POST | `/v1/customers` | ❌ TODO | Create customer dengan validasi |
 | PATCH | `/v1/customers/:id` | ❌ TODO | Update customer |
 | DELETE | `/v1/customers/:id` | ❌ TODO | Delete customer |
 
-**Progress**: 0/5 (0%)
+**Progress**: 1/5 (20%)
+
+**Features Implemented in `GET /v1/customers`:**
+- ✅ Employee-only access control (customers cannot access this endpoint)
+- ✅ Comprehensive filtering (search by name, email, phone, CIF, NIK)
+- ✅ Gender-based filtering
+- ✅ Flexible sorting (by created_at, full_name, email)
+- ✅ Pagination with metadata (current_page, total_pages, has_next, has_prev)
+- ✅ Data enrichment (accounts_count, tickets_count)
+- ✅ Security (password_hash excluded from response)
+- ✅ Comprehensive error handling (401, 403)
 
 ---
 

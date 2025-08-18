@@ -130,6 +130,46 @@ const swaggerDefinition = {
         },
       },
 
+      // Customer Schemas
+      CustomerListResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Customers retrieved successfully' },
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                customer_id: { type: 'integer', example: 1 },
+                full_name: { type: 'string', example: 'Andi Saputra' },
+                email: { type: 'string', example: 'andi.saputra@example.com' },
+                address: { type: 'string', example: 'Jl. Merdeka No. 10, Jakarta' },
+                phone_number: { type: 'string', example: '081234567890' },
+                cif: { type: 'string', example: 'CIF001' },
+                nik: { type: 'string', example: '3201234567890123' },
+                gender_type: { type: 'string', enum: ['Male', 'Female'], example: 'Male' },
+                place_of_birth: { type: 'string', example: 'Jakarta' },
+                created_at: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
+                accounts_count: { type: 'integer', example: 2 },
+                tickets_count: { type: 'integer', example: 5 },
+              },
+            },
+          },
+          pagination: {
+            type: 'object',
+            properties: {
+              current_page: { type: 'integer', example: 1 },
+              per_page: { type: 'integer', example: 10 },
+              total_items: { type: 'integer', example: 150 },
+              total_pages: { type: 'integer', example: 15 },
+              has_next: { type: 'boolean', example: true },
+              has_prev: { type: 'boolean', example: false },
+            },
+          },
+        },
+      },
+
       // Ticket Schemas
       CreateTicketRequest: {
         type: 'object',
@@ -250,6 +290,7 @@ const swaggerDefinition = {
   tags: [
     { name: 'Authentication', description: 'User authentication endpoints' },
     { name: 'Tickets', description: 'Ticket management endpoints' },
+    { name: 'Customers', description: 'Customer management endpoints' },
   ],
 };
 
@@ -330,6 +371,28 @@ const swaggerPaths = {
         '200': { description: 'Token refreshed', content: { 'application/json': { schema: { $ref: '#/components/schemas/RefreshTokenResponse' } } } },
         '400': { description: 'Bad request', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
         '401': { description: 'Invalid/expired refresh token', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+      },
+    },
+  },
+
+  '/customers': {
+    get: {
+      tags: ['Customers'],
+      summary: 'Get customers list with filters',
+      description: 'List all customers with filtering, search, and pagination. Employee access only.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'page', schema: { type: 'integer', minimum: 1, default: 1 }, description: 'Page number' },
+        { in: 'query', name: 'limit', schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 }, description: 'Items per page' },
+        { in: 'query', name: 'search', schema: { type: 'string' }, description: 'Search by name, email, phone, CIF, or NIK' },
+        { in: 'query', name: 'gender_type', schema: { type: 'string', enum: ['Male', 'Female'] }, description: 'Filter by gender' },
+        { in: 'query', name: 'sort_by', schema: { type: 'string', enum: ['created_at', 'full_name', 'email'], default: 'created_at' }, description: 'Sort field' },
+        { in: 'query', name: 'sort_order', schema: { type: 'string', enum: ['asc', 'desc'], default: 'desc' }, description: 'Sort order' },
+      ],
+      responses: {
+        '200': { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/CustomerListResponse' } } } },
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '403': { description: 'Forbidden - Employee access only', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
       },
     },
   },
