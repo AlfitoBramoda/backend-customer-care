@@ -115,6 +115,117 @@ class CustomerController {
             next(error);
         }
     }
+
+    async getCustomerById(req, res, next) {
+        try {
+            const { id } = req.params;
+            const customerId = parseInt(id);
+
+            // Find customer
+            const customer = this.db.get('customer')
+                .find({ customer_id: customerId })
+                .value();
+
+            if (!customer) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Customer not found",
+                    error_code: "CUSTOMER_NOT_FOUND"
+                });
+            }
+
+            // Get customer accounts with details
+            const accounts = this.db.get('account')
+                .filter({ customer_id: customerId })
+                .map(account => {
+                    const accountType = this.db.get('account_type')
+                        .find({ account_type_id: account.account_type_id })
+                        .value();
+                    
+                    return {
+                        ...account,
+                        account_type: accountType
+                    };
+                })
+                .value();
+
+            // Get customer cards with details
+            const cards = this.db.get('card')
+                .filter({ customer_id: customerId })
+                .map(card => {
+                    const cardStatus = this.db.get('card_status')
+                        .find({ card_status_id: card.card_status_id })
+                        .value();
+                    
+                    return {
+                        ...card,
+                        card_status: cardStatus
+                    };
+                })
+                .value();
+
+            // Get customer tickets with basic info
+            const tickets = this.db.get('ticket')
+                .filter({ customer_id: customerId })
+                .map(ticket => {
+                    const priority = this.db.get('priority')
+                        .find({ priority_id: ticket.priority_id })
+                        .value();
+                    
+                    const channel = this.db.get('channel')
+                        .find({ channel_id: ticket.issue_channel_id })
+                        .value();
+                    
+                    const complaint = this.db.get('complaint_category')
+                        .find({ complaint_id: ticket.complaint_id })
+                        .value();
+
+                    return {
+                        ticket_id: ticket.ticket_id,
+                        ticket_number: ticket.ticket_number,
+                        description: ticket.description,
+                        customer_status: ticket.customer_status,
+                        employee_status: ticket.employee_status,
+                        priority: priority,
+                        channel: channel,
+                        complaint_category: complaint,
+                        created_at: ticket.created_at,
+                        updated_at: ticket.updated_at
+                    };
+                })
+                .value();
+
+            // Remove sensitive data
+            const { password_hash, ...safeCustomer } = customer;
+
+            // Build response
+            const customerDetail = {
+                ...safeCustomer,
+                accounts: accounts,
+                cards: cards,
+                tickets: tickets,
+                summary: {
+                    total_accounts: accounts.length,
+                    total_cards: cards.length,
+                    total_tickets: tickets.length,
+                    active_accounts: accounts.filter(acc => acc.account_status === 'ACTIVE').length,
+                    active_cards: cards.filter(card => card.card_status?.status_name === 'ACTIVE').length,
+                    open_tickets: tickets.filter(ticket => 
+                        !['CLOSED', 'RESOLVED'].includes(ticket.employee_status)
+                    ).length
+                }
+            };
+
+            res.status(200).json({
+                success: true,
+                message: "Customer detail retrieved successfully",
+                data: customerDetail
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = CustomerController;

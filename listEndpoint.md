@@ -76,12 +76,24 @@
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
 | GET | `/v1/customers` | ✅ DONE | List customers dengan filter/search |
-| GET | `/v1/customers/:id` | ❌ TODO | Detail customer dengan relasi |
+| GET | `/v1/customers/:id` | ✅ DONE | Detail customer dengan relasi |
 | POST | `/v1/customers` | ❌ TODO | Create customer dengan validasi |
 | PATCH | `/v1/customers/:id` | ❌ TODO | Update customer |
 | DELETE | `/v1/customers/:id` | ❌ TODO | Delete customer |
 
-**Progress**: 1/5 (20%)
+**Progress**: 2/5 (40%)
+
+**Features Implemented in `GET /v1/customers/:id`:**
+- ✅ Employee-only access control (customers cannot access this endpoint)
+- ✅ Customer ID validation and existence check
+- ✅ Complete customer profile data (excluding sensitive password_hash)
+- ✅ Related accounts with account type information
+- ✅ Related cards with card status information
+- ✅ Related tickets with basic ticket information and relations
+- ✅ Summary statistics (total counts and active counts)
+- ✅ Data enrichment with related entities (priority, channel, complaint category)
+- ✅ Comprehensive error handling (404, 401, 403)
+- ✅ Structured response with complete customer 360 view
 
 **Features Implemented in `GET /v1/customers`:**
 - ✅ Employee-only access control (customers cannot access this endpoint)

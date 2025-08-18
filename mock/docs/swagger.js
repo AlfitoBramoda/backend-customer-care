@@ -169,6 +169,92 @@ const swaggerDefinition = {
           },
         },
       },
+      CustomerDetailResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Customer detail retrieved successfully' },
+          data: {
+            type: 'object',
+            properties: {
+              customer_id: { type: 'integer', example: 1 },
+              full_name: { type: 'string', example: 'Andi Saputra' },
+              email: { type: 'string', example: 'andi.saputra@example.com' },
+              address: { type: 'string', example: 'Jl. Merdeka No. 10, Jakarta' },
+              phone_number: { type: 'string', example: '081234567890' },
+              cif: { type: 'string', example: 'CIF001' },
+              nik: { type: 'string', example: '3201234567890123' },
+              gender_type: { type: 'string', enum: ['Male', 'Female'], example: 'Male' },
+              place_of_birth: { type: 'string', example: 'Jakarta' },
+              date_of_birth: { type: 'string', format: 'date', example: '1990-05-15' },
+              created_at: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
+              accounts: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    account_id: { type: 'integer', example: 1 },
+                    account_number: { type: 'string', example: '1234567890' },
+                    account_status: { type: 'string', example: 'ACTIVE' },
+                    account_type: {
+                      type: 'object',
+                      properties: {
+                        account_type_name: { type: 'string', example: 'Savings Account' },
+                        account_type_code: { type: 'string', example: 'SAV' },
+                      },
+                    },
+                  },
+                },
+              },
+              cards: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    card_id: { type: 'integer', example: 1 },
+                    card_number: { type: 'string', example: '****1234' },
+                    card_status: {
+                      type: 'object',
+                      properties: {
+                        status_name: { type: 'string', example: 'ACTIVE' },
+                        status_code: { type: 'string', example: 'ACT' },
+                      },
+                    },
+                  },
+                },
+              },
+              tickets: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    ticket_id: { type: 'integer', example: 1 },
+                    ticket_number: { type: 'string', example: 'BNI-20250115001' },
+                    description: { type: 'string', example: 'Kartu ATM tertelan' },
+                    customer_status: { type: 'string', example: 'ACC' },
+                    employee_status: { type: 'string', example: 'OPEN' },
+                    priority: { type: 'object' },
+                    channel: { type: 'object' },
+                    complaint_category: { type: 'object' },
+                    created_at: { type: 'string', format: 'date-time' },
+                  },
+                },
+              },
+              summary: {
+                type: 'object',
+                properties: {
+                  total_accounts: { type: 'integer', example: 2 },
+                  total_cards: { type: 'integer', example: 3 },
+                  total_tickets: { type: 'integer', example: 5 },
+                  active_accounts: { type: 'integer', example: 2 },
+                  active_cards: { type: 'integer', example: 2 },
+                  open_tickets: { type: 'integer', example: 1 },
+                },
+              },
+            },
+          },
+        },
+      },
 
       // Ticket Schemas
       CreateTicketRequest: {
@@ -393,6 +479,24 @@ const swaggerPaths = {
         '200': { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/CustomerListResponse' } } } },
         '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
         '403': { description: 'Forbidden - Employee access only', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+      },
+    },
+  },
+
+  '/customers/{id}': {
+    get: {
+      tags: ['Customers'],
+      summary: 'Get customer detail by ID',
+      description: 'Get detailed customer information including accounts, cards, tickets, and summary statistics. Employee access only.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Customer ID' },
+      ],
+      responses: {
+        '200': { description: 'Customer detail retrieved successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/CustomerDetailResponse' } } } },
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '403': { description: 'Forbidden - Employee access only', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '404': { description: 'Customer not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
       },
     },
   },

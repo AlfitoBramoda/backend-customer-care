@@ -573,45 +573,6 @@ class AuthController {
             next(error);
         }
     }
-
-    async getAllCustomers(req, res, next) {
-        try {
-            const customers = this.db.get('customer')
-                .map(customer => {
-                    const { password_hash, ...safeCustomer } = customer;
-                    return safeCustomer;
-                })
-                .value();
-
-            res.status(200).json({
-                message: 'Success get all customers',
-                data: customers
-            });
-
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    async getAllEmployees(req, res, next) {
-        try {
-            const employees = this.db.get('employee')
-                .filter({ is_active: true })
-                .map(employee => {
-                    const { password_hash, ...safeEmployee } = employee;
-                    return safeEmployee;
-                })
-                .value();
-
-            res.status(200).json({
-                message: 'Success get all employees',
-                data: employees
-            });
-
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
 module.exports = AuthController;
