@@ -10,8 +10,8 @@ const swaggerDefinition = {
     contact: { name: 'Tim Backend B-Care', email: 'alfitobramoda@gmail.com' }
   },
   servers: [
-    { url: 'http://34.121.13.94:5000/v1', description: 'Development server' },
-    { url: 'https://4af813bf189d.ngrok-free.app/v1', description: 'Ngrok tunnel' },
+    { url: 'https://91c4cbfcce69.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
+    { url: 'http://localhost:5000/v1', description: 'Development server' },
   ],
   components: {
     securitySchemes: {

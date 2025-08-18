@@ -34,14 +34,28 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Security headers (satu kali, terpusat)
+// Security headers (original)
 const isProd = process.env.NODE_ENV === 'production';
 server.use(helmet({
   contentSecurityPolicy: isProd ? { useDefaults: true } : false,
   crossOriginEmbedderPolicy: false,
 }));
 
-// CORS (allowlist)
+// Ngrok bypass middleware
+server.use((req, res, next) => {
+  res.header('ngrok-skip-browser-warning', 'true');
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, ngrok-skip-browser-warning');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
+// CORS (original)
 const allowlist = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',');
 server.use(cors({
   origin: (origin, cb) => {
@@ -51,7 +65,7 @@ server.use(cors({
   credentials: process.env.CORS_CREDENTIALS === 'true'
 }));
 
-// Rate limit (global)
+// Rate limit (original)
 server.use(rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
@@ -68,16 +82,25 @@ const db = router.db;
 server.use(express.json({ limit: '10mb' }));
 server.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// API Logger middleware
+// API Logger middleware (BEFORE all routes)
 const apiLogger = require('./middlewares/api_logger');
 server.use(apiLogger);
 
-// Swagger
-const { swaggerSpec, swaggerUi } = require('./docs/swagger');
-server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Swagger - NO AUTH REQUIRED
+const { swaggerSpec, swaggerUi, swaggerUiOptions } = require('./docs/swagger');
+server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+
+// Health check - NO AUTH REQUIRED
+server.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    status: 'healthy',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Setup Socket.IO FIRST
-const io = setupSocketIO(httpServer, allowlist);
+const io = setupSocketIO(httpServer, '*');
 
 // Custom routes FIRST (higher priority)
 const createAuthRoutes      = require('./routes/auth');
