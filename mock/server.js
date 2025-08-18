@@ -68,6 +68,10 @@ const db = router.db;
 server.use(express.json({ limit: '10mb' }));
 server.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// API Logger middleware
+const apiLogger = require('./middlewares/api_logger');
+server.use(apiLogger);
+
 // Swagger
 const { swaggerSpec, swaggerUi } = require('./docs/swagger');
 server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
