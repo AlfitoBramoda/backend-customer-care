@@ -17,8 +17,11 @@ const express      = require('express');
 const helmet       = require('helmet');
 const cors         = require('cors');
 const rateLimit    = require('express-rate-limit');
+const http         = require('http');
+const { setupSocketIO } = require('./socket/realtime');
 
 const server = express();
+const httpServer = http.createServer(server);
 
 // Trust proxy (HTTPS redirect & secure cookies)
 server.set('trust proxy', 1);
@@ -69,19 +72,24 @@ server.use(express.urlencoded({ extended: true, limit: '10mb' }));
 const { swaggerSpec, swaggerUi } = require('./docs/swagger');
 server.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// Setup Socket.IO FIRST
+const io = setupSocketIO(httpServer, allowlist);
+
 // Custom routes FIRST (higher priority)
 const createAuthRoutes   = require('./routes/auth');
 const createTicketRoutes = require('./routes/ticket');
+const createSocketRoutes = require('./routes/socket');
 server.use('/v1/auth', createAuthRoutes(db));
 server.use('/v1/tickets', createTicketRoutes(db));
+server.use('/v1/socket', createSocketRoutes(db, io));
 
 // Static files middleware
 server.use(express.static('public'));
 
-// JSON Server router for OTHER routes only (exclude auth and tickets)
+// JSON Server router for OTHER routes only (exclude auth, tickets, socket)
 server.use('/v1', (req, res, next) => {
   const pathname = req.path || req.url || '';
-  const isCustomRoute = pathname.startsWith('/auth') || pathname.startsWith('/tickets');
+  const isCustomRoute = pathname.startsWith('/auth') || pathname.startsWith('/tickets') || pathname.startsWith('/socket');
   
   if (isCustomRoute) {
     return res.status(404).json({ success: false, message: 'Route handled by custom controller' });
@@ -102,15 +110,31 @@ server.use('/v1', (req, res, next) => {
 });
 
 // JSON Server router (LAST, for non-custom routes)
+server.use('/v1', router);
 
+// Socket.IO status endpoint
+server.get('/socket/status', (req, res) => {
+  res.json({
+    success: true,
+    socketIO: 'active',
+    connectedClients: io.engine.clientsCount,
+    timestamp: new Date().toISOString()
+  });
+});
 
-// Global error handler
+// Serve test client
+server.get('/client-example.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client-example.html'));
+});
+
+// Global error handler (LAST)
 const { errorHandler } = require('./middlewares/error_handler');
 server.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`B-Care mock API running at http://localhost:${PORT}/v1`);
+  console.log(`Socket.IO ready at http://localhost:${PORT}/socket.io`);
   console.log('Resources:', Object.keys(router.db.__wrapped__));
 });

@@ -1741,8 +1741,8 @@
       "ticket_id": 1,
       "ticket_number": "BNI-00001",
       "description": "Kartu nasabah tertelan di ATM",
-      "customer_status_id": 1,
-      "employee_status_id": 1,
+      "customer_status_id": 4,
+      "employee_status_id": 4,
       "priority_id": 2,
       "issue_channel_id": 1,
       "intake_source_id": 1,
@@ -1952,9 +1952,54 @@
       "ticket_id": 1,
       "ticket_activity_type_id": 2,
       "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created: Kartu nasabah tertelan di ATM",
+      "ticket_activity_time": "2025-08-14T08:15:00Z"
+    },
+    {
+      "ticket_activity_id": 6,
+      "ticket_id": 1,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Employee updated: customer status to VERIF",
+      "ticket_activity_time": "2025-08-14T09:30:00Z"
+    },
+    {
+      "ticket_activity_id": 7,
+      "ticket_id": 1,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Employee updated: employee status to HANDLEDCXC",
+      "ticket_activity_time": "2025-08-14T10:15:00Z"
+    },
+    {
+      "ticket_activity_id": 8,
+      "ticket_id": 1,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Employee updated: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-14T14:20:00Z"
+    },
+    {
+      "ticket_activity_id": 9,
+      "ticket_id": 1,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
       "sender_id": 2,
-      "content": "Employee updated: customer status to PROCESS, employee status to HANDLEDCXC",
-      "ticket_activity_time": "2025-08-17T07:50:45.689Z"
+      "content": "Employee updated: employee status to DONE_BY_UIC",
+      "ticket_activity_time": "2025-08-15T11:45:00Z"
+    },
+    {
+      "ticket_activity_id": 10,
+      "ticket_id": 1,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Employee updated: customer status to CLOSED, employee status to CLOSED",
+      "ticket_activity_time": "2025-08-15T16:30:00Z"
     }
   ],
   "attachment": [

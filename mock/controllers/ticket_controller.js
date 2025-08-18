@@ -337,6 +337,9 @@ class TicketController {
             closed_time: ticket.closed_time
         };
 
+        // Get status history from activities
+        const statusHistory = this.getStatusHistory(ticket.ticket_id);
+
         // Get related data
         const customer = this.db.get('customer')
             .find({ customer_id: ticket.customer_id })
@@ -458,6 +461,7 @@ class TicketController {
             
             activities: activities,
             attachments: attachments,
+            status_history: statusHistory,
             
             feedback: feedback ? {
                 feedback_id: feedback.feedback_id,
@@ -1025,6 +1029,476 @@ class TicketController {
         } catch (error) {
             next(error);
         }
+    }
+
+    async getTicketActivities(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { limit = 50, offset = 0, activity_type } = req.query;
+
+            const ticket = this.db.get('ticket')
+                .find({ ticket_id: parseInt(id) })
+                .value();
+
+            if (!ticket) {
+                throw new NotFoundError('Ticket');
+            }
+
+            // Role-based access control
+            if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
+                throw new ForbiddenError('Access denied');
+            } else if (req.user.role === 'employee') {
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
+                    if (ticket.responsible_employee_id !== req.user.id) {
+                        throw new ForbiddenError('Access denied - you can only view activities for tickets assigned to you');
+                    }
+                }
+            }
+
+            // Get activities
+            let activities = this.db.get('ticket_activity')
+                .filter({ ticket_id: parseInt(id) })
+                .value();
+
+            // Filter by activity type if provided
+            if (activity_type) {
+                const activityTypeData = this.db.get('ticket_activity_type')
+                    .find({ ticket_activity_code: activity_type.toUpperCase() })
+                    .value();
+                
+                if (activityTypeData) {
+                    activities = activities.filter(activity => 
+                        activity.ticket_activity_type_id === activityTypeData.ticket_activity_type_id
+                    );
+                }
+            }
+
+            // Sort by time (newest first)
+            activities.sort((a, b) => new Date(b.ticket_activity_time) - new Date(a.ticket_activity_time));
+
+            const total = activities.length;
+            const paginatedActivities = activities.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+
+            // Enrich activities with related data
+            const enrichedActivities = paginatedActivities.map(activity => {
+                const activityType = this.db.get('ticket_activity_type')
+                    .find({ ticket_activity_type_id: activity.ticket_activity_type_id })
+                    .value();
+                
+                const senderType = this.db.get('sender_type')
+                    .find({ sender_type_id: activity.sender_type_id })
+                    .value();
+
+                // Get sender details based on sender type
+                let sender = null;
+                if (senderType?.sender_type_code === 'CUSTOMER') {
+                    const customer = this.db.get('customer')
+                        .find({ customer_id: activity.sender_id })
+                        .value();
+                    if (customer) {
+                        sender = {
+                            sender_id: customer.customer_id,
+                            full_name: customer.full_name,
+                            email: customer.email,
+                            type: 'customer'
+                        };
+                    }
+                } else if (senderType?.sender_type_code === 'EMPLOYEE') {
+                    const employee = this.db.get('employee')
+                        .find({ employee_id: activity.sender_id })
+                        .value();
+                    if (employee) {
+                        const division = this.db.get('division')
+                            .find({ division_id: employee.division_id })
+                            .value();
+                        sender = {
+                            sender_id: employee.employee_id,
+                            full_name: employee.full_name,
+                            npp: employee.npp,
+                            email: employee.email,
+                            division: division ? {
+                                division_id: division.division_id,
+                                division_name: division.division_name,
+                                division_code: division.division_code
+                            } : null,
+                            type: 'employee'
+                        };
+                    }
+                }
+
+                // Get attachments for this activity
+                const attachments = this.db.get('attachment')
+                    .filter({ ticket_activity_id: activity.ticket_activity_id })
+                    .value()
+                    .map(attachment => ({
+                        attachment_id: attachment.attachment_id,
+                        file_name: attachment.file_name,
+                        file_path: attachment.file_path,
+                        file_size: attachment.file_size,
+                        file_type: attachment.file_type,
+                        upload_time: attachment.upload_time
+                    }));
+
+                return {
+                    ticket_activity_id: activity.ticket_activity_id,
+                    activity_type: activityType ? {
+                        ticket_activity_type_id: activityType.ticket_activity_type_id,
+                        ticket_activity_code: activityType.ticket_activity_code,
+                        ticket_activity_name: activityType.ticket_activity_name
+                    } : null,
+                    sender_type: senderType ? {
+                        sender_type_id: senderType.sender_type_id,
+                        sender_type_code: senderType.sender_type_code,
+                        sender_type_name: senderType.sender_type_name
+                    } : null,
+                    sender: sender,
+                    content: activity.content,
+                    ticket_activity_time: activity.ticket_activity_time,
+                    attachments: attachments
+                };
+            });
+
+            res.status(200).json({
+                success: true,
+                message: 'Ticket activities retrieved successfully',
+                data: {
+                    ticket_id: parseInt(id),
+                    ticket_number: ticket.ticket_number,
+                    activities: enrichedActivities
+                },
+                pagination: {
+                    total,
+                    limit: parseInt(limit),
+                    offset: parseInt(offset),
+                    pages: Math.ceil(total / parseInt(limit))
+                }
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getTicketAttachments(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { limit = 20, offset = 0, file_type } = req.query;
+
+            const ticket = this.db.get('ticket')
+                .find({ ticket_id: parseInt(id) })
+                .value();
+
+            if (!ticket) {
+                throw new NotFoundError('Ticket');
+            }
+
+            // Role-based access control
+            if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
+                throw new ForbiddenError('Access denied');
+            } else if (req.user.role === 'employee') {
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
+                    if (ticket.responsible_employee_id !== req.user.id) {
+                        throw new ForbiddenError('Access denied - you can only view attachments for tickets assigned to you');
+                    }
+                }
+            }
+
+            // Get all activities for this ticket
+            const activities = this.db.get('ticket_activity')
+                .filter({ ticket_id: parseInt(id) })
+                .value();
+
+            const activityIds = activities.map(activity => activity.ticket_activity_id);
+
+            // Get all attachments for these activities
+            let attachments = this.db.get('attachment')
+                .filter(attachment => activityIds.includes(attachment.ticket_activity_id))
+                .value();
+
+            // Filter by file type if provided
+            if (file_type) {
+                attachments = attachments.filter(attachment => 
+                    attachment.file_type.toLowerCase().includes(file_type.toLowerCase())
+                );
+            }
+
+            // Sort by upload time (newest first)
+            attachments.sort((a, b) => new Date(b.upload_time) - new Date(a.upload_time));
+
+            const total = attachments.length;
+            const paginatedAttachments = attachments.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+
+            // Enrich attachments with activity and sender info
+            const enrichedAttachments = paginatedAttachments.map(attachment => {
+                const activity = this.db.get('ticket_activity')
+                    .find({ ticket_activity_id: attachment.ticket_activity_id })
+                    .value();
+
+                const activityType = this.db.get('ticket_activity_type')
+                    .find({ ticket_activity_type_id: activity?.ticket_activity_type_id })
+                    .value();
+
+                const senderType = this.db.get('sender_type')
+                    .find({ sender_type_id: activity?.sender_type_id })
+                    .value();
+
+                // Get sender details
+                let sender = null;
+                if (activity && senderType?.sender_type_code === 'CUSTOMER') {
+                    const customer = this.db.get('customer')
+                        .find({ customer_id: activity.sender_id })
+                        .value();
+                    if (customer) {
+                        sender = {
+                            sender_id: customer.customer_id,
+                            full_name: customer.full_name,
+                            type: 'customer'
+                        };
+                    }
+                } else if (activity && senderType?.sender_type_code === 'EMPLOYEE') {
+                    const employee = this.db.get('employee')
+                        .find({ employee_id: activity.sender_id })
+                        .value();
+                    if (employee) {
+                        sender = {
+                            sender_id: employee.employee_id,
+                            full_name: employee.full_name,
+                            npp: employee.npp,
+                            type: 'employee'
+                        };
+                    }
+                }
+
+                return {
+                    attachment_id: attachment.attachment_id,
+                    file_name: attachment.file_name,
+                    file_path: attachment.file_path,
+                    file_size: attachment.file_size,
+                    file_type: attachment.file_type,
+                    upload_time: attachment.upload_time,
+                    activity: activity ? {
+                        ticket_activity_id: activity.ticket_activity_id,
+                        activity_type: activityType ? {
+                            ticket_activity_code: activityType.ticket_activity_code,
+                            ticket_activity_name: activityType.ticket_activity_name
+                        } : null,
+                        content: activity.content,
+                        ticket_activity_time: activity.ticket_activity_time
+                    } : null,
+                    uploaded_by: sender
+                };
+            });
+
+            res.status(200).json({
+                success: true,
+                message: 'Ticket attachments retrieved successfully',
+                data: {
+                    ticket_id: parseInt(id),
+                    ticket_number: ticket.ticket_number,
+                    attachments: enrichedAttachments
+                },
+                pagination: {
+                    total,
+                    limit: parseInt(limit),
+                    offset: parseInt(offset),
+                    pages: Math.ceil(total / parseInt(limit))
+                }
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getTicketFeedback(req, res, next) {
+        try {
+            const { id } = req.params;
+
+            const ticket = this.db.get('ticket')
+                .find({ ticket_id: parseInt(id) })
+                .value();
+
+            if (!ticket) {
+                throw new NotFoundError('Ticket');
+            }
+
+            // Role-based access control
+            if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
+                throw new ForbiddenError('Access denied');
+            } else if (req.user.role === 'employee') {
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
+                    if (ticket.responsible_employee_id !== req.user.id) {
+                        throw new ForbiddenError('Access denied - you can only view feedback for tickets assigned to you');
+                    }
+                }
+            }
+
+            // Get feedback for this ticket
+            const feedback = this.db.get('feedback')
+                .find({ ticket_id: parseInt(id) })
+                .value();
+
+            if (!feedback) {
+                return res.status(200).json({
+                    success: true,
+                    message: 'No feedback found for this ticket',
+                    data: {
+                        ticket_id: parseInt(id),
+                        ticket_number: ticket.ticket_number,
+                        feedback: null
+                    }
+                });
+            }
+
+            // Get customer info
+            const customer = this.db.get('customer')
+                .find({ customer_id: ticket.customer_id })
+                .value();
+
+            const enrichedFeedback = {
+                feedback_id: feedback.feedback_id,
+                score: feedback.score,
+                comment: feedback.comment,
+                submit_time: feedback.submit_time,
+                customer: customer ? {
+                    customer_id: customer.customer_id,
+                    full_name: customer.full_name,
+                    email: customer.email
+                } : null
+            };
+
+            res.status(200).json({
+                success: true,
+                message: 'Ticket feedback retrieved successfully',
+                data: {
+                    ticket_id: parseInt(id),
+                    ticket_number: ticket.ticket_number,
+                    feedback: enrichedFeedback
+                }
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    getStatusHistory(ticketId) {
+        const activities = this.db.get('ticket_activity')
+            .filter({ ticket_id: ticketId })
+            .value()
+            .filter(activity => {
+                const content = activity.content || '';
+                return content.includes('status to') || content.includes('Ticket created');
+            })
+            .sort((a, b) => new Date(a.ticket_activity_time) - new Date(b.ticket_activity_time));
+
+        const history = {
+            customer_status_history: [],
+            employee_status_history: []
+        };
+
+        activities.forEach(activity => {
+            const content = activity.content || '';
+            const timestamp = activity.ticket_activity_time;
+            
+            // Get sender info
+            const senderType = this.db.get('sender_type')
+                .find({ sender_type_id: activity.sender_type_id })
+                .value();
+            
+            let changedBy = 'System';
+            if (senderType?.sender_type_code === 'EMPLOYEE') {
+                const employee = this.db.get('employee')
+                    .find({ employee_id: activity.sender_id })
+                    .value();
+                changedBy = employee?.full_name || employee?.npp || 'Employee';
+            } else if (senderType?.sender_type_code === 'CUSTOMER') {
+                const customer = this.db.get('customer')
+                    .find({ customer_id: activity.sender_id })
+                    .value();
+                changedBy = customer?.full_name || 'Customer';
+            }
+
+            // Parse customer status changes
+            if (content.includes('customer status to')) {
+                const match = content.match(/customer status to (\w+)/);
+                if (match) {
+                    const newStatus = match[1];
+                    const statusData = this.db.get('customer_status')
+                        .find({ customer_status_code: newStatus })
+                        .value();
+                    
+                    history.customer_status_history.push({
+                        status_code: newStatus,
+                        status_name: statusData?.customer_status_name || newStatus,
+                        changed_by: changedBy,
+                        changed_at: timestamp,
+                        activity_id: activity.ticket_activity_id
+                    });
+                }
+            }
+
+            // Parse employee status changes
+            if (content.includes('employee status to')) {
+                const match = content.match(/employee status to (\w+)/);
+                if (match) {
+                    const newStatus = match[1];
+                    const statusData = this.db.get('employee_status')
+                        .find({ employee_status_code: newStatus })
+                        .value();
+                    
+                    history.employee_status_history.push({
+                        status_code: newStatus,
+                        status_name: statusData?.employee_status_name || newStatus,
+                        changed_by: changedBy,
+                        changed_at: timestamp,
+                        activity_id: activity.ticket_activity_id
+                    });
+                }
+            }
+
+            // Handle initial ticket creation
+            if (content.includes('Ticket created')) {
+                // Add initial statuses
+                const ticket = this.db.get('ticket')
+                    .find({ ticket_id: ticketId })
+                    .value();
+                
+                if (ticket) {
+                    const customerStatus = this.db.get('customer_status')
+                        .find({ customer_status_id: ticket.customer_status_id })
+                        .value();
+                    
+                    const employeeStatus = this.db.get('employee_status')
+                        .find({ employee_status_id: ticket.employee_status_id })
+                        .value();
+                    
+                    if (customerStatus && history.customer_status_history.length === 0) {
+                        history.customer_status_history.push({
+                            status_code: customerStatus.customer_status_code,
+                            status_name: customerStatus.customer_status_name,
+                            changed_by: changedBy,
+                            changed_at: timestamp,
+                            activity_id: activity.ticket_activity_id,
+                            is_initial: true
+                        });
+                    }
+                    
+                    if (employeeStatus && history.employee_status_history.length === 0) {
+                        history.employee_status_history.push({
+                            status_code: employeeStatus.employee_status_code,
+                            status_name: employeeStatus.employee_status_name,
+                            changed_by: changedBy,
+                            changed_at: timestamp,
+                            activity_id: activity.ticket_activity_id,
+                            is_initial: true
+                        });
+                    }
+                }
+            }
+        });
+
+        return history;
     }
 
     calculateSLAInfo(ticket) {

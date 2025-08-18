@@ -477,6 +477,204 @@ const swaggerPaths = {
       },
     },
   },
+
+  '/tickets/{id}/activities': {
+    get: {
+      tags: ['Tickets'],
+      summary: 'Get ticket activities',
+      description: 'Get all activities for a specific ticket with pagination and filtering.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Ticket ID' },
+        { in: 'query', name: 'limit', schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 }, description: 'Items per page' },
+        { in: 'query', name: 'offset', schema: { type: 'integer', minimum: 0, default: 0 }, description: 'Offset' },
+        { in: 'query', name: 'activity_type', schema: { type: 'string', enum: ['COMMENT', 'STATUS_CHANGE', 'ATTACHMENT'] }, description: 'Filter by activity type' },
+      ],
+      responses: {
+        '200': {
+          description: 'Activities retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Ticket activities retrieved successfully' },
+              data: {
+                type: 'object',
+                properties: {
+                  ticket_id: { type: 'integer', example: 1 },
+                  ticket_number: { type: 'string', example: 'BNI-00001' },
+                  activities: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        ticket_activity_id: { type: 'integer', example: 1 },
+                        activity_type: {
+                          type: 'object',
+                          properties: {
+                            ticket_activity_code: { type: 'string', example: 'COMMENT' },
+                            ticket_activity_name: { type: 'string', example: 'Comment' },
+                          },
+                        },
+                        sender: {
+                          type: 'object',
+                          properties: {
+                            full_name: { type: 'string', example: 'Budi Hartono' },
+                            type: { type: 'string', enum: ['customer', 'employee'], example: 'employee' },
+                          },
+                        },
+                        content: { type: 'string', example: 'Ticket created by agent' },
+                        ticket_activity_time: { type: 'string', format: 'date-time', example: '2025-08-14T08:16:00Z' },
+                        attachments: { type: 'array', items: { type: 'object' } },
+                      },
+                    },
+                  },
+                },
+              },
+              pagination: {
+                type: 'object',
+                properties: {
+                  total: { type: 'integer', example: 25 },
+                  limit: { type: 'integer', example: 50 },
+                  offset: { type: 'integer', example: 0 },
+                  pages: { type: 'integer', example: 1 },
+                },
+              },
+            },
+          } } },
+        },
+        '403': { description: 'Access denied', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '404': { description: 'Ticket not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+      },
+    },
+  },
+
+  '/tickets/{id}/attachments': {
+    get: {
+      tags: ['Tickets'],
+      summary: 'Get ticket attachments',
+      description: 'Get all attachments for a specific ticket with pagination and filtering.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Ticket ID' },
+        { in: 'query', name: 'limit', schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 }, description: 'Items per page' },
+        { in: 'query', name: 'offset', schema: { type: 'integer', minimum: 0, default: 0 }, description: 'Offset' },
+        { in: 'query', name: 'file_type', schema: { type: 'string' }, description: 'Filter by file type (e.g., image, pdf)' },
+      ],
+      responses: {
+        '200': {
+          description: 'Attachments retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Ticket attachments retrieved successfully' },
+              data: {
+                type: 'object',
+                properties: {
+                  ticket_id: { type: 'integer', example: 1 },
+                  ticket_number: { type: 'string', example: 'BNI-00001' },
+                  attachments: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        attachment_id: { type: 'integer', example: 1 },
+                        file_name: { type: 'string', example: 'foto_atm.jpg' },
+                        file_path: { type: 'string', example: '/uploads/foto_atm.jpg' },
+                        file_size: { type: 'integer', example: 245678 },
+                        file_type: { type: 'string', example: 'image/jpeg' },
+                        upload_time: { type: 'string', format: 'date-time', example: '2025-08-14T08:16:30Z' },
+                        activity: {
+                          type: 'object',
+                          properties: {
+                            ticket_activity_id: { type: 'integer', example: 1 },
+                            content: { type: 'string', example: 'Ticket created by agent' },
+                          },
+                        },
+                        uploaded_by: {
+                          type: 'object',
+                          properties: {
+                            full_name: { type: 'string', example: 'Budi Hartono' },
+                            type: { type: 'string', enum: ['customer', 'employee'], example: 'employee' },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              pagination: {
+                type: 'object',
+                properties: {
+                  total: { type: 'integer', example: 3 },
+                  limit: { type: 'integer', example: 20 },
+                  offset: { type: 'integer', example: 0 },
+                  pages: { type: 'integer', example: 1 },
+                },
+              },
+            },
+          } } },
+        },
+        '403': { description: 'Access denied', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '404': { description: 'Ticket not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+      },
+    },
+  },
+
+  '/tickets/{id}/feedback': {
+    get: {
+      tags: ['Tickets'],
+      summary: 'Get ticket feedback',
+      description: 'Get feedback for a specific ticket if it exists.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Ticket ID' },
+      ],
+      responses: {
+        '200': {
+          description: 'Feedback retrieved successfully (or no feedback found)',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Ticket feedback retrieved successfully' },
+              data: {
+                type: 'object',
+                properties: {
+                  ticket_id: { type: 'integer', example: 1 },
+                  ticket_number: { type: 'string', example: 'BNI-00001' },
+                  feedback: {
+                    type: 'object',
+                    nullable: true,
+                    properties: {
+                      feedback_id: { type: 'integer', example: 1 },
+                      score: { type: 'integer', minimum: 1, maximum: 5, example: 5 },
+                      comment: { type: 'string', example: 'Pelayanan cepat.' },
+                      submit_time: { type: 'string', format: 'date-time', example: '2025-08-14T09:00:00Z' },
+                      customer: {
+                        type: 'object',
+                        properties: {
+                          customer_id: { type: 'integer', example: 1 },
+                          full_name: { type: 'string', example: 'Andi Saputra' },
+                          email: { type: 'string', example: 'andi.saputra@example.com' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+        '403': { description: 'Access denied', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '404': { description: 'Ticket not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+      },
+    },
+  },
 };
 
 const swaggerSpec = { ...swaggerDefinition, paths: swaggerPaths };

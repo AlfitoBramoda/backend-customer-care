@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>B-Care Socket.IO Test Client</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        input, button { margin: 5px; padding: 8px; }
+        #messages { height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; }
+        .message { margin: 5px 0; }
+        .status { color: green; font-weight: bold; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>B-Care Socket.IO Test Client</h1>
+        
+        <div class="section">
+            <h3>Connection Status</h3>
+            <div id="status">Disconnected</div>
+            <button onclick="connect()">Connect</button>
+            <button onclick="disconnect()">Disconnect</button>
+        </div>
+
+        <div class="section">
+            <h3>Authentication</h3>
+            <input type="text" id="userId" placeholder="User ID" value="user123">
+            <button onclick="register()">Register</button>
+        </div>
+
+        <div class="section">
+            <h3>Direct Message</h3>
+            <input type="text" id="toUserId" placeholder="To User ID" value="user456">
+            <button onclick="openDM()">Open DM</button>
+            <button onclick="joinDM()">Join DM</button>
+        </div>
+
+        <div class="section">
+            <h3>Chat</h3>
+            <input type="text" id="room" placeholder="Room" value="dm:user123:user456">
+            <input type="text" id="message" placeholder="Message">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+
+        <div class="section">
+            <h3>Messages</h3>
+            <div id="messages"></div>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let currentRoom = null;
+
+        function connect() {
+            socket = io();
+            
+            socket.on('connect', () => {
+                updateStatus('Connected: ' + socket.id, 'status');
+            });
+
+            socket.on('disconnect', () => {
+                updateStatus('Disconnected', 'error');
+            });
+
+            socket.on('auth:ok', (data) => {
+                addMessage('✅ Authenticated as: ' + data.userId);
+            });
+
+            socket.on('dm:pending', (data) => {
+                currentRoom = data.room;
+                addMessage('📞 DM pending with: ' + data.toUserId + ' (room: ' + data.room + ')');
+            });
+
+            socket.on('dm:request', (data) => {
+                currentRoom = data.room;
+                addMessage('📨 DM request from: ' + data.fromUserId + ' (room: ' + data.room + ')');
+                document.getElementById('room').value = data.room;
+            });
+
+            socket.on('dm:ready', (data) => {
+                addMessage('✅ DM ready in room: ' + data.room);
+            });
+
+            socket.on('chat:new', (msg) => {
+                addMessage('💬 ' + (msg.fromUserId || 'Unknown') + ': ' + msg.message);
+            });
+
+            socket.on('presence:list', (data) => {
+                addMessage('👥 Presence in ' + data.room + ': ' + data.peers.length + ' users');
+            });
+
+            socket.on('call:ringing', (data) => {
+                addMessage('📞 Incoming call from: ' + data.fromUserId);
+            });
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+        }
+
+        function register() {
+            const userId = document.getElementById('userId').value;
+            if (socket && userId) {
+                socket.emit('auth:register', { userId });
+            }
+        }
+
+        function openDM() {
+            const toUserId = document.getElementById('toUserId').value;
+            if (socket && toUserId) {
+                socket.emit('dm:open', { toUserId });
+            }
+        }
+
+        function joinDM() {
+            const room = currentRoom || document.getElementById('room').value;
+            if (socket && room) {
+                socket.emit('dm:join', { room });
+            }
+        }
+
+        function sendMessage() {
+            const room = document.getElementById('room').value;
+            const message = document.getElementById('message').value;
+            const userId = document.getElementById('userId').value;
+            
+            if (socket && room && message) {
+                const msgData = {
+                    room,
+                    message,
+                    fromUserId: userId,
+                    timestamp: new Date().toISOString()
+                };
+                socket.emit('chat:send', msgData);
+                addMessage('📤 You: ' + message);
+                document.getElementById('message').value = '';
+            }
+        }
+
+        function updateStatus(text, className) {
+            const status = document.getElementById('status');
+            status.textContent = text;
+            status.className = className;
+        }
+
+        function addMessage(text) {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Auto connect on load
+        window.onload = connect;
+    </script>
+</body>
+</html>

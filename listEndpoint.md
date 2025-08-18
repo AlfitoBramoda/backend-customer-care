@@ -140,11 +140,11 @@
 | POST | `/v1/tickets` | ✅ DONE | Create ticket dengan business logic |
 | PATCH | `/v1/tickets/:id` | ✅ DONE | Update ticket dengan validasi |
 | DELETE | `/v1/tickets/:id` | ✅ DONE | Delete ticket |
-| GET | `/v1/tickets/:id/activities` | ❌ TODO | Get ticket activities dengan relasi |
-| GET | `/v1/tickets/:id/attachments` | ❌ TODO | Get ticket attachments |
-| GET | `/v1/tickets/:id/feedback` | ❌ TODO | Get ticket feedback |
+| GET | `/v1/tickets/:id/activities` | ✅ DONE | Get ticket activities dengan relasi |
+| GET | `/v1/tickets/:id/attachments` | ✅ DONE | Get ticket attachments |
+| GET | `/v1/tickets/:id/feedback` | ✅ DONE | Get ticket feedback |
 
-**Progress**: 5/8 (62.5%)
+**Progress**: 8/8 (100%) - **COMPLETED**
 
 **Features Implemented in `POST /v1/tickets`:**
 - ✅ Granular role-based access control
@@ -200,6 +200,40 @@
 - ✅ Data preservation (no physical deletion)
 - ✅ Comprehensive error handling (400, 401, 403, 404, 409)
 - ✅ Centralized error response format
+
+**Features Implemented in `GET /v1/tickets/:id/activities`:**
+- ✅ Role-based access control (customer can only access own ticket activities)
+- ✅ CXC agents (role_id=1, division_id=1): can view all ticket activities
+- ✅ Non-CXC employees: can only view activities for assigned tickets
+- ✅ Activity type filtering (optional query parameter)
+- ✅ Pagination with metadata (limit, offset)
+- ✅ Complete activity data with sender information
+- ✅ Sender details enrichment (customer/employee with division info)
+- ✅ Attachment information included per activity
+- ✅ Chronological sorting (newest first)
+- ✅ Comprehensive error handling (403, 404)
+
+**Features Implemented in `GET /v1/tickets/:id/attachments`:**
+- ✅ Role-based access control (customer can only access own ticket attachments)
+- ✅ CXC agents (role_id=1, division_id=1): can view all ticket attachments
+- ✅ Non-CXC employees: can only view attachments for assigned tickets
+- ✅ File type filtering (optional query parameter)
+- ✅ Pagination with metadata (limit, offset)
+- ✅ Complete attachment metadata (file_name, file_size, file_type, upload_time)
+- ✅ Activity context for each attachment
+- ✅ Uploader information (customer/employee details)
+- ✅ Chronological sorting (newest first)
+- ✅ Comprehensive error handling (403, 404)
+
+**Features Implemented in `GET /v1/tickets/:id/feedback`:**
+- ✅ Role-based access control (customer can only access own ticket feedback)
+- ✅ CXC agents (role_id=1, division_id=1): can view all ticket feedback
+- ✅ Non-CXC employees: can only view feedback for assigned tickets
+- ✅ Complete feedback data (score, comment, submit_time)
+- ✅ Customer information enrichment
+- ✅ Graceful handling of tickets without feedback
+- ✅ Comprehensive error handling (403, 404)
+- ✅ Clean response structure for both feedback and no-feedback cases
 
 ---
 

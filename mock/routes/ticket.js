@@ -18,6 +18,24 @@ const createTicketRoutes = (db) => {
         ticketController.getTicketById.bind(ticketController)
     );
     
+    // GET /v1/tickets/:id/activities - Get ticket activities
+    router.get('/:id/activities', 
+        authenticateToken, 
+        ticketController.getTicketActivities.bind(ticketController)
+    );
+    
+    // GET /v1/tickets/:id/attachments - Get ticket attachments
+    router.get('/:id/attachments', 
+        authenticateToken, 
+        ticketController.getTicketAttachments.bind(ticketController)
+    );
+    
+    // GET /v1/tickets/:id/feedback - Get ticket feedback
+    router.get('/:id/feedback', 
+        authenticateToken, 
+        ticketController.getTicketFeedback.bind(ticketController)
+    );
+    
     // POST /v1/tickets - Create new ticket (customer & employee)
     router.post('/', 
         authenticateToken,
