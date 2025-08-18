@@ -304,15 +304,27 @@
 ---
 
 ## 📌 6. Activities & Notes
-**Controller**: `activity_controller.js` (create new)  
-**Route**: `routes/activity.js` (create new)
+**Controller**: `ticket_controller.js` (integrated)  
+**Route**: `routes/ticket.js` (integrated)
 
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
-| POST | `/v1/tickets/:id/activities` | ❌ TODO | Add activity (chat, call, note) |
+| POST | `/v1/tickets/:id/activities` | ✅ DONE | Add activity (chat, call, note) |
 | GET | `/v1/activities/:id` | ❌ TODO | Get activity detail |
 
-**Progress**: 0/2 (0%)
+**Progress**: 1/2 (50%)
+
+**Features Implemented in `POST /v1/tickets/:id/activities`:**
+- ✅ Role-based access control (customer can only add to own tickets)
+- ✅ CXC agents (role_id=1, division_id=1): can add activities to all tickets
+- ✅ Non-CXC employees: can only add activities to assigned tickets
+- ✅ Activity type validation (COMMENT, STATUS_CHANGE, ATTACHMENT)
+- ✅ Content validation (required field)
+- ✅ Automatic sender identification based on user role
+- ✅ Complete activity data with sender information
+- ✅ Sender details enrichment (customer/employee with division info)
+- ✅ Timestamp generation
+- ✅ Comprehensive error handling (400, 403, 404)
 
 ---
 

@@ -256,6 +256,66 @@ const swaggerDefinition = {
         },
       },
 
+      // Activity Schemas
+      CreateActivityRequest: {
+        type: 'object',
+        required: ['activity_type', 'content'],
+        properties: {
+          activity_type: {
+            type: 'string',
+            enum: ['COMMENT', 'STATUS_CHANGE', 'ATTACHMENT'],
+            example: 'COMMENT',
+            description: 'Type of activity to create'
+          },
+          content: {
+            type: 'string',
+            example: 'Customer provided additional information about the issue',
+            description: 'Content of the activity'
+          }
+        }
+      },
+      CreateActivityResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Activity created successfully' },
+          data: {
+            type: 'object',
+            properties: {
+              ticket_activity_id: { type: 'integer', example: 123 },
+              ticket_id: { type: 'integer', example: 45 },
+              activity_type: {
+                type: 'object',
+                properties: {
+                  ticket_activity_type_id: { type: 'integer', example: 1 },
+                  ticket_activity_code: { type: 'string', example: 'COMMENT' },
+                  ticket_activity_name: { type: 'string', example: 'Comment' }
+                }
+              },
+              sender_type: {
+                type: 'object',
+                properties: {
+                  sender_type_id: { type: 'integer', example: 1 },
+                  sender_type_code: { type: 'string', example: 'CUSTOMER' },
+                  sender_type_name: { type: 'string', example: 'Customer' }
+                }
+              },
+              sender: {
+                type: 'object',
+                properties: {
+                  sender_id: { type: 'integer', example: 67 },
+                  full_name: { type: 'string', example: 'John Doe' },
+                  email: { type: 'string', example: 'john@example.com' },
+                  type: { type: 'string', enum: ['customer', 'employee'], example: 'customer' }
+                }
+              },
+              content: { type: 'string', example: 'Customer provided additional information about the issue' },
+              ticket_activity_time: { type: 'string', format: 'date-time', example: '2024-01-15T10:30:00.000Z' }
+            }
+          }
+        }
+      },
+
       // Ticket Schemas
       CreateTicketRequest: {
         type: 'object',
@@ -716,6 +776,41 @@ const swaggerPaths = {
         '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
       },
     },
+    post: {
+      tags: ['Tickets'],
+      summary: 'Add activity to ticket',
+      description: 'Create a new activity (comment, status change, or attachment) for a specific ticket. Role-based access control applies.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Ticket ID' }
+      ],
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateActivityRequest' } } }
+      },
+      responses: {
+        '201': {
+          description: 'Activity created successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateActivityResponse' } } }
+        },
+        '400': {
+          description: 'Bad request - Invalid activity type or missing required fields',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Access denied (customer can only add to own tickets, employees to assigned tickets)',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Ticket not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
   },
 
   '/tickets/{id}/attachments': {

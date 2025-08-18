@@ -6,7 +6,7 @@ const apiLogger = (req, res, next) => {
         '110.136.11.112': 'Laptop-Alfito',
         '110.138.80.224': 'Tim Website 1',
         '180.242.70.236': 'Tim Website 2',
-        '10.0.0.50': 'External-Client',
+        '182.253.54.138': 'Havis',
         '34.121.13.94': 'GCP-Server'
     };
     

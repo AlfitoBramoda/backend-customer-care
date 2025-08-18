@@ -1518,6 +1518,128 @@ class TicketController {
             status: diffHours < 0 ? 'overdue' : diffHours <= 24 ? 'urgent' : 'normal'
         };
     }
+
+    async createTicketActivity(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { activity_type, content } = req.body;
+
+            // Validation
+            if (!activity_type || !content) {
+                throw new ValidationError('Required fields: activity_type, content');
+            }
+
+            const ticket = this.db.get('ticket')
+                .find({ ticket_id: parseInt(id) })
+                .value();
+
+            if (!ticket) {
+                throw new NotFoundError('Ticket');
+            }
+
+            // Role-based access control
+            if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
+                throw new ForbiddenError('Access denied');
+            } else if (req.user.role === 'employee') {
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
+                    if (ticket.responsible_employee_id !== req.user.id) {
+                        throw new ForbiddenError('Access denied - you can only add activities to tickets assigned to you');
+                    }
+                }
+            }
+
+            // Validate activity type
+            const activityType = this.db.get('ticket_activity_type')
+                .find({ ticket_activity_code: activity_type.toUpperCase() })
+                .value();
+
+            if (!activityType) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid activity_type. Valid types: COMMENT, STATUS_CHANGE, ATTACHMENT'
+                });
+            }
+
+            // Create activity
+            const newActivity = {
+                ticket_activity_id: this.getNextId('ticket_activity'),
+                ticket_id: parseInt(id),
+                ticket_activity_type_id: activityType.ticket_activity_type_id,
+                sender_type_id: req.user.role === 'customer' ? 1 : 2,
+                sender_id: req.user.id,
+                content: content,
+                ticket_activity_time: new Date().toISOString()
+            };
+
+            this.db.get('ticket_activity').push(newActivity).write();
+
+            // Get sender details for response
+            let sender = null;
+            if (req.user.role === 'customer') {
+                const customer = this.db.get('customer')
+                    .find({ customer_id: req.user.id })
+                    .value();
+                if (customer) {
+                    sender = {
+                        sender_id: customer.customer_id,
+                        full_name: customer.full_name,
+                        email: customer.email,
+                        type: 'customer'
+                    };
+                }
+            } else {
+                const employee = this.db.get('employee')
+                    .find({ employee_id: req.user.id })
+                    .value();
+                if (employee) {
+                    const division = this.db.get('division')
+                        .find({ division_id: employee.division_id })
+                        .value();
+                    sender = {
+                        sender_id: employee.employee_id,
+                        full_name: employee.full_name,
+                        npp: employee.npp,
+                        email: employee.email,
+                        division: division ? {
+                            division_id: division.division_id,
+                            division_name: division.division_name,
+                            division_code: division.division_code
+                        } : null,
+                        type: 'employee'
+                    };
+                }
+            }
+
+            const senderType = this.db.get('sender_type')
+                .find({ sender_type_id: newActivity.sender_type_id })
+                .value();
+
+            res.status(201).json({
+                success: true,
+                message: 'Activity created successfully',
+                data: {
+                    ticket_activity_id: newActivity.ticket_activity_id,
+                    ticket_id: parseInt(id),
+                    activity_type: {
+                        ticket_activity_type_id: activityType.ticket_activity_type_id,
+                        ticket_activity_code: activityType.ticket_activity_code,
+                        ticket_activity_name: activityType.ticket_activity_name
+                    },
+                    sender_type: senderType ? {
+                        sender_type_id: senderType.sender_type_id,
+                        sender_type_code: senderType.sender_type_code,
+                        sender_type_name: senderType.sender_type_name
+                    } : null,
+                    sender: sender,
+                    content: newActivity.content,
+                    ticket_activity_time: newActivity.ticket_activity_time
+                }
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = TicketController;

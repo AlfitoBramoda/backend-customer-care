@@ -36,6 +36,13 @@ const createTicketRoutes = (db) => {
         ticketController.getTicketFeedback.bind(ticketController)
     );
     
+    // POST /v1/tickets/:id/activities - Add activity to ticket
+    router.post('/:id/activities', 
+        authenticateToken,
+        authorizeRole(['customer', 'employee']),
+        ticketController.createTicketActivity.bind(ticketController)
+    );
+    
     // POST /v1/tickets - Create new ticket (customer & employee)
     router.post('/', 
         authenticateToken,
