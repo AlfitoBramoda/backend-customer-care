@@ -139,7 +139,7 @@ module.exports = (sequelize, DataTypes) => {
     complaint_id: DataTypes.INTEGER,
     responsible_employee_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
     policy_id: DataTypes.INTEGER,
     committed_due_at: DataTypes.DATE,
