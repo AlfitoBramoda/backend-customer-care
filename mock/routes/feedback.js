@@ -13,6 +13,13 @@ const createFeedbackRoutes = (db) => {
         feedbackController.submitFeedback.bind(feedbackController)
     );
     
+    // GET /v1/feedback - Get all feedback (Employee only)
+    router.get('/feedback', 
+        authenticateToken,
+        authorizeRole(['employee']),
+        feedbackController.getAllFeedback.bind(feedbackController)
+    );
+    
     // GET /v1/feedback/:id - Get feedback detail
     router.get('/feedback/:id', 
         authenticateToken, 

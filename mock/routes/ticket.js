@@ -95,6 +95,13 @@ const createFeedbackRoutes = (db) => {
     const router = express.Router();
     const feedbackController = FeedbackController.createInstance(db);
     
+    // GET /v1/feedback - Get all feedback (Employee only)
+    router.get('/', 
+        authenticateToken,
+        authorizeRole(['employee']),
+        feedbackController.getAllFeedback.bind(feedbackController)
+    );
+    
     // GET /v1/feedback/:id - Get feedback detail
     router.get('/:id', 
         authenticateToken, 

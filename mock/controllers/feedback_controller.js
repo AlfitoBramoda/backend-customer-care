@@ -181,6 +181,77 @@ class FeedbackController {
     }
   }
 
+  // GET /v1/feedback - Get all feedback (Employee only)
+  async getAllFeedback(req, res) {
+    try {
+      const userRole = req.user.role_id;
+      
+      // Only employees can access all feedback
+      if (userRole === 3) { // Customer role
+        return res.status(403).json({
+          success: false,
+          message: 'Akses ditolak. Hanya employee yang dapat melihat semua feedback'
+        });
+      }
+
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const offset = (page - 1) * limit;
+
+      // Get all feedback with pagination
+      const allFeedback = this.db.get('feedback').value();
+      const totalItems = allFeedback.length;
+      const totalPages = Math.ceil(totalItems / limit);
+      const paginatedFeedback = allFeedback.slice(offset, offset + limit);
+
+      // Enrich feedback data with ticket and customer info
+      const enrichedFeedback = paginatedFeedback.map(feedback => {
+        const ticket = this.db.get('ticket').find({ ticket_id: feedback.ticket_id }).value();
+        const customer = this.db.get('customer').find({ customer_id: feedback.customer_id }).value();
+        
+        return {
+          id: feedback.feedback_id,
+          ticket: {
+            id: ticket?.ticket_id,
+            ticket_number: ticket?.ticket_number,
+            description: ticket?.description,
+            status: ticket?.customer_status_id
+          },
+          customer: {
+            id: customer?.customer_id,
+            full_name: customer?.full_name,
+            email: customer?.email,
+            phone_number: customer?.phone_number
+          },
+          score: feedback.score,
+          comment: feedback.comment,
+          submit_time: feedback.submit_time
+        };
+      });
+
+      res.json({
+        success: true,
+        message: 'Data feedback berhasil diambil',
+        data: enrichedFeedback,
+        pagination: {
+          current_page: page,
+          per_page: limit,
+          total_items: totalItems,
+          total_pages: totalPages,
+          has_next: page < totalPages,
+          has_prev: page > 1
+        }
+      });
+
+    } catch (error) {
+      console.error('Error getting all feedback:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Terjadi kesalahan saat mengambil data feedback'
+      });
+    }
+  }
+
   // PATCH /v1/feedback/:id - Update feedback comment
   async updateFeedback(req, res) {
     try {

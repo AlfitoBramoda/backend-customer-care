@@ -535,6 +535,54 @@ const swaggerDefinition = {
           }
         }
       },
+      AllFeedbackResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Data feedback berhasil diambil' },
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer', example: 1 },
+                ticket: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer', example: 1 },
+                    ticket_number: { type: 'string', example: 'BNI-20250115001' },
+                    description: { type: 'string', example: 'Kartu ATM tertelan' },
+                    status: { type: 'string', example: 'CLOSED' }
+                  }
+                },
+                customer: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer', example: 1 },
+                    full_name: { type: 'string', example: 'Andi Saputra' },
+                    email: { type: 'string', example: 'andi.saputra@example.com' },
+                    phone_number: { type: 'string', example: '081234567890' }
+                  }
+                },
+                score: { type: 'integer', example: 5 },
+                comment: { type: 'string', example: 'Pelayanan sangat memuaskan dan cepat' },
+                submit_time: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' }
+              }
+            }
+          },
+          pagination: {
+            type: 'object',
+            properties: {
+              current_page: { type: 'integer', example: 1 },
+              per_page: { type: 'integer', example: 10 },
+              total_items: { type: 'integer', example: 150 },
+              total_pages: { type: 'integer', example: 15 },
+              has_next: { type: 'boolean', example: true },
+              has_prev: { type: 'boolean', example: false }
+            }
+          }
+        }
+      },
 
       // Attachment Schemas
       UploadAttachmentResponse: {
@@ -1438,6 +1486,33 @@ const swaggerPaths = {
         },
       },
     },
+  },
+
+  '/feedback': {
+    get: {
+      tags: ['Feedback'],
+      summary: 'Get all feedback (Employee only)',
+      description: 'Get all feedback data with pagination. Only accessible by employees.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'page', schema: { type: 'integer', minimum: 1, default: 1 }, description: 'Page number' },
+        { in: 'query', name: 'limit', schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 }, description: 'Items per page' }
+      ],
+      responses: {
+        '200': {
+          description: 'All feedback retrieved successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/AllFeedbackResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Employee access only',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
   },
 
   '/tickets/{id}/feedback': {
