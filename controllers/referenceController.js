@@ -1,0 +1,403 @@
+const { Op } = require('sequelize');
+
+const db = require('../models');
+
+const { 
+    channel: Channel,
+    complaint_category: ComplaintCategory,
+    complaint_policy: ComplaintPolicy,
+    division: Division,
+    terminal: Terminal,
+    ticket: Ticket,
+    employee: Employee,
+    faq: FAQ
+} = db;
+
+class ReferenceController {
+    constructor() {
+        // No longer need db instance
+    }
+
+    static createInstance() {
+        return new ReferenceController();
+    }
+
+    // GET /v1/channels - List all channels
+    async getChannels(req, res, next) {
+        try {
+            const channels = await Channel.findAll({
+                order: [['channel_id', 'ASC']]
+            });
+
+            const enrichedChannels = await Promise.all(channels.map(async (channel) => {
+                // Count terminals for each channel
+                const terminalsCount = await Terminal.count({
+                    where: { channel_id: channel.channel_id }
+                });
+
+                // Count policies for each channel
+                const policiesCount = await ComplaintPolicy.count({
+                    where: { channel_id: channel.channel_id }
+                });
+
+                return {
+                    channel_id: channel.channel_id,
+                    channel_code: channel.channel_code,
+                    channel_name: channel.channel_name,
+                    supports_terminal: channel.supports_terminal,
+                    terminals_count: terminalsCount,
+                    policies_count: policiesCount
+                };
+            }));
+
+            res.status(200).json({
+                success: true,
+                message: "Channels retrieved successfully",
+                data: enrichedChannels
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // GET /v1/complaint-categories - List all complaint categories
+    async getComplaintCategories(req, res, next) {
+        try {
+            const categories = await ComplaintCategory.findAll({
+                order: [['complaint_id', 'ASC']]
+            });
+
+            const enrichedCategories = await Promise.all(categories.map(async (category) => {
+                // Count tickets for each category
+                const ticketsCount = await Ticket.count({
+                    where: { complaint_id: category.complaint_id }
+                });
+
+                // Count FAQs for each category (if FAQ model exists)
+                let faqsCount = 0;
+                try {
+                    faqsCount = await FAQ.count({
+                        where: { complaint_id: category.complaint_id }
+                    });
+                } catch (error) {
+                    // FAQ model might not exist
+                    faqsCount = 0;
+                }
+
+                // Count policies for each category
+                const policiesCount = await ComplaintPolicy.count({
+                    where: { complaint_id: category.complaint_id }
+                });
+
+                return {
+                    complaint_id: category.complaint_id,
+                    complaint_code: category.complaint_code,
+                    complaint_name: category.complaint_name,
+                    tickets_count: ticketsCount,
+                    faqs_count: faqsCount,
+                    policies_count: policiesCount
+                };
+            }));
+
+            res.status(200).json({
+                success: true,
+                message: "Complaint categories retrieved successfully",
+                data: enrichedCategories
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // GET /v1/slas - Extract SLA data from complaint_policy
+    async getSLAs(req, res, next) {
+        try {
+            const { service, channel_id, complaint_id } = req.query;
+
+            // Build where clause
+            let whereClause = {};
+
+            if (service) {
+                whereClause.service = {
+                    [Op.iLike]: `%${service}%`
+                };
+            }
+
+            if (channel_id) {
+                whereClause.channel_id = parseInt(channel_id);
+            }
+
+            if (complaint_id) {
+                whereClause.complaint_id = parseInt(complaint_id);
+            }
+
+            const policies = await ComplaintPolicy.findAll({
+                where: whereClause,
+                include: [
+                    {
+                        model: Channel,
+                        as: 'channel',
+                        attributes: ['channel_id', 'channel_code', 'channel_name']
+                    },
+                    {
+                        model: ComplaintCategory,
+                        as: 'complaint_category',
+                        attributes: ['complaint_id', 'complaint_code', 'complaint_name']
+                    },
+                    {
+                        model: Division,
+                        as: 'uic_division',
+                        attributes: ['division_id', 'division_code', 'division_name']
+                    }
+                ],
+                order: [['policy_id', 'ASC']]
+            });
+
+            const slaData = policies.map(policy => {
+                const policyData = policy.toJSON();
+                return {
+                    policy_id: policyData.policy_id,
+                    service: policyData.service,
+                    sla_days: policyData.sla,
+                    sla_hours: policyData.sla ? policyData.sla * 24 : null,
+                    channel: policyData.channel,
+                    complaint_category: policyData.complaint_category,
+                    uic: policyData.uic_division_division,
+                    description: policyData.description
+                };
+            });
+
+            // Group by SLA hours for summary
+            const slaGroups = slaData.reduce((acc, item) => {
+                const slaKey = item.sla_days || 'undefined';
+                if (!acc[slaKey]) {
+                    acc[slaKey] = {
+                        sla_days: item.sla_days,
+                        sla_hours: item.sla_hours,
+                        policies_count: 0,
+                        policies: []
+                    };
+                }
+                acc[slaKey].policies_count++;
+                acc[slaKey].policies.push(item);
+                return acc;
+            }, {});
+
+            res.status(200).json({
+                success: true,
+                message: "SLA data retrieved successfully",
+                summary: {
+                    total_policies: slaData.length,
+                    unique_sla_levels: Object.keys(slaGroups).length,
+                    sla_groups: Object.values(slaGroups).map(group => ({
+                        sla_hours: group.sla_hours,
+                        sla_days: group.sla_days,
+                        policies_count: group.policies_count
+                    }))
+                },
+                data: slaData
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // GET /v1/uics - Map divisions as UIC (Unit in Charge)
+    async getUICs(req, res, next) {
+        try {
+            const divisions = await Division.findAll({
+                order: [['division_id', 'ASC']]
+            });
+
+            const uicData = await Promise.all(divisions.map(async (division) => {
+                // Count employees in this division
+                const employeesCount = await Employee.count({
+                    where: { division_id: division.division_id }
+                });
+
+                // Count active employees in this division
+                const activeEmployeesCount = await Employee.count({
+                    where: { 
+                        division_id: division.division_id,
+                        is_active: true 
+                    }
+                });
+
+                // Count policies handled by this UIC
+                const policiesCount = await ComplaintPolicy.count({
+                    where: { uic_id: division.division_id }
+                });
+
+                // Count tickets assigned to this UIC
+                const ticketsCount = await Ticket.count({
+                    include: [{
+                        model: ComplaintPolicy,
+                        as: 'policy',
+                        where: { uic_id: division.division_id },
+                        required: true
+                    }]
+                });
+
+                return {
+                    uic_id: division.division_id,
+                    uic_code: division.division_code,
+                    uic_name: division.division_name,
+                    employees_count: employeesCount,
+                    active_employees_count: activeEmployeesCount,
+                    policies_count: policiesCount,
+                    tickets_count: ticketsCount,
+                    is_operational: activeEmployeesCount > 0
+                };
+            }));
+
+            res.status(200).json({
+                success: true,
+                message: "UICs retrieved successfully",
+                summary: {
+                    total_uics: uicData.length,
+                    operational_uics: uicData.filter(uic => uic.is_operational).length,
+                    total_employees: uicData.reduce((sum, uic) => sum + uic.employees_count, 0),
+                    total_active_employees: uicData.reduce((sum, uic) => sum + uic.active_employees_count, 0)
+                },
+                data: uicData
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // GET /v1/policies - List policies with comprehensive filtering
+    async getPolicies(req, res, next) {
+        try {
+            const { 
+                service, 
+                channel_id, 
+                complaint_id, 
+                uic_id, 
+                sla_min, 
+                sla_max,
+                page = 1,
+                limit = 50,
+                sort_by = 'policy_id',
+                sort_order = 'asc'
+            } = req.query;
+
+            // Convert to numbers
+            const pageNum = parseInt(page);
+            const limitNum = parseInt(limit);
+            const offset = (pageNum - 1) * limitNum;
+
+            // Build where clause
+            let whereClause = {};
+
+            if (service) {
+                whereClause.service = {
+                    [Op.iLike]: `%${service}%`
+                };
+            }
+
+            if (channel_id) {
+                whereClause.channel_id = parseInt(channel_id);
+            }
+
+            if (complaint_id) {
+                whereClause.complaint_id = parseInt(complaint_id);
+            }
+
+            if (uic_id) {
+                whereClause.uic_id = parseInt(uic_id);
+            }
+
+            if (sla_min) {
+                whereClause.sla = {
+                    ...whereClause.sla,
+                    [Op.gte]: parseInt(sla_min)
+                };
+            }
+
+            if (sla_max) {
+                whereClause.sla = {
+                    ...whereClause.sla,
+                    [Op.lte]: parseInt(sla_max)
+                };
+            }
+
+            // Build order clause
+            const orderClause = [[sort_by, sort_order.toUpperCase()]];
+
+            // Get policies with pagination
+            const { count, rows: policies } = await ComplaintPolicy.findAndCountAll({
+                where: whereClause,
+                include: [
+                    {
+                        model: Channel,
+                        as: 'channel',
+                        attributes: ['channel_id', 'channel_code', 'channel_name', 'supports_terminal']
+                    },
+                    {
+                        model: ComplaintCategory,
+                        as: 'complaint_category',
+                        attributes: ['complaint_id', 'complaint_code', 'complaint_name']
+                    },
+                    {
+                        model: Division,
+                        as: 'uic_division',
+                        attributes: ['division_id', 'division_code', 'division_name']
+                    }
+                ],
+                order: orderClause,
+                limit: limitNum,
+                offset: offset,
+                distinct: true
+            });
+
+            // Enrich with tickets count
+            const enrichedPolicies = await Promise.all(policies.map(async (policy) => {
+                const policyData = policy.toJSON();
+
+                // Count tickets using this policy
+                const ticketsCount = await Ticket.count({
+                    where: { policy_id: policy.policy_id }
+                });
+
+                return {
+                    policy_id: policyData.policy_id,
+                    service: policyData.service,
+                    sla_days: policyData.sla,
+                    sla_hours: policyData.sla ? policyData.sla * 24 : null,
+                    description: policyData.description,
+                    tickets_count: ticketsCount,
+                    channel: policyData.channel,
+                    complaint_category: policyData.complaint_category,
+                    uic: policyData.uic
+                };
+            }));
+
+            // Pagination metadata
+            const totalPages = Math.ceil(count / limitNum);
+
+            res.status(200).json({
+                success: true,
+                message: "Policies retrieved successfully",
+                pagination: {
+                    current_page: pageNum,
+                    per_page: limitNum,
+                    total_items: count,
+                    total_pages: totalPages,
+                    has_next: pageNum < totalPages,
+                    has_prev: pageNum > 1
+                },
+                data: enrichedPolicies
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+}
+
+module.exports = ReferenceController;

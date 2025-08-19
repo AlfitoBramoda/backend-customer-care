@@ -193,6 +193,13 @@ module.exports = {
         onDelete: 'SET NULL',
         comment: 'Employee who performed soft delete'
       },
+
+      // tambahan field record 
+      record: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+        defaultValue: null
+      },
       
       // Sequelize timestamps
       created_at: {

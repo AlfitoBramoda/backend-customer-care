@@ -224,6 +224,7 @@ class TicketController {
             description: ticket.description,
             transaction_date: ticket.transaction_date,
             amount: ticket.amount,
+            record: ticket.record || "",
             created_time: ticket.created_time,
             closed_time: ticket.closed_time
         };
@@ -432,6 +433,7 @@ class TicketController {
             description: ticketData.description,
             transaction_date: ticketData.transaction_date,
             amount: ticketData.amount,
+            record: ticketData.record || "",
             created_time: ticketData.created_time,
             closed_time: ticketData.closed_time
         };
@@ -574,6 +576,7 @@ class TicketController {
                 description,
                 transaction_date,
                 amount,
+                record,
                 issue_channel_id,
                 complaint_id,
                 related_account_id,
@@ -663,6 +666,7 @@ class TicketController {
                 description: description,
                 transaction_date: transaction_date || null,
                 amount: amount || null,
+                record: record || "", // Initialize empty record field
                 issue_channel_id: parseInt(issue_channel_id),
                 complaint_id: parseInt(complaint_id),
                 related_account_id: related_account_id ? parseInt(related_account_id) : null,
@@ -791,6 +795,7 @@ class TicketController {
                 division_notes,
                 transaction_date,
                 amount,
+                record,
                 related_account_id,
                 related_card_id,
                 terminal_id
@@ -900,6 +905,7 @@ class TicketController {
             // Fields only available for CXC agents
             if (isCXCAgent) {
                 if (description !== undefined) updateData.description = description;
+                if (record !== undefined) updateData.record = record;
                 if (transaction_date !== undefined) updateData.transaction_date = transaction_date;
                 if (amount !== undefined) updateData.amount = amount;
                 if (related_account_id !== undefined) updateData.related_account_id = related_account_id ? parseInt(related_account_id) : null;
@@ -963,6 +969,7 @@ class TicketController {
         if (updateData.division_notes) changes.push('division notes');
         if (updateData.transaction_date) changes.push('transaction date');
         if (updateData.amount) changes.push('amount');
+        if (updateData.record) changes.push('record');
         if (updateData.related_account_id) changes.push('related account');
         if (updateData.related_card_id) changes.push('related card');
         if (updateData.terminal_id) changes.push('terminal');
