@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('division', [
+    await queryInterface.bulkInsert('channel', [
       { channel_id: 1, channel_code: 'ATM', channel_name: 'Automated Teller Machine', supports_terminal: true, created_at: new Date(), updated_at: new Date() },
       { channel_id: 2, channel_code: 'TAPCASH', channel_name: 'BNI Tapcash', supports_terminal: false, created_at: new Date(), updated_at: new Date() },
       { channel_id: 3, channel_code: 'CRM', channel_name: 'Cash Recycling Machine', supports_terminal: true, created_at: new Date(), updated_at: new Date() },

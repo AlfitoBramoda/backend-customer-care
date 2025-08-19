@@ -32,7 +32,7 @@ module.exports = {
         ticket_activity_id: 3,
         ticket_id: 3,
         sender_id: 3,
-        sender_type_id: 3,
+        sender_type_id: 2,
         ticket_activity_type_id: 3,
         content: 'Lampiran bukti transaksi ditambahkan',
         ticket_activity_time: new Date(),

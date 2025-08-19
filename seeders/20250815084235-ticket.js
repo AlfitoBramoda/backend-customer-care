@@ -13,7 +13,6 @@ module.exports = {
         priority_id: 2,
         issue_channel_id: 1,
         intake_source_id: 1,
-        service_id: 1,
         customer_id: 1,
         related_account_id: 1,
         related_card_id: 1,
@@ -26,7 +25,7 @@ module.exports = {
         terminal_id: 1,
         created_time: new Date(),
         closed_time: new Date(),
-        division_note: [
+        division_notes: JSON.stringify([
           {
             division: 'CXC',
             timestamp: '2025-08-14',
@@ -39,7 +38,11 @@ module.exports = {
             msg: 'Oke sudah di cek dan semua aman',
             author: 'Ari'
           }
-        ]
+        ]),
+        delete_at: null,
+        delete_by: null,
+        created_at: new Date(),
+        updated_at: new Date()
       },
       {
         ticket_id: 2,
@@ -50,7 +53,6 @@ module.exports = {
         priority_id: 1,
         issue_channel_id: 1,
         intake_source_id: 3,
-        service_id: 1,
         customer_id: 2,
         related_account_id: 2,
         related_card_id: 3,
@@ -63,7 +65,7 @@ module.exports = {
         terminal_id: 2,
         created_time: new Date(),
         closed_time: new Date(),
-        division_note: [
+        division_notes: JSON.stringify([
           {
             division: 'CXC',
             timestamp: '2025-08-14',
@@ -76,7 +78,11 @@ module.exports = {
             msg: 'Oke sudah di cek dan semua aman',
             author: 'Ari'
           }
-        ]
+        ]),
+        delete_at: null,
+        delete_by: null,
+        created_at: new Date(),
+        updated_at: new Date()
       },
       {
         ticket_id: 3,
@@ -87,20 +93,19 @@ module.exports = {
         priority_id: 3,
         issue_channel_id: 3,
         intake_source_id: 2,
-        service_id: 2,
         customer_id: 3,
         related_account_id: 2,
-        related_card_id: NULL,
+        related_card_id: null,
         complaint_id: 3,
         responsible_employee_id: 3,
         policy_id: 3,
         committed_due_at: new Date(),
         transaction_date: new Date(),
         amount: 250000,
-        terminal_id: NULL,
+        terminal_id: null,
         created_time: new Date(),
         closed_time: new Date(),
-        division_note: [
+        division_notes: JSON.stringify([
           {
             division: 'CXC',
             timestamp: '2025-08-14',
@@ -113,7 +118,11 @@ module.exports = {
             msg: 'Oke sudah di cek dan semua aman',
             author: 'Ari'
           }
-        ]
+        ]),
+        delete_at: null,
+        delete_by: null,
+        created_at: new Date(),
+        updated_at: new Date()
       },
     ],{});
   },

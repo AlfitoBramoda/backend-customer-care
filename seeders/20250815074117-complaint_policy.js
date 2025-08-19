@@ -11,7 +11,9 @@ module.exports = {
         "complaint_id": 5,
         "sla": 1,
         "uic_id": 9,
-        "description": "Kendala yang dialami nasabah saat melakukan Hapus akun di menu Pengaturan  BI-FAST"
+        "description": "Kendala yang dialami nasabah saat melakukan Hapus akun di menu Pengaturan  BI-FAST",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 2,
@@ -20,7 +22,9 @@ module.exports = {
         "complaint_id": 6,
         "sla": 1,
         "uic_id": 9,
-        "description": "Kendala yang dialami nasabah saat melakukan Migrasi di menu Pengaturan BI-FAST"
+        "description": "Kendala yang dialami nasabah saat melakukan Migrasi di menu Pengaturan BI-FAST",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 3,
@@ -29,7 +33,9 @@ module.exports = {
         "complaint_id": 7,
         "sla": 1,
         "uic_id": 9,
-        "description": "Kendala yang dialami nasabah saat melakukan Suspend di menu Pengaturan BI-FAST"
+        "description": "Kendala yang dialami nasabah saat melakukan Suspend di menu Pengaturan BI-FAST",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 4,
@@ -38,7 +44,9 @@ module.exports = {
         "complaint_id": 8,
         "sla": 1,
         "uic_id": 9,
-        "description": "Kendala yang dialami nasabah saat melakukan Update di menu Pengaturan BI-FAST"
+        "description": "Kendala yang dialami nasabah saat melakukan Update di menu Pengaturan BI-FAST",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 5,
@@ -47,7 +55,9 @@ module.exports = {
         "complaint_id": 16,
         "sla": 1,
         "uic_id": 2,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 6,
@@ -56,7 +66,9 @@ module.exports = {
         "complaint_id": 16,
         "sla": 1,
         "uic_id": 2,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 7,
@@ -65,7 +77,9 @@ module.exports = {
         "complaint_id": 16,
         "sla": 1,
         "uic_id": 2,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 8,
@@ -74,7 +88,9 @@ module.exports = {
         "complaint_id": 40,
         "sla": 1,
         "uic_id": 2,
-        "description": "Gagal transaksi rekening terdebet namun tidak tetkredit ke rekening tujuan, rekening terdebet lebih dari satu kali (transaksi normal), transfer terkredit lebih dari satu kali (transaksi normal), salah transfer (bank/rekening tujuan) dan salah nominal"
+        "description": "Gagal transaksi rekening terdebet namun tidak tetkredit ke rekening tujuan, rekening terdebet lebih dari satu kali (transaksi normal), transfer terkredit lebih dari satu kali (transaksi normal), salah transfer (bank/rekening tujuan) dan salah nominal",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 9,
@@ -83,7 +99,9 @@ module.exports = {
         "complaint_id": 40,
         "sla": 1,
         "uic_id": 2,
-        "description": "Gagal transaksi rekening terdebet namun tidak terkredit ke rekening tujuan, rekening terdebet lebih dari satu kali (transaksi normal). transfer terkredit lebih dari satu kali (transaksi normal), salah transfer (bank/rekening tujuan) dan salah nominal."
+        "description": "Gagal transaksi rekening terdebet namun tidak terkredit ke rekening tujuan, rekening terdebet lebih dari satu kali (transaksi normal). transfer terkredit lebih dari satu kali (transaksi normal), salah transfer (bank/rekening tujuan) dan salah nominal.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 10,
@@ -92,7 +110,9 @@ module.exports = {
         "complaint_id": 40,
         "sla": 1,
         "uic_id": 2,
-        "description": "Gagal transaksi rekening terdebet namun tidak terkredit ke rekening tujuan, rekening terdebet lebih dari satu kali (transaksi normal), transfer terkredit lebih dari satu kali (transaksi normal), salah transfer (bank/rekening tujuan) dan salah nominal."
+        "description": "Gagal transaksi rekening terdebet namun tidak terkredit ke rekening tujuan, rekening terdebet lebih dari satu kali (transaksi normal), transfer terkredit lebih dari satu kali (transaksi normal), salah transfer (bank/rekening tujuan) dan salah nominal.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 11,
@@ -101,7 +121,9 @@ module.exports = {
         "complaint_id": 4,
         "sla": 5,
         "uic_id": 9,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 12,
@@ -110,7 +132,9 @@ module.exports = {
         "complaint_id": 15,
         "sla": 5,
         "uic_id": 7,
-        "description": "Transaksi gagal namun rekening terdebet transaksi sukses namun rekening tidal terdebet, refund karena double bayar, Salal IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet transaksi sukses namun rekening tidal terdebet, refund karena double bayar, Salal IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 13,
@@ -119,7 +143,9 @@ module.exports = {
         "complaint_id": 15,
         "sla": 5,
         "uic_id": 7,
-        "description": "Transaksi gagal namun rekening terdebet transäksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet transäksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 14,
@@ -128,7 +154,9 @@ module.exports = {
         "complaint_id": 15,
         "sla": 5,
         "uic_id": 7,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karenadobuble bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karenadobuble bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 15,
@@ -137,7 +165,9 @@ module.exports = {
         "complaint_id": 20,
         "sla": 5,
         "uic_id": 7,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 16,
@@ -146,7 +176,9 @@ module.exports = {
         "complaint_id": 21,
         "sla": 5,
         "uic_id": 7,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 17,
@@ -155,7 +187,9 @@ module.exports = {
         "complaint_id": 21,
         "sla": 5,
         "uic_id": 7,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 18,
@@ -164,7 +198,9 @@ module.exports = {
         "complaint_id": 21,
         "sla": 5,
         "uic_id": 7,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 19,
@@ -173,7 +209,9 @@ module.exports = {
         "complaint_id": 22,
         "sla": 5,
         "uic_id": 7,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 20,
@@ -182,7 +220,9 @@ module.exports = {
         "complaint_id": 22,
         "sla": 5,
         "uic_id": 7,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 21,
@@ -191,7 +231,9 @@ module.exports = {
         "complaint_id": 22,
         "sla": 5,
         "uic_id": 7,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 22,
@@ -200,7 +242,9 @@ module.exports = {
         "complaint_id": 31,
         "sla": 5,
         "uic_id": 4,
-        "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n"
+        "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 23,
@@ -209,7 +253,9 @@ module.exports = {
         "complaint_id": 31,
         "sla": 5,
         "uic_id": 4,
-        "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n"
+        "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 24,
@@ -218,7 +264,9 @@ module.exports = {
         "complaint_id": 31,
         "sla": 5,
         "uic_id": 4,
-        "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n"
+        "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 25,
@@ -227,7 +275,9 @@ module.exports = {
         "complaint_id": 33,
         "sla": 5,
         "uic_id": 7,
-        "description": "Gagal pengisian top up Gopay, rekening terdebet.\n"
+        "description": "Gagal pengisian top up Gopay, rekening terdebet.\n",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 26,
@@ -236,7 +286,9 @@ module.exports = {
         "complaint_id": 33,
         "sla": 5,
         "uic_id": 7,
-        "description": "Gagal pengisian top up Gopay, rekening terdebet."
+        "description": "Gagal pengisian top up Gopay, rekening terdebet.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 27,
@@ -245,7 +297,9 @@ module.exports = {
         "complaint_id": 33,
         "sla": 5,
         "uic_id": 7,
-        "description": "Gagal pengisian top up Gopay, rekening terdebet."
+        "description": "Gagal pengisian top up Gopay, rekening terdebet.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 28,
@@ -254,7 +308,9 @@ module.exports = {
         "complaint_id": 35,
         "sla": 5,
         "uic_id": 4,
-        "description": "Nasabah melakukan top up OVO, transaksi\ngagal rekening terdebet"
+        "description": "Nasabah melakukan top up OVO, transaksi\ngagal rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 29,
@@ -263,7 +319,9 @@ module.exports = {
         "complaint_id": 35,
         "sla": 5,
         "uic_id": 4,
-        "description": "Nasabah melakukan top up OVO, transaksi gagal rekening terdebet"
+        "description": "Nasabah melakukan top up OVO, transaksi gagal rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 30,
@@ -272,7 +330,9 @@ module.exports = {
         "complaint_id": 35,
         "sla": 5,
         "uic_id": 4,
-        "description": "Nasabah melakukan top up OVO, transaksi gagal rekening terdebet"
+        "description": "Nasabah melakukan top up OVO, transaksi gagal rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 31,
@@ -281,7 +341,9 @@ module.exports = {
         "complaint_id": 37,
         "sla": 5,
         "uic_id": 7,
-        "description": "Gagal pengisian pulsa prabayar, rekening terdebet"
+        "description": "Gagal pengisian pulsa prabayar, rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 32,
@@ -290,7 +352,9 @@ module.exports = {
         "complaint_id": 37,
         "sla": 5,
         "uic_id": 7,
-        "description": "Gagal pengisian pulsa prabayar, rekening terdebet"
+        "description": "Gagal pengisian pulsa prabayar, rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 33,
@@ -299,7 +363,9 @@ module.exports = {
         "complaint_id": 37,
         "sla": 5,
         "uic_id": 7,
-        "description": "Gagal pengisian pulsa prabayar, rekening terdebet"
+        "description": "Gagal pengisian pulsa prabayar, rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 34,
@@ -308,7 +374,9 @@ module.exports = {
         "complaint_id": 38,
         "sla": 5,
         "uic_id": 7,
-        "description": "Gagal pengisian pulsa prabayar, rekening terdebet"
+        "description": "Gagal pengisian pulsa prabayar, rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 35,
@@ -317,7 +385,9 @@ module.exports = {
         "complaint_id": 39,
         "sla": 5,
         "uic_id": 4,
-        "description": "Nasabah melakukan top up Shopee pay, transaksi gagal rekening terdebet"
+        "description": "Nasabah melakukan top up Shopee pay, transaksi gagal rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 36,
@@ -326,7 +396,9 @@ module.exports = {
         "complaint_id": 39,
         "sla": 5,
         "uic_id": 4,
-        "description": "Nasabah melakukan top up Shopee pay, transaksi gagal rekening terdebet"
+        "description": "Nasabah melakukan top up Shopee pay, transaksi gagal rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 37,
@@ -335,7 +407,9 @@ module.exports = {
         "complaint_id": 39,
         "sla": 5,
         "uic_id": 4,
-        "description": "Nasabah melakukan top up Shopee pay, transaksi gagal rekening terdebet"
+        "description": "Nasabah melakukan top up Shopee pay, transaksi gagal rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 38,
@@ -344,7 +418,9 @@ module.exports = {
         "complaint_id": 34,
         "sla": 5,
         "uic_id": 9,
-        "description": "Gagal pengisian top up LinkAja, rekening terdebet."
+        "description": "Gagal pengisian top up LinkAja, rekening terdebet.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 39,
@@ -353,7 +429,9 @@ module.exports = {
         "complaint_id": 34,
         "sla": 5,
         "uic_id": 9,
-        "description": "Nasabah melakukan topup LinkAja, transaksi gagal rekening terdebet"
+        "description": "Nasabah melakukan topup LinkAja, transaksi gagal rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 40,
@@ -362,7 +440,9 @@ module.exports = {
         "complaint_id": 34,
         "sla": 5,
         "uic_id": 9,
-        "description": "Nasabah melakukan topup LinkAja, transaksi gagal rekening terdebet"
+        "description": "Nasabah melakukan topup LinkAja, transaksi gagal rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 41,
@@ -371,7 +451,9 @@ module.exports = {
         "complaint_id": 41,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 42,
@@ -380,7 +462,9 @@ module.exports = {
         "complaint_id": 41,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 43,
@@ -389,7 +473,9 @@ module.exports = {
         "complaint_id": 41,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 44,
@@ -398,7 +484,9 @@ module.exports = {
         "complaint_id": 44,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 45,
@@ -407,7 +495,9 @@ module.exports = {
         "complaint_id": 44,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 46,
@@ -416,7 +506,9 @@ module.exports = {
         "complaint_id": 44,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 47,
@@ -425,7 +517,9 @@ module.exports = {
         "complaint_id": 46,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 48,
@@ -434,7 +528,9 @@ module.exports = {
         "complaint_id": 46,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 49,
@@ -443,7 +539,9 @@ module.exports = {
         "complaint_id": 46,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 50,
@@ -452,7 +550,9 @@ module.exports = {
         "complaint_id": 47,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 51,
@@ -461,7 +561,9 @@ module.exports = {
         "complaint_id": 47,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 52,
@@ -470,7 +572,9 @@ module.exports = {
         "complaint_id": 47,
         "sla": 5,
         "uic_id": 8,
-        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan."
+        "description": "Transaksi sukses, Rekening terdebet tapi dana tidak masuk ke rekening tujuan.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 53,
@@ -479,7 +583,9 @@ module.exports = {
         "complaint_id": 32,
         "sla": 6,
         "uic_id": 8,
-        "description": "Gagal to up ke e-money, rekening terdebet."
+        "description": "Gagal to up ke e-money, rekening terdebet.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 54,
@@ -488,7 +594,9 @@ module.exports = {
         "complaint_id": 3,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet > 1x"
+        "description": "Nasabah melukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet > 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 55,
@@ -497,7 +605,9 @@ module.exports = {
         "complaint_id": 36,
         "sla": 7,
         "uic_id": 10,
-        "description": "Gagal top up kartu Tapcash, rekening terdebet"
+        "description": "Gagal top up kartu Tapcash, rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 56,
@@ -506,7 +616,9 @@ module.exports = {
         "complaint_id": 11,
         "sla": 7,
         "uic_id": 6,
-        "description": "Kendala tarik tunai tanpa kartu di ATM BNI, rekening terdebet"
+        "description": "Kendala tarik tunai tanpa kartu di ATM BNI, rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 57,
@@ -515,7 +627,9 @@ module.exports = {
         "complaint_id": 12,
         "sla": 7,
         "uic_id": 8,
-        "description": "Kendala tarik tunai melalui mitra kerjasama Alfamart tanpa menggunakan kartu (Mobile Tunai), rekening terdebet"
+        "description": "Kendala tarik tunai melalui mitra kerjasama Alfamart tanpa menggunakan kartu (Mobile Tunai), rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 58,
@@ -524,7 +638,9 @@ module.exports = {
         "complaint_id": 13,
         "sla": 7,
         "uic_id": 8,
-        "description": "Kendala tarik tunai melalui mitra kerjasama Alfamidi tanpa menggunakan kartu (Mobile Tunai), rekening terdebet"
+        "description": "Kendala tarik tunai melalui mitra kerjasama Alfamidi tanpa menggunakan kartu (Mobile Tunai), rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 59,
@@ -533,7 +649,9 @@ module.exports = {
         "complaint_id": 14,
         "sla": 7,
         "uic_id": 8,
-        "description": "Kendala tarik tunai melalui mitra kerjasama Alfamidi tanpa menggunakan kartu (Mobile Tunai), rekening terdebet"
+        "description": "Kendala tarik tunai melalui mitra kerjasama Alfamidi tanpa menggunakan kartu (Mobile Tunai), rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 60,
@@ -542,7 +660,9 @@ module.exports = {
         "complaint_id": 30,
         "sla": 7,
         "uic_id": 6,
-        "description": "Transaksi Tarik Tunai Rekening terdebet namun uang tidak keluar dan transaksi rekening tidak terdebet namun uang keluar"
+        "description": "Transaksi Tarik Tunai Rekening terdebet namun uang tidak keluar dan transaksi rekening tidak terdebet namun uang keluar",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 61,
@@ -551,7 +671,9 @@ module.exports = {
         "complaint_id": 42,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 62,
@@ -560,7 +682,9 @@ module.exports = {
         "complaint_id": 42,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 63,
@@ -569,7 +693,9 @@ module.exports = {
         "complaint_id": 42,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 64,
@@ -578,7 +704,9 @@ module.exports = {
         "complaint_id": 45,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 65,
@@ -587,7 +715,9 @@ module.exports = {
         "complaint_id": 45,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 66,
@@ -596,7 +726,9 @@ module.exports = {
         "complaint_id": 45,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 67,
@@ -605,7 +737,9 @@ module.exports = {
         "complaint_id": 43,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 68,
@@ -614,7 +748,9 @@ module.exports = {
         "complaint_id": 43,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 69,
@@ -623,7 +759,9 @@ module.exports = {
         "complaint_id": 43,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 70,
@@ -632,7 +770,9 @@ module.exports = {
         "complaint_id": 48,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 71,
@@ -641,7 +781,9 @@ module.exports = {
         "complaint_id": 48,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 72,
@@ -650,7 +792,9 @@ module.exports = {
         "complaint_id": 48,
         "sla": 7,
         "uic_id": 2,
-        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x"
+        "description": "Nasabah melakukan permohonan Refund, pembatalan Transfer, komplain karena rekening terdebet> 1x",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 73,
@@ -659,7 +803,9 @@ module.exports = {
         "complaint_id": 24,
         "sla": 7,
         "uic_id": 6,
-        "description": "Gagal transaksi Setor dan tarik tunai baik di CRM"
+        "description": "Gagal transaksi Setor dan tarik tunai baik di CRM",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 74,
@@ -668,7 +814,9 @@ module.exports = {
         "complaint_id": 25,
         "sla": 9,
         "uic_id": 8,
-        "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)"
+        "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 75,
@@ -677,7 +825,9 @@ module.exports = {
         "complaint_id": 26,
         "sla": 9,
         "uic_id": 8,
-        "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)"
+        "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 76,
@@ -686,7 +836,9 @@ module.exports = {
         "complaint_id": 28,
         "sla": 9,
         "uic_id": 8,
-        "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)"
+        "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 77,
@@ -695,7 +847,9 @@ module.exports = {
         "complaint_id": 29,
         "sla": 9,
         "uic_id": 8,
-        "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)"
+        "description": "Rekening terdebet namun uang tidak keluar (Kartu Debit BNI di ATM bank lain)",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 78,
@@ -704,7 +858,9 @@ module.exports = {
         "complaint_id": 17,
         "sla": 10,
         "uic_id": 3,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 79,
@@ -713,7 +869,9 @@ module.exports = {
         "complaint_id": 18,
         "sla": 10,
         "uic_id": 3,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 80,
@@ -722,7 +880,9 @@ module.exports = {
         "complaint_id": 19,
         "sla": 10,
         "uic_id": 3,
-        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian."
+        "description": "Transaksi gagal namun rekening terdebet, transaksi sukses namun rekening tidak terdebet, refund karena double bayar, Salah IDPEL/Operator dan Salah input Nominal Pembelian.",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 81,
@@ -731,7 +891,9 @@ module.exports = {
         "complaint_id": 23,
         "sla": 10,
         "uic_id": 8,
-        "description": "Permintaan CCTV ATM Bank Lain"
+        "description": "Permintaan CCTV ATM Bank Lain",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 82,
@@ -740,7 +902,9 @@ module.exports = {
         "complaint_id": 23,
         "sla": 10,
         "uic_id": 6,
-        "description": "Permintaan CCTV ATM BNI"
+        "description": "Permintaan CCTV ATM BNI",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 83,
@@ -749,7 +913,9 @@ module.exports = {
         "complaint_id": 10,
         "sla": 20,
         "uic_id": 2,
-        "description": "Nasabah melakukan pembayaran melalui QRIS, transaksi gagal rekening terdebet"
+        "description": "Nasabah melakukan pembayaran melalui QRIS, transaksi gagal rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 84,
@@ -758,7 +924,9 @@ module.exports = {
         "complaint_id": 2,
         "sla": 30,
         "uic_id": 8,
-        "description": "Diinput Customer Care sesuai notifikasi DGO\nuntuk pengajuan 2nd chargeback"
+        "description": "Diinput Customer Care sesuai notifikasi DGO\nuntuk pengajuan 2nd chargeback",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 85,
@@ -767,7 +935,9 @@ module.exports = {
         "complaint_id": 1,
         "sla": 40,
         "uic_id": 8,
-        "description": "Diinput Customer Care sesuai notifikasi DGO\nuntuk pengajuan 2nd chargeback"
+        "description": "Diinput Customer Care sesuai notifikasi DGO\nuntuk pengajuan 2nd chargeback",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 86,
@@ -776,7 +946,9 @@ module.exports = {
         "complaint_id": 9,
         "sla": 40,
         "uic_id": 2,
-        "description": "Nasabah melakukan transaksi belanja,\ntransaksi gagal rekening terdebet"
+        "description": "Nasabah melakukan transaksi belanja,\ntransaksi gagal rekening terdebet",
+        "created_at": new Date(),
+        "updated_at": new Date()
       },
       {
         "policy_id": 87,
@@ -785,7 +957,9 @@ module.exports = {
         "complaint_id": 27,
         "sla": 40,
         "uic_id": 2,
-        "description": "Rekening terdebet namun uang tidak keluar\n(Kartu Debit BNI di ATM bank lain)"
+        "description": "Rekening terdebet namun uang tidak keluar\n(Kartu Debit BNI di ATM bank lain)",
+        "created_at": new Date(),
+        "updated_at": new Date()
       }
     ], {});         
   },

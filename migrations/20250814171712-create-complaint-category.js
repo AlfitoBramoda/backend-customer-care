@@ -10,12 +10,12 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       complaint_code: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.STRING(100),
         allowNull: false,
         unique: true
       },
       complaint_name: {
-        type: Sequelize.STRING(150),
+        type: Sequelize.STRING(200),
         allowNull: false
       },
       created_at: {

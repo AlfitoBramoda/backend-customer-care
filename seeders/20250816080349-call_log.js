@@ -23,7 +23,7 @@ module.exports = {
         employee_id: 2,
         customer_id: 2,
         call_start: '2025-08-14T08:50:00Z',
-        call_end: ' ',
+        call_end: new Date(),
         call_status_type_id: 2,
         created_at: new Date(),
         updated_at: new Date()
