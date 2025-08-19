@@ -1640,6 +1640,141 @@ class TicketController {
             next(error);
         }
     }
+
+    async getActivityById(req, res, next) {
+        try {
+            const { id } = req.params;
+
+            const activity = this.db.get('ticket_activity')
+                .find({ ticket_activity_id: parseInt(id) })
+                .value();
+
+            if (!activity) {
+                throw new NotFoundError('Activity');
+            }
+
+            // Get the ticket to check access permissions
+            const ticket = this.db.get('ticket')
+                .find({ ticket_id: activity.ticket_id })
+                .value();
+
+            if (!ticket) {
+                throw new NotFoundError('Associated ticket');
+            }
+
+            // Role-based access control
+            if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
+                throw new ForbiddenError('Access denied');
+            } else if (req.user.role === 'employee') {
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
+                    if (ticket.responsible_employee_id !== req.user.id) {
+                        throw new ForbiddenError('Access denied - you can only view activities for tickets assigned to you');
+                    }
+                }
+            }
+
+            // Get activity type
+            const activityType = this.db.get('ticket_activity_type')
+                .find({ ticket_activity_type_id: activity.ticket_activity_type_id })
+                .value();
+
+            // Get sender type
+            const senderType = this.db.get('sender_type')
+                .find({ sender_type_id: activity.sender_type_id })
+                .value();
+
+            // Get sender details based on sender type
+            let sender = null;
+            if (senderType?.sender_type_code === 'CUSTOMER') {
+                const customer = this.db.get('customer')
+                    .find({ customer_id: activity.sender_id })
+                    .value();
+                if (customer) {
+                    sender = {
+                        sender_id: customer.customer_id,
+                        full_name: customer.full_name,
+                        email: customer.email,
+                        phone_number: customer.phone_number,
+                        type: 'customer'
+                    };
+                }
+            } else if (senderType?.sender_type_code === 'EMPLOYEE') {
+                const employee = this.db.get('employee')
+                    .find({ employee_id: activity.sender_id })
+                    .value();
+                if (employee) {
+                    const division = this.db.get('division')
+                        .find({ division_id: employee.division_id })
+                        .value();
+                    const role = this.db.get('role')
+                        .find({ role_id: employee.role_id })
+                        .value();
+                    sender = {
+                        sender_id: employee.employee_id,
+                        full_name: employee.full_name,
+                        npp: employee.npp,
+                        email: employee.email,
+                        division: division ? {
+                            division_id: division.division_id,
+                            division_name: division.division_name,
+                            division_code: division.division_code
+                        } : null,
+                        role: role ? {
+                            role_id: role.role_id,
+                            role_name: role.role_name,
+                            role_code: role.role_code
+                        } : null,
+                        type: 'employee'
+                    };
+                }
+            }
+
+            // Get attachments for this activity
+            const attachments = this.db.get('attachment')
+                .filter({ ticket_activity_id: activity.ticket_activity_id })
+                .value()
+                .map(attachment => ({
+                    attachment_id: attachment.attachment_id,
+                    file_name: attachment.file_name,
+                    file_path: attachment.file_path,
+                    file_size: attachment.file_size,
+                    file_type: attachment.file_type,
+                    upload_time: attachment.upload_time
+                }));
+
+            const enrichedActivity = {
+                ticket_activity_id: activity.ticket_activity_id,
+                ticket: {
+                    ticket_id: ticket.ticket_id,
+                    ticket_number: ticket.ticket_number,
+                    description: ticket.description
+                },
+                activity_type: activityType ? {
+                    ticket_activity_type_id: activityType.ticket_activity_type_id,
+                    ticket_activity_code: activityType.ticket_activity_code,
+                    ticket_activity_name: activityType.ticket_activity_name
+                } : null,
+                sender_type: senderType ? {
+                    sender_type_id: senderType.sender_type_id,
+                    sender_type_code: senderType.sender_type_code,
+                    sender_type_name: senderType.sender_type_name
+                } : null,
+                sender: sender,
+                content: activity.content,
+                ticket_activity_time: activity.ticket_activity_time,
+                attachments: attachments
+            };
+
+            res.status(200).json({
+                success: true,
+                message: 'Activity retrieved successfully',
+                data: enrichedActivity
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = TicketController;

@@ -37,7 +37,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"siti.nurhaliza@example.com\",\n  \"password\": \"siti\"\n}",
+							"raw": "{\n  \"email\": \"andi.saputra@example.com\",\n  \"password\": \"andi\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -496,6 +496,10 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Activity",
+			"item": []
 		},
 		{
 			"name": "Reference Data",

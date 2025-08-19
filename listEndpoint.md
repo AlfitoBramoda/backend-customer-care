@@ -310,9 +310,9 @@
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
 | POST | `/v1/tickets/:id/activities` | ✅ DONE | Add activity (chat, call, note) |
-| GET | `/v1/activities/:id` | ❌ TODO | Get activity detail |
+| GET | `/v1/activities/:id` | ✅ DONE | Get activity detail |
 
-**Progress**: 1/2 (50%)
+**Progress**: 2/2 (100%)
 
 **Features Implemented in `POST /v1/tickets/:id/activities`:**
 - ✅ Role-based access control (customer can only add to own tickets)
@@ -325,6 +325,19 @@
 - ✅ Sender details enrichment (customer/employee with division info)
 - ✅ Timestamp generation
 - ✅ Comprehensive error handling (400, 403, 404)
+
+**Features Implemented in `GET /v1/activities/:id`:**
+- ✅ Role-based access control (customer can only access activities from own tickets)
+- ✅ CXC agents (role_id=1, division_id=1): can view all activities
+- ✅ Non-CXC employees: can only view activities for assigned tickets
+- ✅ Complete activity details with all related data
+- ✅ Activity type information (code, name)
+- ✅ Sender type and detailed sender information
+- ✅ Customer sender: full_name, email, phone_number
+- ✅ Employee sender: full_name, npp, email, division, role info
+- ✅ Associated ticket information (id, number, description)
+- ✅ Attachment information for the activity
+- ✅ Comprehensive error handling (403, 404)
 
 ---
 

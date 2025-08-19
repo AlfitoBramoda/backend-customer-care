@@ -67,4 +67,18 @@ const createTicketRoutes = (db) => {
     return router;
 };
 
-module.exports = createTicketRoutes;
+// Separate router for activities (standalone endpoints)
+const createActivityRoutes = (db) => {
+    const router = express.Router();
+    const ticketController = TicketController.createInstance(db);
+    
+    // GET /v1/activities/:id - Get activity detail by ID
+    router.get('/:id', 
+        authenticateToken, 
+        ticketController.getActivityById.bind(ticketController)
+    );
+    
+    return router;
+};
+
+module.exports = { createTicketRoutes, createActivityRoutes };
