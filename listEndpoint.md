@@ -2,14 +2,18 @@
 
 ## 📊 Project Overview
 - **Total Custom Endpoints**: 56 endpoints
-- **Current Status**: 12 custom endpoints implemented
-- **Need to Build**: 44 custom endpoints
+- **Current Status**: 29 custom endpoints implemented (51.8%)
+- **Need to Build**: 27 custom endpoints
 - **Target**: Full custom implementation for smooth PostgreSQL migration
 
 ## 🎆 Recent Updates
 - ✅ **Authentication Module**: Completed all 5 endpoints with enhanced security
-- ✅ **Tickets Listing**: Implemented comprehensive filtering with role-based access
-- ✅ **Ticket Detail**: Implemented GET /v1/tickets/:id with complete relations
+- ✅ **Ticketing System**: Completed all 8 endpoints with comprehensive features
+- ✅ **Attachment System**: Completed all 3 endpoints with Google Cloud Storage integration
+- ✅ **Reference Data**: Completed all 5 endpoints for channels, categories, SLAs, UICs, policies
+- ✅ **Customer Management**: Completed 2/5 endpoints (list and detail)
+- ✅ **Feedback System**: Completed all 3 endpoints
+- ✅ **Activities & Notes**: Completed all 2 endpoints
 - ✅ **Swagger Documentation**: Updated with all current endpoints and parameters
 
 ---
@@ -342,16 +346,58 @@
 ---
 
 ## 📌 7. Attachments
-**Controller**: `attachment_controller.js` (create new)  
-**Route**: `routes/attachment.js` (create new)
+**Controller**: `attachment_controller.js` ✅ CREATED  
+**Route**: `routes/attachment.js` ✅ CREATED
+**Storage**: Google Cloud Storage (GCS) ✅ CONFIGURED
 
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
-| POST | `/v1/tickets/:id/attachments` | ❌ TODO | Upload file dengan multer |
-| GET | `/v1/attachments/:id` | ❌ TODO | Download/get attachment metadata |
-| DELETE | `/v1/attachments/:id` | ❌ TODO | Delete attachment |
+| POST | `/v1/tickets/:id/attachments` | ✅ DONE | Upload files to GCS with multer |
+| GET | `/v1/attachments/:id` | ✅ DONE | Get attachment metadata + signed download URL |
+| DELETE | `/v1/attachments/:id` | ✅ DONE | Delete attachment from GCS + database |
 
-**Progress**: 0/3 (0%)
+**Progress**: 3/3 (100%)
+
+**Features Implemented in `POST /v1/tickets/:id/attachments`:**
+- ✅ Google Cloud Storage integration
+- ✅ Multiple file upload support (max 5 files, 10MB each)
+- ✅ File type validation (images, PDF, Word, Excel, text)
+- ✅ Role-based access control (customer own tickets, CXC all tickets)
+- ✅ Non-CXC employees: can only upload to assigned tickets
+- ✅ Unique filename generation with UUID
+- ✅ File metadata storage in database
+- ✅ Activity logging for uploads
+- ✅ GCS path organization by ticket
+- ✅ Comprehensive error handling (400, 401, 403, 404, 500, 503)
+- ✅ Service availability check (GCS configuration)
+
+**Features Implemented in `GET /v1/attachments/:id`:**
+- ✅ Role-based access control (customer can only access own ticket attachments)
+- ✅ CXC agents (role_id=1, division_id=1): can view all attachments
+- ✅ Non-CXC employees: can only view attachments for assigned tickets
+- ✅ Signed URL generation (1 hour expiry)
+- ✅ Complete attachment metadata (file_name, file_size, file_type, upload_time)
+- ✅ Associated ticket information
+- ✅ Secure download links from GCS
+- ✅ Comprehensive error handling (401, 403, 404, 503)
+
+**Features Implemented in `DELETE /v1/attachments/:id`:**
+- ✅ CXC employee-only access control (role_id=1, division_id=1)
+- ✅ Customers and non-CXC employees blocked from deleting attachments
+- ✅ File deletion from Google Cloud Storage
+- ✅ Database record removal
+- ✅ Activity logging for deletions
+- ✅ Graceful handling of GCS deletion failures
+- ✅ Comprehensive error handling (401, 403, 404, 503)
+
+**Technical Implementation:**
+- ✅ Multer middleware for multipart/form-data handling
+- ✅ Memory storage for direct GCS upload
+- ✅ File validation middleware
+- ✅ GCS configuration with service account authentication
+- ✅ Error handling for missing GCS configuration
+- ✅ Swagger documentation complete
+- ✅ Environment-specific configuration support
 
 ---
 
@@ -532,13 +578,13 @@
 ### Controllers (14 total)
 - ✅ `auth_controller.js` (existing - extend)
 - ✅ `ticket_controller.js` (existing - extend)
-- ❌ `customer_controller.js` (create new)
+- ✅ `customer_controller.js` (created)
+- ✅ `reference_controller.js` (created)
+- ✅ `feedback_controller.js` (created)
+- ✅ `attachment_controller.js` (created)
 - ❌ `employee_controller.js` (create new)
-- ❌ `reference_controller.js` (create new)
 - ❌ `terminal_controller.js` (create new)
 - ❌ `routing_controller.js` (create new)
-- ❌ `activity_controller.js` (create new)
-- ❌ `attachment_controller.js` (create new)
 - ❌ `chat_controller.js` (create new)
 - ❌ `call_controller.js` (create new)
 - ❌ `feedback_controller.js` (create new)
@@ -550,13 +596,13 @@
 ### Routes (14 total)
 - ✅ `routes/auth.js` (existing - extend)
 - ✅ `routes/ticket.js` (existing - extend)
-- ❌ `routes/customer.js` (create new)
+- ✅ `routes/customer.js` (created)
+- ✅ `routes/reference.js` (created)
+- ✅ `routes/feedback.js` (created)
+- ✅ `routes/attachment.js` (created)
 - ❌ `routes/employee.js` (create new)
-- ❌ `routes/reference.js` (create new)
 - ❌ `routes/terminal.js` (create new)
 - ❌ `routes/routing.js` (create new)
-- ❌ `routes/activity.js` (create new)
-- ❌ `routes/attachment.js` (create new)
 - ❌ `routes/chat.js` (create new)
 - ❌ `routes/call.js` (create new)
 - ❌ `routes/feedback.js` (create new)
@@ -575,23 +621,23 @@
 | Category | Done | Total | Progress |
 |----------|------|-------|----------|
 | **Identity & Access** | 5 | 5 | 100% |
-| **Customer 360** | 0 | 5 | 0% |
-| **Reference Data** | 0 | 5 | 0% |
+| **Customer 360** | 2 | 5 | 40% |
+| **Reference Data** | 5 | 5 | 100% |
 | **Terminal Registry** | 0 | 5 | 0% |
 | **Policy & Routing** | 0 | 1 | 0% |
-| **Ticketing** | 3 | 8 | 37.5% |
-| **Activities & Notes** | 0 | 2 | 0% |
-| **Attachments** | 0 | 3 | 0% |
+| **Ticketing** | 8 | 8 | 100% |
+| **Activities & Notes** | 2 | 2 | 100% |
+| **Attachments** | 3 | 3 | 100% |
 | **Chat** | 0 | 3 | 0% |
 | **Call Logs** | 0 | 2 | 0% |
-| **Feedback** | 0 | 3 | 0% |
+| **Feedback** | 3 | 3 | 100% |
 | **FAQ** | 0 | 5 | 0% |
 | **Work Management** | 0 | 3 | 0% |
 | **Notifications** | 0 | 2 | 0% |
 | **Reporting** | 0 | 3 | 0% |
 | **Admin Console** | 0 | 4 | 0% |
 
-**GRAND TOTAL**: 8/56 endpoints (14.3% complete)
+**GRAND TOTAL**: 29/56 endpoints (51.8% complete)
 
 ---
 
