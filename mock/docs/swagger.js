@@ -528,6 +528,76 @@ const swaggerDefinition = {
           }
         }
       },
+
+      // Attachment Schemas
+      UploadAttachmentResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Successfully uploaded 2 file(s)' },
+          data: {
+            type: 'object',
+            properties: {
+              ticket_id: { type: 'integer', example: 1 },
+              activity_id: { type: 'integer', example: 123 },
+              attachments: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    attachment_id: { type: 'integer', example: 1 },
+                    file_name: { type: 'string', example: 'document.pdf' },
+                    file_size: { type: 'integer', example: 245678 },
+                    file_type: { type: 'string', example: 'application/pdf' },
+                    upload_time: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
+                    gcs_path: { type: 'string', example: 'tickets/ticket-1/uuid-filename.pdf' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      AttachmentDetailResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Attachment retrieved successfully' },
+          data: {
+            type: 'object',
+            properties: {
+              attachment_id: { type: 'integer', example: 1 },
+              file_name: { type: 'string', example: 'document.pdf' },
+              file_size: { type: 'integer', example: 245678 },
+              file_type: { type: 'string', example: 'application/pdf' },
+              upload_time: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
+              download_url: { type: 'string', example: 'https://storage.googleapis.com/bucket/signed-url...' },
+              ticket: {
+                type: 'object',
+                properties: {
+                  ticket_id: { type: 'integer', example: 1 },
+                  ticket_number: { type: 'string', example: 'BNI-20250115001' }
+                }
+              }
+            }
+          }
+        }
+      },
+      DeleteAttachmentResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Attachment deleted successfully' },
+          data: {
+            type: 'object',
+            properties: {
+              attachment_id: { type: 'integer', example: 1 },
+              file_name: { type: 'string', example: 'document.pdf' },
+              deleted_at: { type: 'string', format: 'date-time', example: '2025-01-15T15:30:00.000Z' }
+            }
+          }
+        }
+      },
     },
   },
   tags: [
@@ -536,6 +606,7 @@ const swaggerDefinition = {
     { name: 'Customers', description: 'Customer management endpoints' },
     { name: 'Reference Data', description: 'Reference data endpoints for channels, categories, SLAs, UICs, and policies' },
     { name: 'Feedback', description: 'Feedback management endpoints' },
+    { name: 'Attachments', description: 'File attachment management endpoints' },
   ],
 };
 
@@ -983,6 +1054,65 @@ const swaggerPaths = {
         '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
       },
     },
+    post: {
+      tags: ['Attachments'],
+      summary: 'Upload attachments to ticket',
+      description: 'Upload one or more files to a ticket. Files are stored in Google Cloud Storage. Maximum 5 files, 10MB each. Supported formats: images, PDF, Word, Excel, text files.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Ticket ID' }
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              properties: {
+                files: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    format: 'binary'
+                  },
+                  description: 'Files to upload (max 5 files, 10MB each)'
+                }
+              }
+            }
+          }
+        }
+      },
+      responses: {
+        '201': {
+          description: 'Files uploaded successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/UploadAttachmentResponse' } } }
+        },
+        '400': {
+          description: 'Bad request - No files, file too large, invalid file type, or too many files',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Access denied (customer can only upload to own tickets)',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Ticket not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '500': {
+          description: 'Upload failed',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '503': {
+          description: 'Service unavailable - GCS not configured',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
   },
 
   '/tickets/{id}/feedback': {
@@ -1395,6 +1525,71 @@ const swaggerPaths = {
         },
         '404': {
           description: 'Feedback not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/attachments/{id}': {
+    get: {
+      tags: ['Attachments'],
+      summary: 'Get attachment metadata and download URL',
+      description: 'Get attachment details including a signed download URL (valid for 1 hour). Role-based access control applies.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Attachment ID' }
+      ],
+      responses: {
+        '200': {
+          description: 'Attachment retrieved successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/AttachmentDetailResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Access denied (customer can only access own ticket attachments)',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Attachment not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '503': {
+          description: 'Service unavailable - GCS not configured',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    },
+    delete: {
+      tags: ['Attachments'],
+      summary: 'Delete attachment (CXC Employee only)',
+      description: 'Delete an attachment from both Google Cloud Storage and database. Only CXC employees (role_id=1, division_id=1) can delete attachments.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Attachment ID' }
+      ],
+      responses: {
+        '200': {
+          description: 'Attachment deleted successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/DeleteAttachmentResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Only CXC employees can delete attachments',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Attachment not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '503': {
+          description: 'Service unavailable - GCS not configured',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
         }
       }

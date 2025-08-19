@@ -424,12 +424,7 @@ class TicketController {
 
         const commonData = {
             ...baseData,
-            customer: customer ? {
-                customer_id: customer.customer_id,
-                full_name: customer.full_name,
-                email: customer.email,
-                phone_number: customer.phone_number
-            } : null,
+            customer,
             
             customer_status: customerStatus ? {
                 customer_status_id: customerStatus.customer_status_id,

@@ -108,6 +108,7 @@ const { createTicketRoutes, createActivityRoutes, createFeedbackRoutes } = requi
 const createCustomerRoutes  = require('./routes/customer');
 const createReferenceRoutes = require('./routes/reference');
 const createSocketRoutes    = require('./routes/socket');
+const createAttachmentRoutes = require('./routes/attachment');
 server.use('/v1/auth', createAuthRoutes(db));
 server.use('/v1/tickets', createTicketRoutes(db));
 server.use('/v1/activities', createActivityRoutes(db));
@@ -115,6 +116,7 @@ server.use('/v1/feedback', createFeedbackRoutes(db));
 server.use('/v1/customers', createCustomerRoutes(db));
 server.use('/v1', createReferenceRoutes(db));
 server.use('/v1/socket', createSocketRoutes(db, io));
+server.use('/v1', createAttachmentRoutes(db));
 
 // Static files middleware
 server.use(express.static('public'));

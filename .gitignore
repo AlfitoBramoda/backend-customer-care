@@ -39,6 +39,10 @@ node_modules/
 !.env.development
 !.env.example
 
+# Google Cloud Service Account Keys - NEVER COMMIT
+config/gcs-service-account.json
+mock/config/gcs-service-account.json
+
 # Optional npm cache directory
 .npm
 
@@ -95,3 +99,4 @@ Thumbs.db
 # Backup Folder
 backup/
 Server_socket/
+reference/
