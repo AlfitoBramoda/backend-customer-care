@@ -431,6 +431,103 @@ const swaggerDefinition = {
           message: { type: 'string', example: 'Error message' },
         },
       },
+
+      // Feedback Schemas
+      SubmitFeedbackRequest: {
+        type: 'object',
+        required: ['score'],
+        properties: {
+          score: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 5,
+            example: 5,
+            description: 'Rating score from 1 to 5'
+          },
+          comment: {
+            type: 'string',
+            example: 'Pelayanan sangat memuaskan dan cepat',
+            description: 'Optional feedback comment'
+          }
+        }
+      },
+      SubmitFeedbackResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Feedback berhasil dikirim' },
+          data: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer', example: 1 },
+              ticket: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer', example: 1 },
+                  ticket_number: { type: 'string', example: 'BNI-20250115001' },
+                  description: { type: 'string', example: 'Kartu ATM tertelan' },
+                  status: { type: 'string', example: 'CLOSED' }
+                }
+              },
+              customer: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer', example: 1 },
+                  full_name: { type: 'string', example: 'Andi Saputra' },
+                  email: { type: 'string', example: 'andi.saputra@example.com' },
+                  phone_number: { type: 'string', example: '081234567890' }
+                }
+              },
+              score: { type: 'integer', example: 5 },
+              comment: { type: 'string', example: 'Pelayanan sangat memuaskan dan cepat' },
+              submit_time: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' }
+            }
+          }
+        }
+      },
+      FeedbackDetailResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          data: {
+            type: 'object',
+            properties: {
+              id: { type: 'integer', example: 1 },
+              ticket: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer', example: 1 },
+                  ticket_number: { type: 'string', example: 'BNI-20250115001' },
+                  description: { type: 'string', example: 'Kartu ATM tertelan' },
+                  status: { type: 'string', example: 'CLOSED' }
+                }
+              },
+              customer: {
+                type: 'object',
+                properties: {
+                  id: { type: 'integer', example: 1 },
+                  full_name: { type: 'string', example: 'Andi Saputra' },
+                  email: { type: 'string', example: 'andi.saputra@example.com' },
+                  phone_number: { type: 'string', example: '081234567890' }
+                }
+              },
+              score: { type: 'integer', example: 5 },
+              comment: { type: 'string', example: 'Pelayanan sangat memuaskan dan cepat' },
+              submit_time: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' }
+            }
+          }
+        }
+      },
+      UpdateFeedbackRequest: {
+        type: 'object',
+        properties: {
+          comment: {
+            type: 'string',
+            example: 'Update: Terima kasih atas penanganan yang cepat',
+            description: 'Updated feedback comment'
+          }
+        }
+      },
     },
   },
   tags: [
@@ -438,6 +535,7 @@ const swaggerDefinition = {
     { name: 'Tickets', description: 'Ticket management endpoints' },
     { name: 'Customers', description: 'Customer management endpoints' },
     { name: 'Reference Data', description: 'Reference data endpoints for channels, categories, SLAs, UICs, and policies' },
+    { name: 'Feedback', description: 'Feedback management endpoints' },
   ],
 };
 
@@ -1202,6 +1300,105 @@ const swaggerPaths = {
         },
       },
     },
+  },
+
+  '/tickets/{id}/feedback': {
+    post: {
+      tags: ['Feedback'],
+      summary: 'Submit feedback for ticket',
+      description: 'Submit feedback with rating and optional comment for a specific ticket. Role-based access control applies.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Ticket ID' }
+      ],
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/SubmitFeedbackRequest' } } }
+      },
+      responses: {
+        '201': {
+          description: 'Feedback submitted successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/SubmitFeedbackResponse' } } }
+        },
+        '400': {
+          description: 'Bad request - Invalid score or feedback already exists',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Access denied',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Ticket not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/feedback/{id}': {
+    get: {
+      tags: ['Feedback'],
+      summary: 'Get feedback detail',
+      description: 'Get detailed feedback information by feedback ID. Role-based access control applies.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Feedback ID' }
+      ],
+      responses: {
+        '200': {
+          description: 'Feedback retrieved successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/FeedbackDetailResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Access denied',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Feedback not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    },
+    patch: {
+      tags: ['Feedback'],
+      summary: 'Update feedback comment',
+      description: 'Update the comment of an existing feedback. Role-based access control applies.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Feedback ID' }
+      ],
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateFeedbackRequest' } } }
+      },
+      responses: {
+        '200': {
+          description: 'Feedback updated successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/FeedbackDetailResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Access denied',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Feedback not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
   },
 };
 

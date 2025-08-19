@@ -388,11 +388,33 @@
 
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
-| POST | `/v1/tickets/:id/feedback` | ❌ TODO | Submit feedback untuk ticket |
-| POST | `/v1/feedback/:id/comments` | ❌ TODO | Add comment to feedback |
-| GET | `/v1/feedback/:id` | ❌ TODO | Get feedback detail |
+| POST | `/v1/tickets/:id/feedback` | ✅ DONE | Submit feedback untuk ticket |
+| GET | `/v1/feedback/:id` | ✅ DONE | Get feedback detail |
+| PATCH | `/v1/feedback/:id` | ✅ DONE | Update feedback comment |
 
-**Progress**: 0/3 (0%)
+**Progress**: 3/3 (100%)
+
+**Features Implemented in `POST /v1/tickets/:id/feedback`:**
+- ✅ Role-based access control (customer can only submit feedback for own tickets)
+- ✅ CXC agents (role_id=1, division_id=1): can submit feedback for all tickets
+- ✅ Non-CXC employees: can only submit feedback for assigned tickets
+- ✅ Score validation (1-5 range)
+- ✅ Duplicate feedback prevention (one feedback per ticket)
+- ✅ Complete feedback data with customer and ticket information
+- ✅ Comprehensive error handling (400, 403, 404)
+
+**Features Implemented in `GET /v1/feedback/:id`:**
+- ✅ Role-based access control (customer can only access own feedback)
+- ✅ CXC agents (role_id=1, division_id=1): can view all feedback
+- ✅ Non-CXC employees: can only view feedback for assigned tickets
+- ✅ Complete feedback details with customer and ticket information
+- ✅ Comprehensive error handling (403, 404)
+
+**Features Implemented in `PATCH /v1/feedback/:id`:**
+- ✅ Role-based access control for feedback updates
+- ✅ Comment update functionality (consolidated approach)
+- ✅ Complete updated feedback data response
+- ✅ Comprehensive error handling (403, 404)
 
 ---
 

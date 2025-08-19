@@ -68,7 +68,7 @@ server.use(cors({
 // Rate limit (original)
 server.use(rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000,
   message: 'Too many requests from this IP',
   standardHeaders: true,
   legacyHeaders: false,
@@ -104,13 +104,14 @@ const io = setupSocketIO(httpServer, '*');
 
 // Custom routes FIRST (higher priority)
 const createAuthRoutes      = require('./routes/auth');
-const { createTicketRoutes, createActivityRoutes } = require('./routes/ticket');
+const { createTicketRoutes, createActivityRoutes, createFeedbackRoutes } = require('./routes/ticket');
 const createCustomerRoutes  = require('./routes/customer');
 const createReferenceRoutes = require('./routes/reference');
 const createSocketRoutes    = require('./routes/socket');
 server.use('/v1/auth', createAuthRoutes(db));
 server.use('/v1/tickets', createTicketRoutes(db));
 server.use('/v1/activities', createActivityRoutes(db));
+server.use('/v1/feedback', createFeedbackRoutes(db));
 server.use('/v1/customers', createCustomerRoutes(db));
 server.use('/v1', createReferenceRoutes(db));
 server.use('/v1/socket', createSocketRoutes(db, io));
@@ -121,7 +122,7 @@ server.use(express.static('public'));
 // JSON Server router for OTHER routes only (exclude custom routes)
 server.use('/v1', (req, res, next) => {
   const pathname = req.path || req.url || '';
-  const customRoutes = ['/auth', '/tickets', '/activities', '/customers', '/socket', '/channels', '/complaint-categories', '/slas', '/uics', '/policies'];
+  const customRoutes = ['/auth', '/tickets', '/activities', '/feedback', '/customers', '/socket', '/channels', '/complaint-categories', '/slas', '/uics', '/policies'];
   const isCustomRoute = customRoutes.some(route => pathname.startsWith(route));
   
   if (isCustomRoute) {

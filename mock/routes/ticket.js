@@ -1,10 +1,12 @@
 const express = require('express');
 const TicketController = require('../controllers/ticket_controller');
+const FeedbackController = require('../controllers/feedback_controller');
 const { authenticateToken, authorizeRole } = require('../middlewares/auth');
 
 const createTicketRoutes = (db) => {
     const router = express.Router();
     const ticketController = TicketController.createInstance(db);
+    const feedbackController = FeedbackController.createInstance(db);
     
     // GET /v1/tickets - List tickets dengan role-based filtering
     router.get('/', 
@@ -34,6 +36,13 @@ const createTicketRoutes = (db) => {
     router.get('/:id/feedback', 
         authenticateToken, 
         ticketController.getTicketFeedback.bind(ticketController)
+    );
+    
+    // POST /v1/tickets/:id/feedback - Submit feedback untuk ticket
+    router.post('/:id/feedback', 
+        authenticateToken,
+        authorizeRole(['customer', 'employee']),
+        feedbackController.submitFeedback.bind(feedbackController)
     );
     
     // POST /v1/tickets/:id/activities - Add activity to ticket
@@ -81,4 +90,25 @@ const createActivityRoutes = (db) => {
     return router;
 };
 
-module.exports = { createTicketRoutes, createActivityRoutes };
+// Separate router for feedback (standalone endpoints)
+const createFeedbackRoutes = (db) => {
+    const router = express.Router();
+    const feedbackController = FeedbackController.createInstance(db);
+    
+    // GET /v1/feedback/:id - Get feedback detail
+    router.get('/:id', 
+        authenticateToken, 
+        feedbackController.getFeedbackDetail.bind(feedbackController)
+    );
+    
+    // PATCH /v1/feedback/:id - Update feedback comment
+    router.patch('/:id', 
+        authenticateToken,
+        authorizeRole(['customer', 'employee']),
+        feedbackController.updateFeedback.bind(feedbackController)
+    );
+    
+    return router;
+};
+
+module.exports = { createTicketRoutes, createActivityRoutes, createFeedbackRoutes };
