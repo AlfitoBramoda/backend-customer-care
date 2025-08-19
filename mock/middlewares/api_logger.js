@@ -3,7 +3,7 @@ const apiLogger = (req, res, next) => {
     const ipNames = {
         '127.0.0.1': 'Localhost',
         '::1': 'Localhost-IPv6',
-        '110.136.11.112': 'Laptop-Alfito',
+        '103.132.239.226': 'Laptop-Alfito',
         '110.138.80.224': 'Tim Website 1',
         '180.242.70.236': 'Tim Website 2',
         '182.253.54.138': 'Havis',

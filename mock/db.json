@@ -2341,8 +2341,8 @@
     {
       "ticket_activity_id": 5,
       "ticket_id": 1,
-      "ticket_activity_type_id": 2,
-      "sender_type_id": 2,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
       "sender_id": 1,
       "content": "Ticket created: Kartu nasabah tertelan di ATM",
       "ticket_activity_time": "2025-08-14T08:15:00Z"
@@ -2353,7 +2353,7 @@
       "ticket_activity_type_id": 2,
       "sender_type_id": 2,
       "sender_id": 1,
-      "content": "Employee updated: customer status to VERIF",
+      "content": "Employee updated: customer status to VERIF, employee status to HANDLEDCXC",
       "ticket_activity_time": "2025-08-14T09:30:00Z"
     },
     {
@@ -2362,8 +2362,8 @@
       "ticket_activity_type_id": 2,
       "sender_type_id": 2,
       "sender_id": 1,
-      "content": "Employee updated: employee status to HANDLEDCXC",
-      "ticket_activity_time": "2025-08-14T10:15:00Z"
+      "content": "Employee updated: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-14T11:15:00Z"
     },
     {
       "ticket_activity_id": 8,
@@ -2371,7 +2371,7 @@
       "ticket_activity_type_id": 2,
       "sender_type_id": 2,
       "sender_id": 1,
-      "content": "Employee updated: customer status to PROCESS, employee status to ESCALATED",
+      "content": "Employee updated: customer status to CLOSED, employee status to CLOSED",
       "ticket_activity_time": "2025-08-14T14:20:00Z"
     },
     {
@@ -2379,17 +2379,17 @@
       "ticket_id": 1,
       "ticket_activity_type_id": 2,
       "sender_type_id": 2,
-      "sender_id": 2,
-      "content": "Employee updated: employee status to DONE_BY_UIC",
-      "ticket_activity_time": "2025-08-15T11:45:00Z"
+      "sender_id": 1,
+      "content": "Employee updated: customer status to DECLINED, employee status to DECLINED",
+      "ticket_activity_time": "2025-08-15T10:45:00Z"
     },
     {
       "ticket_activity_id": 10,
       "ticket_id": 1,
       "ticket_activity_type_id": 2,
       "sender_type_id": 2,
-      "sender_id": 1,
-      "content": "Employee updated: customer status to CLOSED, employee status to CLOSED",
+      "sender_id": 2,
+      "content": "Employee updated: employee status to DONE_BY_UIC",
       "ticket_activity_time": "2025-08-15T16:30:00Z"
     },
     {

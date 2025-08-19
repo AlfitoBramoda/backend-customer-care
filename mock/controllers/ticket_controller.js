@@ -1459,43 +1459,37 @@ class TicketController {
                 }
             }
 
-            // Handle initial ticket creation
-            if (content.includes('Ticket created')) {
-                // Add initial statuses
-                const ticket = this.db.get('ticket')
-                    .find({ ticket_id: ticketId })
+            // Handle initial ticket creation - set default initial statuses
+            if (content.includes('Ticket created') && history.customer_status_history.length === 0 && history.employee_status_history.length === 0) {
+                // Add default initial statuses (ACC for customer, OPEN for employee)
+                const accStatus = this.db.get('customer_status')
+                    .find({ customer_status_code: 'ACC' })
                     .value();
                 
-                if (ticket) {
-                    const customerStatus = this.db.get('customer_status')
-                        .find({ customer_status_id: ticket.customer_status_id })
-                        .value();
-                    
-                    const employeeStatus = this.db.get('employee_status')
-                        .find({ employee_status_id: ticket.employee_status_id })
-                        .value();
-                    
-                    if (customerStatus && history.customer_status_history.length === 0) {
-                        history.customer_status_history.push({
-                            status_code: customerStatus.customer_status_code,
-                            status_name: customerStatus.customer_status_name,
-                            changed_by: changedBy,
-                            changed_at: timestamp,
-                            activity_id: activity.ticket_activity_id,
-                            is_initial: true
-                        });
-                    }
-                    
-                    if (employeeStatus && history.employee_status_history.length === 0) {
-                        history.employee_status_history.push({
-                            status_code: employeeStatus.employee_status_code,
-                            status_name: employeeStatus.employee_status_name,
-                            changed_by: changedBy,
-                            changed_at: timestamp,
-                            activity_id: activity.ticket_activity_id,
-                            is_initial: true
-                        });
-                    }
+                const openStatus = this.db.get('employee_status')
+                    .find({ employee_status_code: 'OPEN' })
+                    .value();
+                
+                if (accStatus) {
+                    history.customer_status_history.push({
+                        status_code: accStatus.customer_status_code,
+                        status_name: accStatus.customer_status_name,
+                        changed_by: changedBy,
+                        changed_at: timestamp,
+                        activity_id: activity.ticket_activity_id,
+                        is_initial: true
+                    });
+                }
+                
+                if (openStatus) {
+                    history.employee_status_history.push({
+                        status_code: openStatus.employee_status_code,
+                        status_name: openStatus.employee_status_name,
+                        changed_by: changedBy,
+                        changed_at: timestamp,
+                        activity_id: activity.ticket_activity_id,
+                        is_initial: true
+                    });
                 }
             }
         });
