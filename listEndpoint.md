@@ -429,16 +429,17 @@
 ---
 
 ## 📌 10. Feedback
-**Controller**: `feedback_controller.js` (create new)  
-**Route**: `routes/feedback.js` (create new)
+**Controller**: `feedback_controller.js` ✅ CREATED  
+**Route**: `routes/ticket.js` (integrated)
 
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
+| GET | `/v1/feedback` | ✅ DONE | Get all feedback (Employee only) |
 | POST | `/v1/tickets/:id/feedback` | ✅ DONE | Submit feedback untuk ticket |
 | GET | `/v1/feedback/:id` | ✅ DONE | Get feedback detail |
 | PATCH | `/v1/feedback/:id` | ✅ DONE | Update feedback comment |
 
-**Progress**: 3/3 (100%)
+**Progress**: 4/4 (100%)
 
 **Features Implemented in `POST /v1/tickets/:id/feedback`:**
 - ✅ Role-based access control (customer can only submit feedback for own tickets)
@@ -455,6 +456,13 @@
 - ✅ Non-CXC employees: can only view feedback for assigned tickets
 - ✅ Complete feedback details with customer and ticket information
 - ✅ Comprehensive error handling (403, 404)
+
+**Features Implemented in `GET /v1/feedback`:**
+- ✅ Employee-only access control (customers blocked with 403)
+- ✅ Pagination support (page, limit parameters)
+- ✅ Complete feedback data with ticket and customer enrichment
+- ✅ Pagination metadata (current_page, total_items, has_next, has_prev)
+- ✅ Comprehensive error handling (401, 403, 500)
 
 **Features Implemented in `PATCH /v1/feedback/:id`:**
 - ✅ Role-based access control for feedback updates
