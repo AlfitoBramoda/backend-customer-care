@@ -128,6 +128,7 @@ class TicketController {
     enrichTicketData(ticket, userRole) {
         // Base data yang selalu ada
         const baseData = {
+            ticket_id: ticket.ticket_id,
             ticket_number: ticket.ticket_number,
             description: ticket.description,
             transaction_date: ticket.transaction_date,
