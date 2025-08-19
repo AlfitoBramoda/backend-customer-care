@@ -335,6 +335,7 @@ class TicketController {
             description: ticket.description,
             transaction_date: ticket.transaction_date,
             amount: ticket.amount,
+            record: ticket.record || "",
             created_time: ticket.created_time,
             closed_time: ticket.closed_time
         };
@@ -646,6 +647,7 @@ class TicketController {
                 description: description,
                 transaction_date: transaction_date || null,
                 amount: amount || null,
+                record: "", // Initialize empty record field
                 issue_channel_id: parseInt(issue_channel_id),
                 complaint_id: parseInt(complaint_id),
                 related_account_id: related_account_id ? parseInt(related_account_id) : null,
@@ -690,6 +692,7 @@ class TicketController {
                 data: {
                     ...enrichedTicket,
                     ticket_id: newTicket.ticket_id,
+                    record: newTicket.record,
                     sla_info: {
                         committed_due_at: committedDueAt,
                         sla_days: policy?.sla || 1,
@@ -759,6 +762,7 @@ class TicketController {
             const { id } = req.params;
             const {
                 description,
+                record,
                 customer_status,
                 employee_status,
                 priority,
@@ -880,6 +884,7 @@ class TicketController {
             // Fields only available for CXC agents
             if (isCXCAgent) {
                 if (description !== undefined) updateData.description = description;
+                if (record !== undefined) updateData.record = record;
                 if (transaction_date !== undefined) updateData.transaction_date = transaction_date;
                 if (amount !== undefined) updateData.amount = amount;
                 if (related_account_id !== undefined) updateData.related_account_id = related_account_id ? parseInt(related_account_id) : null;
@@ -936,6 +941,7 @@ class TicketController {
         const changes = [];
         
         if (updateData.description) changes.push('description');
+        if (updateData.record) changes.push('record');
         if (updateData.customer_status) changes.push(`customer status to ${updateData.customer_status}`);
         if (updateData.employee_status) changes.push(`employee status to ${updateData.employee_status}`);
         if (updateData.priority) changes.push(`priority to ${updateData.priority}`);

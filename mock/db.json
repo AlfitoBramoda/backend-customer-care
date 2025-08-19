@@ -2804,6 +2804,15 @@
       "sender_id": 1,
       "content": "Deleted attachment: TESTING.pdf",
       "ticket_activity_time": "2025-08-19T08:24:56.527Z"
+    },
+    {
+      "ticket_activity_id": 39,
+      "ticket_id": 1,
+      "ticket_activity_type_id": 3,
+      "sender_type_id": 1,
+      "sender_id": 1,
+      "content": "Uploaded 1 file(s)",
+      "ticket_activity_time": "2025-08-19T08:37:35.203Z"
     }
   ],
   "attachment": [
@@ -2836,6 +2845,15 @@
       "file_size": 56789,
       "upload_time": "2025-08-14T08:21:45Z",
       "id": 3
+    },
+    {
+      "attachment_id": 4,
+      "ticket_activity_id": 39,
+      "file_name": "TESTING.pdf",
+      "file_path": "tickets/ticket-1/39dc0b4f-0e14-4e5f-857c-0610add31580.pdf",
+      "file_type": "application/pdf",
+      "file_size": 15356,
+      "upload_time": "2025-08-19T08:37:36.056Z"
     }
   ],
   "feedback": [

@@ -11,6 +11,7 @@ const swaggerDefinition = {
   },
   servers: [
     { url: 'https://275232686ea9.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
+    { url: 'https://bcare.my.id/v1', description: 'GCP Server' },
     { url: 'http://localhost:5000/v1', description: 'Development server' },
   ],
   components: {
@@ -334,9 +335,14 @@ const swaggerDefinition = {
           },
           amount: {
             type: 'number',
-            format: 'float', // <— FIXED (decimal -> float)
+            format: 'float',
             example: 500000,
             description: 'Transaction amount if applicable (optional)',
+          },
+          record: {
+            type: 'string',
+            example: '',
+            description: 'Additional record information (optional)',
           },
           issue_channel_id: { type: 'integer', example: 1, description: 'Channel where issue occurred' },
           complaint_id: { type: 'integer', example: 1, description: 'Complaint category ID' },
@@ -358,6 +364,7 @@ const swaggerDefinition = {
               ticket_id: { type: 'integer', example: 101 },
               ticket_number: { type: 'string', example: 'BNI-20250115001' },
               description: { type: 'string', example: 'Kartu ATM saya tertelan di mesin ATM BNI Sudirman' },
+              record: { type: 'string', example: '' },
               customer_status: {
                 type: 'object',
                 properties: {
@@ -809,13 +816,14 @@ const swaggerPaths = {
           description: 'Fields vary by employee role',
           properties: {
             description: { type: 'string', example: 'Updated ticket description' },
+            record: { type: 'string', example: 'Additional record information' },
             customer_status: { type: 'string', enum: ['ACC', 'VERIF', 'PROCESS', 'CLOSED', 'DECLINED'], example: 'PROCESS' },
             employee_status: { type: 'string', enum: ['OPEN', 'HANDLEDCXC', 'ESCALATED', 'CLOSED', 'DECLINED'], example: 'HANDLEDCXC' },
             priority: { type: 'string', enum: ['CRITICAL', 'HIGH', 'REGULAR'], example: 'HIGH' },
             responsible_employee_id: { type: 'integer', example: 2 },
             division_notes: { type: 'string', example: 'Escalated to technical team for further investigation' },
             transaction_date: { type: 'string', format: 'date-time', example: '2025-01-15T14:30:00Z' },
-            amount: { type: 'number', format: 'float', example: 750000 }, // <— FIXED
+            amount: { type: 'number', format: 'float', example: 750000 },
             related_account_id: { type: 'integer', example: 2 },
             related_card_id: { type: 'integer', example: 2 },
             terminal_id: { type: 'integer', example: 2 },
