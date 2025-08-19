@@ -37,14 +37,14 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"rudi.hartono@example.com\",\n  \"password\": \"rudi\"\n}",
+							"raw": "{\n  \"email\": \"siti.nurhaliza@example.com\",\n  \"password\": \"siti\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{base_url}}/v1/auth/login/customer"
+						"url": "{{baseURL}}/v1/auth/login/customer"
 					},
 					"response": []
 				},
@@ -82,7 +82,7 @@
 								}
 							}
 						},
-						"url": "{{base_url}}/v1/auth/login/employee"
+						"url": "{{baseURL}}/v1/auth/login/employee"
 					},
 					"response": []
 				},
@@ -108,7 +108,7 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"url": "{{base_url}}/v1/auth/me"
+						"url": "{{baseURL}}/v1/auth/me"
 					},
 					"response": []
 				},
@@ -128,8 +128,11 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"packages": {},
-								"type": "text/javascript"
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -139,7 +142,7 @@
 						},
 						"method": "GET",
 						"header": [],
-						"url": "{{base_url}}/v1/auth/me"
+						"url": "{{baseURL}}/v1/auth/me"
 					},
 					"response": []
 				},
@@ -175,7 +178,7 @@
 								}
 							}
 						},
-						"url": "{{base_url}}/v1/auth/refresh"
+						"url": "{{baseURL}}/v1/auth/refresh"
 					},
 					"response": []
 				},
@@ -200,7 +203,7 @@
 					"request": {
 						"method": "POST",
 						"header": [],
-						"url": "{{base_url}}/v1/auth/logout"
+						"url": "{{baseURL}}/v1/auth/logout"
 					},
 					"response": []
 				}
@@ -210,17 +213,420 @@
 			"name": "Ticket",
 			"item": [
 				{
-					"name": "ticket-details",
+					"name": "Ticket ▸ Tickets",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}",
-								"type": "text"
+						"header": [],
+						"url": "{{baseURL}}/v1/tickets"
+					},
+					"response": []
+				},
+				{
+					"name": "Ticket ▸ Tickets Detail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
 							}
-						],
-						"url": "{{baseURL}}/v1/ticket-detail/customer/1"
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/tickets/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Ticket ▸ Tickets Activity",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/tickets/1/activities"
+					},
+					"response": []
+				},
+				{
+					"name": "Ticket ▸ Tickets Attachment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/tickets/1/attachments"
+					},
+					"response": []
+				},
+				{
+					"name": "Ticket ▸ Tickets Feedback",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/tickets/1/feedback"
+					},
+					"response": []
+				},
+				{
+					"name": "Ticket ▸ Tickets Delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseURL}}/v1/tickets/8"
+					},
+					"response": []
+				},
+				{
+					"name": "Ticket ▸ Tickets Edit",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"description\": \"Updated ticket description\",\r\n  \"customer_status\": \"PROCESS\",\r\n  \"employee_status\": \"HANDLEDCXC\",\r\n  \"priority\": \"HIGH\",\r\n  \"responsible_employee_id\": 1,\r\n  \"division_notes\": \"Escalated to technical team for further investigation\",\r\n  \"transaction_date\": \"2025-01-15T14:30:00Z\",\r\n  \"amount\": 750000,\r\n  \"related_account_id\": 2,\r\n  \"related_card_id\": 2,\r\n  \"terminal_id\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseURL}}/v1/tickets/8"
+					},
+					"response": []
+				},
+				{
+					"name": "Ticket ▸ Tickets Create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"description\": \"Ini dari postman cek\",\r\n  \"transaction_date\": \"2025-01-15T14:30:00Z\",\r\n  \"amount\": 500000,\r\n  \"issue_channel_id\": 1,\r\n  \"complaint_id\": 1,\r\n  \"related_account_id\": 1,\r\n  \"related_card_id\": 1,\r\n  \"terminal_id\": 1,\r\n  \"intake_source_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseURL}}/v1/tickets"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customer",
+			"item": [
+				{
+					"name": "Customer ▸ All",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/customers"
+					},
+					"response": []
+				},
+				{
+					"name": "Customer ▸ Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/customers/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reference Data",
+			"item": [
+				{
+					"name": "Reference ▸ Channel",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/channels"
+					},
+					"response": []
+				},
+				{
+					"name": "Reference ▸ Complaint Category",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/complaint-categories"
+					},
+					"response": []
+				},
+				{
+					"name": "Reference ▸ SLA",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/slas"
+					},
+					"response": []
+				},
+				{
+					"name": "Reference ▸ UIC",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/uics"
+					},
+					"response": []
+				},
+				{
+					"name": "Reference ▸ Complaint Policy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('200 OK', () => pm.response.code === 200);",
+									"const me = pm.response.json();",
+									"pm.test('has identity fields', () => me && (me.email || me.npp));",
+									"// Ensure Authorization header is correct (not double Bearer)",
+									"const h = pm.request.headers.get('Authorization') || '';",
+									"pm.test('Header Authorization valid', () => /^Bearer\\s+[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/.test(h));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{baseURL}}/v1/policies"
 					},
 					"response": []
 				}
@@ -1106,6 +1512,15 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{baseURL}}/v1/socket/users/online"
+			},
+			"response": []
 		}
 	],
 	"auth": {
@@ -1143,9 +1558,16 @@
 	],
 	"variable": [
 		{
-			"key": "base_url",
-			"value": "https://4af813bf189d.ngrok-free.app",
-			"type": "string"
+			"key": "baseURL",
+			"value": "https://275232686ea9.ngrok-free.app"
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "refresh_token",
+			"value": ""
 		}
 	]
 }
