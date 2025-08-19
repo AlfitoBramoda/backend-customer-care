@@ -9,8 +9,8 @@ module.exports = {
         ticket_id: 1,
         sender_id: 1,
         sender_type_id: 1,
-        content: 'Halo, kartu saya tertelan',
-        message_time: new Date(),
+        message: 'Halo, kartu saya tertelan',
+        sent_at: new Date(),
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -19,8 +19,8 @@ module.exports = {
         ticket_id: 2,
         sender_id: 2,
         sender_type_id: 1,
-        content: 'Tarik tunai gagal tapi saldo berkurang',
-        message_time: new Date(),
+        message: 'Tarik tunai gagal tapi saldo berkurang',
+        sent_at: new Date(),
         created_at: new Date(),
         updated_at: new Date()
       },
@@ -29,8 +29,8 @@ module.exports = {
         ticket_id: 3,
         sender_id: 3,
         sender_type_id: 1,
-        content: 'Transfer gagal di MBANK',
-        message_time: new Date(),
+        message: 'Transfer gagal di MBANK',
+        sent_at: new Date(),
         created_at: new Date(),
         updated_at: new Date()
       },

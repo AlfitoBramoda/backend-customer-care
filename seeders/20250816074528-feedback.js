@@ -23,8 +23,8 @@ module.exports = {
         updated_at: new Date()
       },
       {
-        feedback_id: 1,
-        ticket_id: 1,
+        feedback_id: 3,
+        ticket_id: 3,
         score: 5,
         comment: 'Informasi jelas dari agent',
         submit_time: new Date(),
