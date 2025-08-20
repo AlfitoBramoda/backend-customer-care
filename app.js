@@ -24,6 +24,15 @@ app.use('/v1/customers', createCustomerRoutes());
 const createReferenceRoutes = require('./routes/referenceRoutes');
 app.use('/v1', createReferenceRoutes());
 
+// Add feedback routes
+const createFeedbackRoutes = require('./routes/feedbackRoutes');
+app.use('/v1/feedback', createFeedbackRoutes());
+
+// Swagger - NO AUTH REQUIRED
+const { swaggerSpec, swaggerUi, swaggerUiOptions } = require('./mock/docs/swagger');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
