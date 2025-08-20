@@ -1978,7 +1978,7 @@
       "terminal_id": 2,
       "created_time": "2025-08-14T08:15:00Z",
       "closed_time": null,
-      "division_notes": "Escalated to technical team for further investigation",
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"14/08/2025\",\"msg\":\"Tolong di cek untuk case ini nasabah mengalami special case di bagian ATM\",\"author\":\"Ratna\"},{\"division\":\"DGO\",\"timestamp\":\"14/08/2025\",\"msg\":\"Oke sudah di cek dan semua aman\",\"author\":\"Ari\"}]",
       "id": 1
     },
     {

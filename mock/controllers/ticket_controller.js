@@ -542,7 +542,7 @@ class TicketController {
                 } : null,
                 
                 committed_due_at: ticket.committed_due_at,
-                division_notes: ticket.division_notes,
+                division_notes: JSON.parse(ticket.division_notes || '[]'),
                 
                 sla_info: this.calculateSLAInfo(ticket)
             };
