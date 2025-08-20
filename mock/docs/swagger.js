@@ -12,7 +12,7 @@ const swaggerDefinition = {
   servers: [
     { url: 'https://275232686ea9.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
     { url: 'https://bcare.my.id/v1', description: 'GCP Server' },
-    { url: 'http://localhost:5000/v1', description: 'Development server' },
+    { url: 'http://localhost:3001/v1', description: 'Development server' },
   ],
   components: {
     securitySchemes: {
