@@ -324,7 +324,6 @@ class AuthController {
                 token_type: "Bearer",
                 expires_in: this.parseExpirationTime(this.jwtConfig.expiresIn),
                 data: {
-                    id: customer.customer_id,
                     full_name: customer.full_name,
                     role: 'customer',
                     email: customer.email,
@@ -440,12 +439,9 @@ class AuthController {
                 token_type: "Bearer",
                 expires_in: this.parseExpirationTime(this.jwtConfig.expiresIn),
                 data: {
-                    id: employee.employee_id,
                     full_name: employee.full_name,
-                    npp: employee.npp,
                     role: role?.role_name,
                     division_code: division?.division_code,
-                    role_code: role?.role_code,
                     email: employee.email
                 }
             });
