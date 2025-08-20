@@ -510,8 +510,6 @@ class AuthController {
     async getCurrentUser(req, res, next) {
         try {
             const authHeader = req.headers.authorization;
-
-            console.log(authHeader)
             
             if (!authHeader || !authHeader.startsWith('Bearer ')) {
                 throw { status: 401, message: "Authorization token required" };
