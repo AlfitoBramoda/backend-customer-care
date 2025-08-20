@@ -643,26 +643,28 @@ class TicketController {
             const newTicket = {
                 ticket_id: this.getNextId('ticket'),
                 ticket_number: ticketNumber,
-                customer_id: targetCustomerId,
                 description: description,
-                transaction_date: transaction_date || null,
-                amount: amount || null,
                 record: "", // Initialize empty record field
-                issue_channel_id: parseInt(issue_channel_id),
-                complaint_id: parseInt(complaint_id),
-                related_account_id: related_account_id ? parseInt(related_account_id) : null,
-                related_card_id: related_card_id ? parseInt(related_card_id) : null,
-                terminal_id: terminal_id ? parseInt(terminal_id) : null,
-                intake_source_id: req.user.role === 'employee' ? 1 : 2, // 1 for employee, 2 for customer
+                customer_id: targetCustomerId,
                 customer_status_id: defaultCustomerStatus?.customer_status_id || 1,
                 employee_status_id: defaultEmployeeStatus?.employee_status_id || 1,
                 priority_id: defaultPriority?.priority_id || 3,
+                issue_channel_id: parseInt(issue_channel_id),
+                intake_source_id: req.user.role === 'customer' ? 2 : intake_source_id,
+                related_account_id: related_account_id ? parseInt(related_account_id) : null,
+                related_card_id: related_card_id ? parseInt(related_card_id) : null,
+                complaint_id: parseInt(complaint_id),
+                responsible_employee_id: null, // Will be assigned later
                 policy_id: policy?.policy_id || null,
                 committed_due_at: committedDueAt,
-                responsible_employee_id: null, // Will be assigned later
-                division_notes: null,
+                transaction_date: transaction_date || null,
+                amount: amount || null,
+                terminal_id: terminal_id ? parseInt(terminal_id) : null,
                 created_time: new Date().toISOString(),
-                closed_time: null
+                closed_time: null,
+                division_notes: null,
+                delete_at: null,
+                delete_by: null
             };
 
             // Save ticket

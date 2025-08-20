@@ -253,6 +253,50 @@ class ReferenceController {
         }
     }
 
+    // GET /v1/priorities - List all priorities
+    async getPriorities(req, res, next) {
+        try {
+            const priorities = this.db.get('priority').value();
+
+            const enrichedPriorities = priorities.map(priority => ({
+                priority_id: priority.priority_id,
+                priority_code: priority.priority_code,
+                priority_name: priority.priority_name
+            }));
+
+            res.status(200).json({
+                success: true,
+                message: "Priorities retrieved successfully",
+                data: enrichedPriorities
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // GET /v1/sources - List all intake sources
+    async getSources(req, res, next) {
+        try {
+            const sources = this.db.get('source').value();
+
+            const enrichedSources = sources.map(source => ({
+                source_id: source.source_id,
+                source_code: source.source_code,
+                source_name: source.source_name
+            }));
+
+            res.status(200).json({
+                success: true,
+                message: "Sources retrieved successfully",
+                data: enrichedSources
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
     // GET /v1/policies - List policies with comprehensive filtering
     async getPolicies(req, res, next) {
         try {

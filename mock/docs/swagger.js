@@ -662,6 +662,7 @@ const swaggerDefinition = {
     { name: 'Reference Data', description: 'Reference data endpoints for channels, categories, SLAs, UICs, and policies' },
     { name: 'Feedback', description: 'Feedback management endpoints' },
     { name: 'Attachments', description: 'File attachment management endpoints' },
+    { name: 'FAQ', description: 'Frequently Asked Questions management endpoints' },
   ],
 };
 
@@ -1404,6 +1405,72 @@ const swaggerPaths = {
     },
   },
 
+  '/priorities': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get all priorities',
+      description: 'List all priority levels available for tickets. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'Priorities retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Priorities retrieved successfully' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    priority_id: { type: 'integer', example: 1 },
+                    priority_code: { type: 'string', example: 'HIGH' },
+                    priority_name: { type: 'string', example: 'High Priority' },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+      },
+    },
+  },
+
+  '/sources': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get all intake sources',
+      description: 'List all available intake sources for ticket creation. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'Sources retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Sources retrieved successfully' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    source_id: { type: 'integer', example: 1 },
+                    source_code: { type: 'string', example: 'EMPLOYEE' },
+                    source_name: { type: 'string', example: 'Employee Created' },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+      },
+    },
+  },
+
   '/policies': {
     get: {
       tags: ['Reference Data'],
@@ -1608,6 +1675,190 @@ const swaggerPaths = {
         },
         '404': {
           description: 'Feedback not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/faqs': {
+    get: {
+      tags: ['FAQ'],
+      summary: 'Get FAQs with search and filter',
+      description: 'List all FAQs with search functionality, channel filtering, pagination, and sorting. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'search', schema: { type: 'string' }, description: 'Search in question, answer, or keywords' },
+        { in: 'query', name: 'channel_id', schema: { type: 'integer' }, description: 'Filter by channel ID' },
+        { in: 'query', name: 'page', schema: { type: 'integer', minimum: 1, default: 1 }, description: 'Page number' },
+        { in: 'query', name: 'limit', schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 }, description: 'Items per page' },
+        { in: 'query', name: 'sort_by', schema: { type: 'string', default: 'faq_id' }, description: 'Sort by field' },
+        { in: 'query', name: 'sort_order', schema: { type: 'string', enum: ['asc', 'desc'], default: 'asc' }, description: 'Sort order' }
+      ],
+      responses: {
+        '200': {
+          description: 'FAQs retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'FAQs retrieved successfully' },
+              pagination: {
+                type: 'object',
+                properties: {
+                  current_page: { type: 'integer', example: 1 },
+                  per_page: { type: 'integer', example: 10 },
+                  total_items: { type: 'integer', example: 25 },
+                  total_pages: { type: 'integer', example: 3 },
+                  has_next: { type: 'boolean', example: true },
+                  has_prev: { type: 'boolean', example: false }
+                }
+              },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    faq_id: { type: 'integer', example: 1 },
+                    question: { type: 'string', example: 'Apa yang harus dilakukan jika transaksi BI-FAST gagal?' },
+                    answer: { type: 'string', example: 'Simpan bukti transaksi dan hubungi BNI Call untuk pengecekan.' },
+                    keywords: { type: 'string', example: 'dana tidak masuk,bifast,transfer gagal' },
+                    created_at: { type: 'string', format: 'date-time', example: '2025-08-14T08:10:00Z' },
+                    updated_at: { type: 'string', format: 'date-time', example: '2025-08-14T08:11:00Z' },
+                    channel: {
+                      type: 'object',
+                      properties: {
+                        channel_id: { type: 'integer', example: 6 },
+                        channel_code: { type: 'string', example: 'MBANK' },
+                        channel_name: { type: 'string', example: 'Mobile Banking' },
+                        supports_terminal: { type: 'boolean', example: false }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '500': {
+          description: 'Internal server error',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/customers/{id}/accounts': {
+    get: {
+      tags: ['Customers'],
+      summary: 'Get customer accounts',
+      description: 'Get all accounts belonging to a specific customer. Employee access only.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Customer ID' }
+      ],
+      responses: {
+        '200': {
+          description: 'Customer accounts retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Customer accounts retrieved successfully' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    account_id: { type: 'integer', example: 1 },
+                    account_number: { type: 'string', example: '1234567890' },
+                    account_status: { type: 'string', example: 'ACTIVE' },
+                    account_type: {
+                      type: 'object',
+                      properties: {
+                        account_type_id: { type: 'integer', example: 1 },
+                        account_type_name: { type: 'string', example: 'Savings Account' },
+                        account_type_code: { type: 'string', example: 'SAV' }
+                      }
+                    },
+                    created_at: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' }
+                  }
+                }
+              }
+            }
+          } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Employee access only',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Customer not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/customers/{id}/cards': {
+    get: {
+      tags: ['Customers'],
+      summary: 'Get customer cards',
+      description: 'Get all cards belonging to a specific customer. Employee access only.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Customer ID' }
+      ],
+      responses: {
+        '200': {
+          description: 'Customer cards retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Customer cards retrieved successfully' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    card_id: { type: 'integer', example: 1 },
+                    card_number: { type: 'string', example: '****1234' },
+                    card_type: { type: 'string', example: 'Debit' },
+                    card_status: {
+                      type: 'object',
+                      properties: {
+                        card_status_id: { type: 'integer', example: 1 },
+                        status_name: { type: 'string', example: 'ACTIVE' },
+                        status_code: { type: 'string', example: 'ACT' }
+                      }
+                    },
+                    issue_date: { type: 'string', format: 'date', example: '2023-01-15' },
+                    expiry_date: { type: 'string', format: 'date', example: '2028-01-15' }
+                  }
+                }
+              }
+            }
+          } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Employee access only',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Customer not found',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
         }
       }

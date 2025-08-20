@@ -226,6 +226,109 @@ class CustomerController {
             next(error);
         }
     }
+
+    // GET /v1/customers/:id/accounts - Get customer accounts
+    async getCustomerAccounts(req, res, next) {
+        try {
+            const { id } = req.params;
+            const customerId = parseInt(id);
+
+            // Verify customer exists
+            const customer = this.db.get('customer')
+                .find({ customer_id: customerId })
+                .value();
+
+            if (!customer) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Customer not found"
+                });
+            }
+
+            // Get customer accounts with account type details
+            const accounts = this.db.get('account')
+                .filter({ customer_id: customerId })
+                .map(account => {
+                    const accountType = this.db.get('account_type')
+                        .find({ account_type_id: account.account_type_id })
+                        .value();
+                    
+                    return {
+                        account_id: account.account_id,
+                        account_number: account.account_number,
+                        account_status: account.account_status,
+                        account_type: accountType ? {
+                            account_type_id: accountType.account_type_id,
+                            account_type_name: accountType.account_type_name,
+                            account_type_code: accountType.account_type_code
+                        } : null,
+                        created_at: account.created_at
+                    };
+                })
+                .value();
+
+            res.status(200).json({
+                success: true,
+                message: "Customer accounts retrieved successfully",
+                data: accounts
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // GET /v1/customers/:id/cards - Get customer cards
+    async getCustomerCards(req, res, next) {
+        try {
+            const { id } = req.params;
+            const customerId = parseInt(id);
+
+            // Verify customer exists
+            const customer = this.db.get('customer')
+                .find({ customer_id: customerId })
+                .value();
+
+            if (!customer) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Customer not found"
+                });
+            }
+
+            // Get customer cards with card status details
+            const cards = this.db.get('card')
+                .filter({ customer_id: customerId })
+                .map(card => {
+                    const cardStatus = this.db.get('card_status')
+                        .find({ card_status_id: card.card_status_id })
+                        .value();
+                    
+                    return {
+                        card_id: card.card_id,
+                        card_number: card.card_number,
+                        card_type: card.card_type,
+                        card_status: cardStatus ? {
+                            card_status_id: cardStatus.card_status_id,
+                            status_name: cardStatus.status_name,
+                            status_code: cardStatus.status_code
+                        } : null,
+                        issue_date: card.issue_date,
+                        expiry_date: card.expiry_date
+                    };
+                })
+                .value();
+
+            res.status(200).json({
+                success: true,
+                message: "Customer cards retrieved successfully",
+                data: cards
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = CustomerController;

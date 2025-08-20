@@ -18,6 +18,12 @@ const createReferenceRoutes = (db) => {
     // GET /v1/uics - Map divisions as UIC (authenticated users only)
     router.get('/uics', authenticateToken, referenceController.getUICs.bind(referenceController));
     
+    // GET /v1/priorities - List all priorities (authenticated users only)
+    router.get('/priorities', authenticateToken, referenceController.getPriorities.bind(referenceController));
+    
+    // GET /v1/sources - List all intake sources (authenticated users only)
+    router.get('/sources', authenticateToken, referenceController.getSources.bind(referenceController));
+    
     // GET /v1/policies - List policies with comprehensive filtering (authenticated users only)
     router.get('/policies', authenticateToken, referenceController.getPolicies.bind(referenceController));
     

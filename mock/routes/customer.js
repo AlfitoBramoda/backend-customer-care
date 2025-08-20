@@ -20,6 +20,20 @@ const createCustomerRoutes = (db) => {
         customerController.getCustomerById.bind(customerController)
     );
     
+    // GET /v1/customers/:id/accounts - Get customer accounts (Employee only)
+    router.get('/:id/accounts', 
+        authenticateToken, 
+        authorizeRole(['employee']), 
+        customerController.getCustomerAccounts.bind(customerController)
+    );
+    
+    // GET /v1/customers/:id/cards - Get customer cards (Employee only)
+    router.get('/:id/cards', 
+        authenticateToken, 
+        authorizeRole(['employee']), 
+        customerController.getCustomerCards.bind(customerController)
+    );
+    
     return router;
 };
 

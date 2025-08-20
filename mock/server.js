@@ -109,6 +109,7 @@ const createCustomerRoutes  = require('./routes/customer');
 const createReferenceRoutes = require('./routes/reference');
 const createSocketRoutes    = require('./routes/socket');
 const createAttachmentRoutes = require('./routes/attachment');
+const createFAQRoutes       = require('./routes/faq');
 server.use('/v1/auth', createAuthRoutes(db));
 server.use('/v1/tickets', createTicketRoutes(db));
 server.use('/v1/activities', createActivityRoutes(db));
@@ -117,6 +118,7 @@ server.use('/v1/customers', createCustomerRoutes(db));
 server.use('/v1', createReferenceRoutes(db));
 server.use('/v1/socket', createSocketRoutes(db, io));
 server.use('/v1', createAttachmentRoutes(db));
+server.use('/v1/faqs', createFAQRoutes(db));
 
 // Static files middleware
 server.use(express.static('public'));
@@ -124,7 +126,7 @@ server.use(express.static('public'));
 // JSON Server router for OTHER routes only (exclude custom routes)
 server.use('/v1', (req, res, next) => {
   const pathname = req.path || req.url || '';
-  const customRoutes = ['/auth', '/tickets', '/activities', '/feedback', '/customers', '/socket', '/channels', '/complaint-categories', '/slas', '/uics', '/policies'];
+  const customRoutes = ['/auth', '/tickets', '/activities', '/feedback', '/customers', '/socket', '/channels', '/complaint-categories', '/slas', '/uics', '/policies', '/faqs'];
   const isCustomRoute = customRoutes.some(route => pathname.startsWith(route));
   
   if (isCustomRoute) {
