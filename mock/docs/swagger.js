@@ -1752,6 +1752,119 @@ const swaggerPaths = {
     }
   },
 
+  '/customers/{id}/accounts': {
+    get: {
+      tags: ['Customers'],
+      summary: 'Get customer accounts',
+      description: 'Get all accounts belonging to a specific customer. Employee access only.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Customer ID' }
+      ],
+      responses: {
+        '200': {
+          description: 'Customer accounts retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Customer accounts retrieved successfully' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    account_id: { type: 'integer', example: 1 },
+                    account_number: { type: 'string', example: '1234567890' },
+                    account_status: { type: 'string', example: 'ACTIVE' },
+                    account_type: {
+                      type: 'object',
+                      properties: {
+                        account_type_id: { type: 'integer', example: 1 },
+                        account_type_name: { type: 'string', example: 'Savings Account' },
+                        account_type_code: { type: 'string', example: 'SAV' }
+                      }
+                    },
+                    created_at: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' }
+                  }
+                }
+              }
+            }
+          } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Employee access only',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Customer not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/customers/{id}/cards': {
+    get: {
+      tags: ['Customers'],
+      summary: 'Get customer cards',
+      description: 'Get all cards belonging to a specific customer. Employee access only.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Customer ID' }
+      ],
+      responses: {
+        '200': {
+          description: 'Customer cards retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Customer cards retrieved successfully' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    card_id: { type: 'integer', example: 1 },
+                    card_number: { type: 'string', example: '****1234' },
+                    card_type: { type: 'string', example: 'Debit' },
+                    card_status: {
+                      type: 'object',
+                      properties: {
+                        card_status_id: { type: 'integer', example: 1 },
+                        status_name: { type: 'string', example: 'ACTIVE' },
+                        status_code: { type: 'string', example: 'ACT' }
+                      }
+                    },
+                    issue_date: { type: 'string', format: 'date', example: '2023-01-15' },
+                    expiry_date: { type: 'string', format: 'date', example: '2028-01-15' }
+                  }
+                }
+              }
+            }
+          } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Employee access only',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Customer not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
   '/attachments/{id}': {
     get: {
       tags: ['Attachments'],
