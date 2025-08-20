@@ -1,15 +1,11 @@
 // ===== bootstrap env =====
 const path = require('path');
-const envFile =
-  process.env.NODE_ENV === 'production' ? '.env.production' :
-  process.env.NODE_ENV === 'staging'    ? '.env.staging'    :
-                                          '.env.development';
-require('dotenv').config({ path: path.join(__dirname, '..', envFile) });
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const EnvValidator = require('./config/env_validator');
 EnvValidator.validateAndSetDefaults();
 console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-console.log(`📁 Config file: ${envFile}`);
+console.log(`📁 Config file: .env`);
 
 // ===== core imports =====
 const jsonServer   = require('json-server');
