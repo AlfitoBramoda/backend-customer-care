@@ -16,6 +16,14 @@ app.use('/v1/auth', createAuthRoutes());
 const createTicketRoutes = require('./routes/ticketRoutes');
 app.use('/v1/tickets', createTicketRoutes());
 
+// Add customer routes
+const createCustomerRoutes = require('./routes/customerRoutes');
+app.use('/v1/customers', createCustomerRoutes());
+
+// Add reference routes
+const createReferenceRoutes = require('./routes/referenceRoutes');
+app.use('/v1', createReferenceRoutes());
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
