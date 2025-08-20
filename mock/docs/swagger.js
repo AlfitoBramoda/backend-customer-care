@@ -1405,6 +1405,72 @@ const swaggerPaths = {
     },
   },
 
+  '/priorities': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get all priorities',
+      description: 'List all priority levels available for tickets. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'Priorities retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Priorities retrieved successfully' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    priority_id: { type: 'integer', example: 1 },
+                    priority_code: { type: 'string', example: 'HIGH' },
+                    priority_name: { type: 'string', example: 'High Priority' },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+      },
+    },
+  },
+
+  '/sources': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get all intake sources',
+      description: 'List all available intake sources for ticket creation. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'Sources retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Sources retrieved successfully' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    source_id: { type: 'integer', example: 1 },
+                    source_code: { type: 'string', example: 'EMPLOYEE' },
+                    source_name: { type: 'string', example: 'Employee Created' },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+      },
+    },
+  },
+
   '/policies': {
     get: {
       tags: ['Reference Data'],
