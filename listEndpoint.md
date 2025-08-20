@@ -473,18 +473,29 @@
 ---
 
 ## 📌 11. FAQ
-**Controller**: `faq_controller.js` (create new)  
-**Route**: `routes/faq.js` (create new)
+**Controller**: `faq_controller.js` ✅ CREATED  
+**Route**: `routes/faq.js` ✅ CREATED
 
 | Method | Endpoint | Status | Description |
 |--------|----------|--------|-------------|
-| GET | `/v1/faqs` | ❌ TODO | List FAQs dengan search |
+| GET | `/v1/faqs` | ✅ DONE | List FAQs dengan search |
 | POST | `/v1/faqs` | ❌ TODO | Create FAQ |
 | PATCH | `/v1/faqs/:id` | ❌ TODO | Update FAQ |
 | DELETE | `/v1/faqs/:id` | ❌ TODO | Delete FAQ |
 | POST | `/v1/faq-logs` | ❌ TODO | Log FAQ search queries |
 
-**Progress**: 0/5 (0%)
+**Progress**: 1/5 (20%)
+
+**Features Implemented in `GET /v1/faqs`:**
+- ✅ Authentication required (all authenticated users)
+- ✅ Search functionality (question, answer, keywords)
+- ✅ Channel filtering by channel_id
+- ✅ Pagination support (page, limit parameters)
+- ✅ Sorting support (sort_by, sort_order parameters)
+- ✅ Channel data enrichment with complete channel information
+- ✅ Comprehensive pagination metadata (current_page, per_page, total_items, total_pages, has_next, has_prev)
+- ✅ Comprehensive error handling (401, 500)
+- ✅ Swagger documentation complete
 
 ---
 
@@ -596,7 +607,7 @@
 - ❌ `chat_controller.js` (create new)
 - ❌ `call_controller.js` (create new)
 - ❌ `feedback_controller.js` (create new)
-- ❌ `faq_controller.js` (create new)
+- ✅ `faq_controller.js` (created)
 - ❌ `notification_controller.js` (create new)
 - ❌ `report_controller.js` (create new)
 - ❌ `admin_controller.js` (create new)
@@ -614,7 +625,7 @@
 - ❌ `routes/chat.js` (create new)
 - ❌ `routes/call.js` (create new)
 - ❌ `routes/feedback.js` (create new)
-- ❌ `routes/faq.js` (create new)
+- ✅ `routes/faq.js` (created)
 - ❌ `routes/notification.js` (create new)
 - ❌ `routes/report.js` (create new)
 - ❌ `routes/admin.js` (create new)
