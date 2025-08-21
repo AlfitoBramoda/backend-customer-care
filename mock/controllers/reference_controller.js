@@ -1,4 +1,3 @@
-const { Op } = require('sequelize');
 const { HTTP_STATUS } = require('../constants/statusCodes');
 
 class ReferenceController {

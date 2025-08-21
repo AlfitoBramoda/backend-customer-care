@@ -438,6 +438,30 @@ const swaggerDefinition = {
           message: { type: 'string', example: 'Error message' },
         },
       },
+      LoginRequiredResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: false },
+          message: { type: 'string', example: 'Login required - No authorization token provided' },
+          code: { type: 'string', example: 'LOGIN_REQUIRED' },
+        },
+      },
+      TokenExpiredResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: false },
+          message: { type: 'string', example: 'Token expired - Please refresh your session' },
+          code: { type: 'string', example: 'TOKEN_EXPIRED' },
+        },
+      },
+      InvalidTokenResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: false },
+          message: { type: 'string', example: 'Invalid token - Authentication failed' },
+          code: { type: 'string', example: 'INVALID_TOKEN' },
+        },
+      },
 
       // Feedback Schemas
       SubmitFeedbackRequest: {
@@ -712,7 +736,8 @@ const swaggerPaths = {
       security: [{ bearerAuth: [] }],
       responses: {
         '200': { description: 'Logout successful', content: { 'application/json': { schema: { $ref: '#/components/schemas/LogoutResponse' } } } },
-        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
+        '419': { description: 'Token expired - Please refresh', content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } } },
       },
     },
   },
@@ -724,9 +749,10 @@ const swaggerPaths = {
       description: 'Return current authenticated user.',
       security: [{ bearerAuth: [] }],
       responses: {
-        '200': { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/CurrentUserResponse' } } } },
-        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': { description: 'User data retrieved successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/CurrentUserResponse' } } } },
+        '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
         '404': { description: 'User not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '419': { description: 'Token expired - Please refresh', content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } } },
       },
     },
   },
@@ -762,9 +788,10 @@ const swaggerPaths = {
         { in: 'query', name: 'sort_order', schema: { type: 'string', enum: ['asc', 'desc'], default: 'desc' }, description: 'Sort order' },
       ],
       responses: {
-        '200': { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/CustomerListResponse' } } } },
-        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': { description: 'Customers retrieved successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/CustomerListResponse' } } } },
+        '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
         '403': { description: 'Forbidden - Employee access only', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '419': { description: 'Token expired - Please refresh', content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } } },
       },
     },
   },
@@ -780,9 +807,10 @@ const swaggerPaths = {
       ],
       responses: {
         '200': { description: 'Customer detail retrieved successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/CustomerDetailResponse' } } } },
-        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
         '403': { description: 'Forbidden - Employee access only', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
         '404': { description: 'Customer not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '419': { description: 'Token expired - Please refresh', content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } } },
       },
     },
   },
@@ -807,9 +835,10 @@ const swaggerPaths = {
         { in: 'query', name: 'search', schema: { type: 'string' } },
       ],
       responses: {
-        '200': { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/TicketListResponse' } } } },
+        '200': { description: 'Tickets retrieved successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/TicketListResponse' } } } },
         '400': { description: 'Bad Request', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
+        '419': { description: 'Token expired - Please refresh', content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } } },
       },
     },
     post: {
@@ -819,11 +848,12 @@ const swaggerPaths = {
       security: [{ bearerAuth: [] }],
       requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketRequest' } } } },
       responses: {
-        '201': { description: 'Created', content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketResponse' } } } },
-        '400': { description: 'Bad request', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-        '403': { description: 'Forbidden', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '201': { description: 'Ticket created successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketResponse' } } } },
+        '400': { description: 'Bad request - Missing required fields or invalid data', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
+        '403': { description: 'Forbidden - Access denied or insufficient permissions', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
         '404': { description: 'Customer not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '419': { description: 'Token expired - Please refresh', content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } } },
       },
     },
   },
@@ -1571,12 +1601,16 @@ const swaggerPaths = {
           content: { 'application/json': { schema: { $ref: '#/components/schemas/AllFeedbackResponse' } } }
         },
         '401': {
-          description: 'Unauthorized',
-          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+          description: 'Login required - No token provided',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } }
         },
         '403': {
           description: 'Forbidden - Employee access only',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '419': {
+          description: 'Token expired - Please refresh',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } }
         }
       }
     }
@@ -1605,16 +1639,20 @@ const swaggerPaths = {
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
         },
         '401': {
-          description: 'Unauthorized',
-          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+          description: 'Login required - No token provided',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } }
         },
         '403': {
-          description: 'Forbidden - Access denied',
+          description: 'Forbidden - Access denied (customers can only submit feedback for own tickets)',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
         },
         '404': {
           description: 'Ticket not found',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '419': {
+          description: 'Token expired - Please refresh',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } }
         }
       }
     }
@@ -1933,4 +1971,19 @@ const swaggerPaths = {
 
 const swaggerSpec = { ...swaggerDefinition, paths: swaggerPaths };
 
-module.exports = { swaggerSpec, swaggerUi };
+const swaggerUiOptions = {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'B-Care API Documentation',
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    filter: true,
+    tryItOutEnabled: true,
+    requestInterceptor: (req) => {
+      req.headers['ngrok-skip-browser-warning'] = 'true';
+      return req;
+    }
+  }
+};
+
+module.exports = { swaggerSpec, swaggerUi, swaggerUiOptions };

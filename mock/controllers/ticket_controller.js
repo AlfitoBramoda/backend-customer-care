@@ -543,7 +543,7 @@ class TicketController {
                 } : null,
                 
                 committed_due_at: ticket.committed_due_at,
-                division_notes: JSON.parse(ticket.division_notes || '[]'),
+                division_notes: this.parseDivisionNotes(ticket.division_notes),
                 
                 sla_info: this.calculateSLAInfo(ticket)
             };
@@ -1500,6 +1500,17 @@ class TicketController {
         });
 
         return history;
+    }
+
+    parseDivisionNotes(divisionNotes) {
+        if (!divisionNotes) return [];
+        
+        try {
+            return JSON.parse(divisionNotes);
+        } catch (error) {
+            // If parsing fails, return the raw string as a single note
+            return [{ note: divisionNotes, timestamp: new Date().toISOString() }];
+        }
     }
 
     calculateSLAInfo(ticket) {
