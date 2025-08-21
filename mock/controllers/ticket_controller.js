@@ -134,6 +134,8 @@ class TicketController {
             description: ticket.description,
             transaction_date: ticket.transaction_date,
             amount: ticket.amount,
+            reason: ticket.reason || "",
+            solution: ticket.solution || "",
             created_time: ticket.created_time,
             closed_time: ticket.closed_time
         };
@@ -352,6 +354,8 @@ class TicketController {
             transaction_date: ticket.transaction_date,
             amount: ticket.amount,
             record: ticket.record || "",
+            reason: ticket.reason || "",
+            solution: ticket.solution || "",
             created_time: ticket.created_time,
             closed_time: ticket.closed_time
         };
@@ -704,6 +708,8 @@ class TicketController {
                 ticket_number: ticketNumber,
                 description: description,
                 record: "", // Initialize empty record field
+                reason: reason || "",
+                solution: solution || "",
                 customer_id: targetCustomerId,
                 customer_status_id: customerStatus?.customer_status_id || 1,
                 employee_status_id: employeeStatus?.employee_status_id || 1,
@@ -986,6 +992,10 @@ class TicketController {
                 if (priority !== undefined) updateData.priority_id = priorityId;
                 if (responsible_employee_id !== undefined) updateData.responsible_employee_id = responsible_employee_id ? parseInt(responsible_employee_id) : null;
             }
+            
+            // Fields available for all employees
+            if (req.body.reason !== undefined) updateData.reason = req.body.reason;
+            if (req.body.solution !== undefined) updateData.solution = req.body.solution;
             
             // Auto-close ticket if status is resolved
             if (employee_status && ['RESOLVED', 'CLOSED'].includes(employee_status.toUpperCase())) {

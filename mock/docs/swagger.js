@@ -374,6 +374,16 @@ const swaggerDefinition = {
             example: 'PROCESS',
             description: 'Initial customer status (Employee only - defaults to ACC if not provided)'
           },
+          reason: {
+            type: 'string',
+            example: 'System error during transaction processing',
+            description: 'Root cause or reason for the issue (optional)'
+          },
+          solution: {
+            type: 'string',
+            example: 'Refund processed and system updated',
+            description: 'Solution or resolution provided (optional)'
+          },
         },
       },
       CreateTicketResponse: {
