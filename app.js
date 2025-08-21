@@ -28,6 +28,10 @@ app.use('/v1', createReferenceRoutes());
 const createFeedbackRoutes = require('./routes/feedbackRoutes');
 app.use('/v1/feedback', createFeedbackRoutes());
 
+// Add attachment routes
+const createAttachmentRoutes = require('./routes/attachmentRoutes');
+app.use('/v1', createAttachmentRoutes());
+
 // Swagger - NO AUTH REQUIRED
 const { swaggerSpec, swaggerUi, swaggerUiOptions } = require('./mock/docs/swagger');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
