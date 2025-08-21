@@ -23,7 +23,7 @@
       "customer_id": 2,
       "full_name": "Siti Nurhaliza",
       "email": "siti.nurhaliza@example.com",
-      "password_hash": "hash$siti",
+      "password_hash": "$2b$12$xF7U98n4OlnCO3rH0U2bV.8WDBzXXvfhleJcwPLUXu9l11ajoWQYq",
       "address": "Jl. Diponegoro No. 5, Bandung",
       "billing_address": "Jl. Diponegoro No. 5, Bandung",
       "postal_code": 40115,
@@ -99,7 +99,7 @@
       "customer_id": 6,
       "full_name": "Grace Riwu",
       "email": "grace.riwu@example.com",
-      "password_hash": "hash$grace",
+      "password_hash": "$2b$12$tlTAJMF.hk8rdia3lIUl1eaLEQdnGZN1gUeG9K87QkwEJQMyiLAoW",
       "address": "Jl. Malioboro No. 88, Yogyakarta",
       "billing_address": "Jl. Malioboro No. 88, Yogyakarta",
       "postal_code": 55271,
@@ -2297,7 +2297,7 @@
       "terminal_id": 2,
       "created_time": "2025-08-14T08:20:00Z",
       "closed_time": null,
-      "division_notes": "[\n\t{\n\t\tdivision: ‘CXC’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Tolong di cek untuk case ini nasabah mengalami special case di bagian ATM’,\n\t\tauthor : Ratna\n\t},\n\t{\n\t\tdivision: ‘DGO’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Oke sudah di cek dan semua aman’,\n\t\tauthor : Ari\n\t},\n]",
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"14/08/2025\",\"msg\":\"Nasabah komplain gagal tarik tunai, sudah dicek sistem normal\",\"author\":\"Sari\"},{\"division\":\"OPR\",\"timestamp\":\"14/08/2025\",\"msg\":\"Proses refund sudah dijalankan, dana akan kembali dalam 1x24 jam\",\"author\":\"Budi\"}]",
       "id": 2
     },
     {
@@ -2321,7 +2321,7 @@
       "terminal_id": null,
       "created_time": "2025-08-14T08:25:00Z",
       "closed_time": null,
-      "division_notes": "[\n\t{\n\t\tdivision: ‘CXC’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Tolong di cek untuk case ini nasabah mengalami special case di bagian ATM’,\n\t\tauthor : Ratna\n\t},\n\t{\n\t\tdivision: ‘DGO’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Oke sudah di cek dan semua aman’,\n\t\tauthor : Ari\n\t},\n]",
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"14/08/2025\",\"msg\":\"Transfer MBANK gagal, perlu koordinasi dengan tim teknis\",\"author\":\"Lisa\"},{\"division\":\"TBS\",\"timestamp\":\"14/08/2025\",\"msg\":\"Sudah ditelusuri, ada gangguan sementara pada sistem. Refund diproses\",\"author\":\"Ahmad\"}]",
       "id": 3
     },
     {
@@ -2345,7 +2345,7 @@
       "terminal_id": 1,
       "created_time": "2025-08-14T08:15:00Z",
       "closed_time": null,
-      "division_notes": "[\n\t{\n\t\tdivision: ‘CXC’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Tolong di cek untuk case ini nasabah mengalami special case di bagian ATM’,\n\t\tauthor : Ratna\n\t},\n\t{\n\t\tdivision: ‘DGO’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Oke sudah di cek dan semua aman’,\n\t\tauthor : Ari\n\t},\n]",
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"14/08/2025\",\"msg\":\"Kartu nasabah tertelan ATM, koordinasi dengan security\",\"author\":\"Ratna\"},{\"division\":\"OPR\",\"timestamp\":\"14/08/2025\",\"msg\":\"Kartu sudah diambil dari ATM, siap diserahkan ke nasabah\",\"author\":\"Ari\"}]",
       "id": 4
     },
     {
@@ -2369,7 +2369,7 @@
       "terminal_id": 1,
       "created_time": "2025-08-14T08:15:00Z",
       "closed_time": null,
-      "division_notes": "[\n\t{\n\t\tdivision: ‘CXC’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Tolong di cek untuk case ini nasabah mengalami special case di bagian ATM’,\n\t\tauthor : Ratna\n\t},\n\t{\n\t\tdivision: ‘DGO’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Oke sudah di cek dan semua aman’,\n\t\tauthor : Ari\n\t},\n]",
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"14/08/2025\",\"msg\":\"Kartu nasabah tertelan ATM, koordinasi dengan security\",\"author\":\"Ratna\"},{\"division\":\"OPR\",\"timestamp\":\"14/08/2025\",\"msg\":\"Kartu sudah diambil dari ATM, siap diserahkan ke nasabah\",\"author\":\"Ari\"}]",
       "id": 5
     },
     {
@@ -2393,7 +2393,7 @@
       "terminal_id": 1,
       "created_time": "2025-08-14T08:15:00Z",
       "closed_time": null,
-      "division_notes": "[\n\t{\n\t\tdivision: ‘CXC’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Tolong di cek untuk case ini nasabah mengalami special case di bagian ATM’,\n\t\tauthor : Ratna\n\t},\n\t{\n\t\tdivision: ‘DGO’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Oke sudah di cek dan semua aman’,\n\t\tauthor : Ari\n\t},\n]",
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"14/08/2025\",\"msg\":\"Kartu nasabah tertelan ATM, koordinasi dengan security\",\"author\":\"Ratna\"},{\"division\":\"OPR\",\"timestamp\":\"14/08/2025\",\"msg\":\"Kartu sudah diambil dari ATM, siap diserahkan ke nasabah\",\"author\":\"Ari\"}]",
       "id": 6
     },
     {
@@ -2417,7 +2417,7 @@
       "terminal_id": 1,
       "created_time": "2025-08-14T08:15:00Z",
       "closed_time": null,
-      "division_notes": "[\n\t{\n\t\tdivision: ‘CXC’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Tolong di cek untuk case ini nasabah mengalami special case di bagian ATM’,\n\t\tauthor : Ratna\n\t},\n\t{\n\t\tdivision: ‘DGO’,\n\t\ttimestamp: 14/08/2025\n\t\tmsg: ‘Oke sudah di cek dan semua aman’,\n\t\tauthor : Ari\n\t},\n]",
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"14/08/2025\",\"msg\":\"Kartu nasabah tertelan ATM, koordinasi dengan security\",\"author\":\"Ratna\"},{\"division\":\"OPR\",\"timestamp\":\"14/08/2025\",\"msg\":\"Kartu sudah diambil dari ATM, siap diserahkan ke nasabah\",\"author\":\"Ari\"}]",
       "id": 7
     },
     {
@@ -2439,7 +2439,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-27T12:45:04.762Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"18/08/2025\",\"msg\":\"Ticket baru masuk, sedang dalam proses verifikasi\",\"author\":\"Agent1\"}]",
       "created_time": "2025-08-18T12:45:04.762Z",
       "closed_time": null
     },
@@ -2462,7 +2462,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-27T12:45:14.619Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"18/08/2025\",\"msg\":\"Ticket baru masuk, sedang dalam proses verifikasi\",\"author\":\"Agent1\"}]",
       "created_time": "2025-08-18T12:45:14.619Z",
       "closed_time": null
     },
@@ -2485,7 +2485,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-27T12:56:45.784Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"19/08/2025\",\"msg\":\"Sudah dikonfirmasi dengan nasabah, lanjut ke proses penyelesaian\",\"author\":\"Supervisor\"}]",
       "created_time": "2025-08-18T12:56:45.784Z",
       "closed_time": null
     },
@@ -2508,7 +2508,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-27T12:56:57.544Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Koordinasi dengan tim teknis untuk penyelesaian masalah\",\"author\":\"Ahmad\"}]",
       "created_time": "2025-08-18T12:56:57.544Z",
       "closed_time": null
     },
@@ -2531,7 +2531,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-27T13:00:52.104Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"OPR\",\"timestamp\":\"21/08/2025\",\"msg\":\"Proses refund sudah dijalankan, menunggu konfirmasi sistem\",\"author\":\"Budi\"}]",
       "created_time": "2025-08-18T13:00:52.104Z",
       "closed_time": null
     },
@@ -2554,7 +2554,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-27T13:01:11.040Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"18/08/2025\",\"msg\":\"Ticket baru masuk, sedang dalam proses verifikasi\",\"author\":\"Agent1\"}]",
       "created_time": "2025-08-18T13:01:11.040Z",
       "closed_time": null
     },
@@ -2577,7 +2577,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-27T13:08:17.366Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"19/08/2025\",\"msg\":\"Sudah dikonfirmasi dengan nasabah, lanjut ke proses penyelesaian\",\"author\":\"Supervisor\"}]",
       "created_time": "2025-08-18T13:08:17.366Z",
       "closed_time": null
     },
@@ -2600,7 +2600,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-27T13:08:24.760Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Koordinasi dengan tim teknis untuk penyelesaian masalah\",\"author\":\"Ahmad\"}]",
       "created_time": "2025-08-18T13:08:24.760Z",
       "closed_time": null
     },
@@ -2623,7 +2623,7 @@
       "policy_id": 84,
       "committed_due_at": "2025-09-17T13:13:18.469Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"OPR\",\"timestamp\":\"21/08/2025\",\"msg\":\"Proses refund sudah dijalankan, menunggu konfirmasi sistem\",\"author\":\"Budi\"}]",
       "created_time": "2025-08-18T13:13:18.469Z",
       "closed_time": null
     },
@@ -2646,7 +2646,7 @@
       "policy_id": 57,
       "committed_due_at": "2025-08-26T01:57:17.016Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"18/08/2025\",\"msg\":\"Ticket baru masuk, sedang dalam proses verifikasi\",\"author\":\"Agent1\"}]",
       "created_time": "2025-08-19T01:57:17.016Z",
       "closed_time": null
     },
@@ -2669,7 +2669,7 @@
       "policy_id": 76,
       "committed_due_at": "2025-08-28T01:57:54.142Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"19/08/2025\",\"msg\":\"Sudah dikonfirmasi dengan nasabah, lanjut ke proses penyelesaian\",\"author\":\"Supervisor\"}]",
       "created_time": "2025-08-19T01:57:54.142Z",
       "closed_time": null
     },
@@ -2692,7 +2692,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T02:02:00.853Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Koordinasi dengan tim teknis untuk penyelesaian masalah\",\"author\":\"Ahmad\"}]",
       "created_time": "2025-08-19T02:02:00.853Z",
       "closed_time": null
     },
@@ -2715,7 +2715,7 @@
       "policy_id": 78,
       "committed_due_at": "2025-08-29T02:02:33.984Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"OPR\",\"timestamp\":\"21/08/2025\",\"msg\":\"Proses refund sudah dijalankan, menunggu konfirmasi sistem\",\"author\":\"Budi\"}]",
       "created_time": "2025-08-19T02:02:33.984Z",
       "closed_time": null
     },
@@ -2738,7 +2738,7 @@
       "policy_id": 81,
       "committed_due_at": "2025-08-29T02:03:30.301Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"18/08/2025\",\"msg\":\"Ticket baru masuk, sedang dalam proses verifikasi\",\"author\":\"Agent1\"}]",
       "created_time": "2025-08-19T02:03:30.301Z",
       "closed_time": null
     },
@@ -2761,7 +2761,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T02:03:39.903Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"19/08/2025\",\"msg\":\"Sudah dikonfirmasi dengan nasabah, lanjut ke proses penyelesaian\",\"author\":\"Supervisor\"}]",
       "created_time": "2025-08-19T02:03:39.903Z",
       "closed_time": null
     },
@@ -2784,7 +2784,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T02:08:30.309Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Koordinasi dengan tim teknis untuk penyelesaian masalah\",\"author\":\"Ahmad\"}]",
       "created_time": "2025-08-19T02:08:30.310Z",
       "closed_time": null
     },
@@ -2807,7 +2807,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T02:11:43.147Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"OPR\",\"timestamp\":\"21/08/2025\",\"msg\":\"Proses refund sudah dijalankan, menunggu konfirmasi sistem\",\"author\":\"Budi\"}]",
       "created_time": "2025-08-19T02:11:43.148Z",
       "closed_time": null
     },
@@ -2830,7 +2830,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T03:39:37.356Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"18/08/2025\",\"msg\":\"Ticket baru masuk, sedang dalam proses verifikasi\",\"author\":\"Agent1\"}]",
       "created_time": "2025-08-19T03:39:37.357Z",
       "closed_time": null
     },
@@ -2853,7 +2853,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T04:08:20.945Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"19/08/2025\",\"msg\":\"Sudah dikonfirmasi dengan nasabah, lanjut ke proses penyelesaian\",\"author\":\"Supervisor\"}]",
       "created_time": "2025-08-19T04:08:20.945Z",
       "closed_time": null
     },
@@ -2876,7 +2876,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T04:10:27.966Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Koordinasi dengan tim teknis untuk penyelesaian masalah\",\"author\":\"Ahmad\"}]",
       "created_time": "2025-08-19T04:10:27.966Z",
       "closed_time": null
     },
@@ -2899,7 +2899,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T04:12:37.033Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"OPR\",\"timestamp\":\"21/08/2025\",\"msg\":\"Proses refund sudah dijalankan, menunggu konfirmasi sistem\",\"author\":\"Budi\"}]",
       "created_time": "2025-08-19T04:12:37.033Z",
       "closed_time": null
     },
@@ -2922,7 +2922,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T04:48:52.830Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"18/08/2025\",\"msg\":\"Ticket baru masuk, sedang dalam proses verifikasi\",\"author\":\"Agent1\"}]",
       "created_time": "2025-08-19T04:48:52.830Z",
       "closed_time": null
     },
@@ -2945,7 +2945,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T04:54:49.002Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"19/08/2025\",\"msg\":\"Sudah dikonfirmasi dengan nasabah, lanjut ke proses penyelesaian\",\"author\":\"Supervisor\"}]",
       "created_time": "2025-08-19T04:54:49.002Z",
       "closed_time": null
     },
@@ -2968,7 +2968,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T06:45:12.232Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Koordinasi dengan tim teknis untuk penyelesaian masalah\",\"author\":\"Ahmad\"}]",
       "created_time": "2025-08-19T06:45:12.232Z",
       "closed_time": null
     },
@@ -2992,7 +2992,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T08:52:31.334Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"OPR\",\"timestamp\":\"21/08/2025\",\"msg\":\"Proses refund sudah dijalankan, menunggu konfirmasi sistem\",\"author\":\"Budi\"}]",
       "created_time": "2025-08-19T08:52:31.334Z",
       "closed_time": null
     },
@@ -3016,7 +3016,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T08:57:06.492Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"18/08/2025\",\"msg\":\"Ticket baru masuk, sedang dalam proses verifikasi\",\"author\":\"Agent1\"}]",
       "created_time": "2025-08-19T08:57:06.492Z",
       "closed_time": null
     },
@@ -3040,7 +3040,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-28T09:00:24.888Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"19/08/2025\",\"msg\":\"Sudah dikonfirmasi dengan nasabah, lanjut ke proses penyelesaian\",\"author\":\"Supervisor\"}]",
       "created_time": "2025-08-19T09:00:24.888Z",
       "closed_time": null
     },
@@ -3064,7 +3064,7 @@
       "policy_id": 85,
       "committed_due_at": "2025-09-29T04:12:49.594Z",
       "responsible_employee_id": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Koordinasi dengan tim teknis untuk penyelesaian masalah\",\"author\":\"Ahmad\"}]",
       "created_time": "2025-08-20T04:12:49.594Z",
       "closed_time": null
     },
@@ -3090,7 +3090,7 @@
       "terminal_id": null,
       "created_time": "2025-08-20T10:25:03.062Z",
       "closed_time": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"20/08/2025\",\"msg\":\"Top up gagal, koordinasi dengan payment gateway\",\"author\":\"Sari\"},{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Refund sudah diproses, dana kembali 1x24 jam\",\"author\":\"Ahmad\"}]",
       "delete_at": null,
       "delete_by": null
     },
@@ -3116,7 +3116,7 @@
       "terminal_id": null,
       "created_time": "2025-08-20T10:36:22.314Z",
       "closed_time": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"OPR\",\"timestamp\":\"21/08/2025\",\"msg\":\"Proses refund sudah dijalankan, menunggu konfirmasi sistem\",\"author\":\"Budi\"}]",
       "delete_at": null,
       "delete_by": null
     },
@@ -3142,7 +3142,7 @@
       "terminal_id": null,
       "created_time": "2025-08-20T12:07:05.394Z",
       "closed_time": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"18/08/2025\",\"msg\":\"Ticket baru masuk, sedang dalam proses verifikasi\",\"author\":\"Agent1\"}]",
       "delete_at": null,
       "delete_by": null
     },
@@ -3168,7 +3168,7 @@
       "terminal_id": null,
       "created_time": "2025-08-20T12:25:15.993Z",
       "closed_time": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"19/08/2025\",\"msg\":\"Sudah dikonfirmasi dengan nasabah, lanjut ke proses penyelesaian\",\"author\":\"Supervisor\"}]",
       "delete_at": null,
       "delete_by": null
     },
@@ -3194,7 +3194,7 @@
       "terminal_id": null,
       "created_time": "2025-08-20T12:30:29.245Z",
       "closed_time": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"20/08/2025\",\"msg\":\"Permintaan CCTV ATM, koordinasi dengan security\",\"author\":\"Lisa\"},{\"division\":\"OPR\",\"timestamp\":\"20/08/2025\",\"msg\":\"CCTV sudah disiapkan, menunggu konfirmasi nasabah\",\"author\":\"Budi\"}]",
       "delete_at": null,
       "delete_by": null
     },
@@ -3220,7 +3220,7 @@
       "terminal_id": null,
       "created_time": "2025-08-20T12:32:51.693Z",
       "closed_time": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Koordinasi dengan tim teknis untuk penyelesaian masalah\",\"author\":\"Ahmad\"}]",
       "delete_at": null,
       "delete_by": null
     },
@@ -3246,7 +3246,7 @@
       "terminal_id": null,
       "created_time": "2025-08-20T12:34:49.081Z",
       "closed_time": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"OPR\",\"timestamp\":\"21/08/2025\",\"msg\":\"Proses refund sudah dijalankan, menunggu konfirmasi sistem\",\"author\":\"Budi\"}]",
       "delete_at": null,
       "delete_by": null
     },
@@ -3272,7 +3272,7 @@
       "terminal_id": null,
       "created_time": "2025-08-20T12:39:54.872Z",
       "closed_time": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"18/08/2025\",\"msg\":\"Ticket baru masuk, sedang dalam proses verifikasi\",\"author\":\"Agent1\"}]",
       "delete_at": null,
       "delete_by": null
     },
@@ -3298,7 +3298,7 @@
       "terminal_id": null,
       "created_time": "2025-08-21T01:54:10.073Z",
       "closed_time": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"BCC\",\"timestamp\":\"19/08/2025\",\"msg\":\"Sudah dikonfirmasi dengan nasabah, lanjut ke proses penyelesaian\",\"author\":\"Supervisor\"}]",
       "delete_at": null,
       "delete_by": null
     },
@@ -3324,7 +3324,7 @@
       "terminal_id": null,
       "created_time": "2025-08-21T02:32:15.944Z",
       "closed_time": null,
-      "division_notes": null,
+      "division_notes": "[{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Koordinasi dengan tim teknis untuk penyelesaian masalah\",\"author\":\"Ahmad\"}]",
       "delete_at": null,
       "delete_by": null
     }

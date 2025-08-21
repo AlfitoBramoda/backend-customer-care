@@ -296,7 +296,7 @@ class TicketController {
                 })() : null,
                 
                 committed_due_at: ticket.committed_due_at,
-                division_notes: ticket.division_notes,
+                division_notes: this.parseDivisionNotes(ticket.division_notes),
                 
                 sla_info: this.calculateSLAInfo(ticket)
             };
@@ -943,7 +943,7 @@ class TicketController {
             // Fields available for all employees
             if (customer_status !== undefined) updateData.customer_status_id = customerStatusId;
             if (employee_status !== undefined) updateData.employee_status_id = employeeStatusId;
-            if (division_notes !== undefined) updateData.division_notes = division_notes;
+            if (division_notes !== undefined) updateData.division_notes = this.stringifyDivisionNotes(division_notes);
             
             // Fields only available for CXC agents
             if (isCXCAgent) {
@@ -1564,13 +1564,36 @@ class TicketController {
     }
 
     parseDivisionNotes(divisionNotes) {
-        if (!divisionNotes) return [];
+        if (!divisionNotes || divisionNotes === 'null' || divisionNotes === null || divisionNotes === undefined) {
+            return null;
+        }
+        
+        if (typeof divisionNotes !== 'string') {
+            return divisionNotes; // Already parsed or is an object
+        }
         
         try {
-            return JSON.parse(divisionNotes);
+            const parsed = JSON.parse(divisionNotes);
+            return parsed;
         } catch (error) {
             // If parsing fails, return the raw string as a single note
             return [{ note: divisionNotes, timestamp: new Date().toISOString() }];
+        }
+    }
+
+    stringifyDivisionNotes(divisionNotes) {
+        if (!divisionNotes || divisionNotes === null || divisionNotes === undefined) {
+            return null;
+        }
+        
+        if (typeof divisionNotes === 'string') {
+            return divisionNotes; // Already stringified
+        }
+        
+        try {
+            return JSON.stringify(divisionNotes);
+        } catch (error) {
+            return null;
         }
     }
 
