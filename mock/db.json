@@ -80,7 +80,7 @@
       "customer_id": 5,
       "full_name": "Budi Santoso",
       "email": "budi.santoso@example.com",
-      "password_hash": "hash$budi",
+      "password_hash": "$2b$12$cr9lYnmTDDrFtlmNblVeA.t8gxdVG3Q2x0Oio1fao5Firrwj7Emu2",
       "address": "Jl. Ahmad Yani No. 15, Medan",
       "billing_address": "Jl. Ahmad Yani No. 15, Medan",
       "postal_code": 20111,
@@ -3327,6 +3327,32 @@
       "division_notes": "[{\"division\":\"TBS\",\"timestamp\":\"20/08/2025\",\"msg\":\"Koordinasi dengan tim teknis untuk penyelesaian masalah\",\"author\":\"Ahmad\"}]",
       "delete_at": null,
       "delete_by": null
+    },
+    {
+      "ticket_id": 46,
+      "ticket_number": "BNI-202508210003",
+      "description": "ngngngnhnhmhmjm",
+      "record": "",
+      "customer_id": 6,
+      "customer_status_id": 1,
+      "employee_status_id": 1,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": null,
+      "related_card_id": null,
+      "complaint_id": 15,
+      "responsible_employee_id": null,
+      "policy_id": 12,
+      "committed_due_at": "2025-08-26T04:56:01.437Z",
+      "transaction_date": null,
+      "amount": 10000,
+      "terminal_id": null,
+      "created_time": "2025-08-21T04:56:01.437Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
     }
   ],
   "ticket_activity": [
@@ -3855,6 +3881,15 @@
       "sender_id": 1,
       "content": "Ticket created: whhababaha",
       "ticket_activity_time": "2025-08-21T02:32:15.948Z"
+    },
+    {
+      "ticket_activity_id": 59,
+      "ticket_id": 46,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 6,
+      "content": "Ticket created: ngngngnhnhmhmjm",
+      "ticket_activity_time": "2025-08-21T04:56:01.440Z"
     }
   ],
   "attachment": [
@@ -3949,7 +3984,7 @@
       "ticket_id": 1,
       "customer_id": 1,
       "score": 5,
-      "comment": "Pelayanan sangat memuaskan dan cepat. Masalah kartu ATM tertelan berhasil diselesaikan dengan baik.",
+      "comment": "Update: Terima kasih atas penanganan yang cepat banget banget keren kayak samid",
       "submit_time": "2025-08-14T09:00:00Z",
       "id": 1
     },

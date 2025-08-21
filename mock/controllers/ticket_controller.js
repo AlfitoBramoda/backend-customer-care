@@ -594,7 +594,9 @@ class TicketController {
                 related_card_id,
                 terminal_id,
                 intake_source_id,
-                customer_id // For employee use
+                customer_id, // For employee use
+                initial_employee_status, // For employee to set initial status
+                initial_customer_status  // For employee to set initial customer status
             } = req.body;
 
             // Validation
@@ -606,7 +608,7 @@ class TicketController {
             if (req.user.role === 'employee') {
                 // Check role_id and division_id from JWT token
                 if (req.user.role_id !== 1 || req.user.division_id !== 1) {
-                    return res.status(403).json({
+                    return res.status(HTTP_STATUS.FORBIDDEN).json({
                         success: false,
                         message: 'Only CXC agents can create tickets'
                     });
@@ -614,7 +616,7 @@ class TicketController {
                 
                 // CXC agent must provide customer_id
                 if (!customer_id) {
-                    return res.status(400).json({
+                    return res.status(HTTP_STATUS.BAD_REQUEST).json({
                         success: false,
                         message: 'Employee must provide customer_id'
                     });
@@ -657,14 +659,40 @@ class TicketController {
             // Calculate SLA due date
             const committedDueAt = this.calculateSLADueDate(policy?.sla || 1);
             
-            // Get default statuses
-            const defaultCustomerStatus = this.db.get('customer_status')
-                .find({ customer_status_code: 'ACC' })
-                .value();
+            // Get statuses (default or employee-specified)
+            let customerStatus, employeeStatus;
             
-            const defaultEmployeeStatus = this.db.get('employee_status')
-                .find({ employee_status_code: 'OPEN' })
-                .value();
+            if (req.user.role === 'employee' && initial_customer_status) {
+                customerStatus = this.db.get('customer_status')
+                    .find({ customer_status_code: initial_customer_status.toUpperCase() })
+                    .value();
+                if (!customerStatus) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Invalid initial_customer_status'
+                    });
+                }
+            } else {
+                customerStatus = this.db.get('customer_status')
+                    .find({ customer_status_code: 'ACC' })
+                    .value();
+            }
+            
+            if (req.user.role === 'employee' && initial_employee_status) {
+                employeeStatus = this.db.get('employee_status')
+                    .find({ employee_status_code: initial_employee_status.toUpperCase() })
+                    .value();
+                if (!employeeStatus) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Invalid initial_employee_status'
+                    });
+                }
+            } else {
+                employeeStatus = this.db.get('employee_status')
+                    .find({ employee_status_code: 'OPEN' })
+                    .value();
+            }
             
             const defaultPriority = this.db.get('priority')
                 .find({ priority_code: 'REGULAR' })
@@ -677,8 +705,8 @@ class TicketController {
                 description: description,
                 record: "", // Initialize empty record field
                 customer_id: targetCustomerId,
-                customer_status_id: defaultCustomerStatus?.customer_status_id || 1,
-                employee_status_id: defaultEmployeeStatus?.employee_status_id || 1,
+                customer_status_id: customerStatus?.customer_status_id || 1,
+                employee_status_id: employeeStatus?.employee_status_id || 1,
                 priority_id: defaultPriority?.priority_id || 3,
                 issue_channel_id: parseInt(issue_channel_id),
                 intake_source_id: req.user.role === 'customer' ? 2 : intake_source_id,
@@ -692,7 +720,8 @@ class TicketController {
                 amount: amount || null,
                 terminal_id: terminal_id ? parseInt(terminal_id) : null,
                 created_time: new Date().toISOString(),
-                closed_time: null,
+                closed_time: (initial_employee_status && ['CLOSED', 'RESOLVED'].includes(initial_employee_status.toUpperCase())) 
+                    ? new Date().toISOString() : null,
                 division_notes: null,
                 delete_at: null,
                 delete_by: null

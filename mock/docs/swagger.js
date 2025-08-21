@@ -362,6 +362,18 @@ const swaggerDefinition = {
           terminal_id: { type: 'integer', example: 1, description: 'Terminal ID (optional)' },
           intake_source_id: { type: 'integer', example: 1, description: 'Source of ticket intake (optional)' },
           customer_id: { type: 'integer', example: 1, description: 'Customer ID (for employee flows)' },
+          initial_employee_status: {
+            type: 'string',
+            enum: ['OPEN', 'HANDLEDCXC', 'ESCALATED', 'CLOSED', 'RESOLVED'],
+            example: 'ESCALATED',
+            description: 'Initial employee status (Employee only - defaults to OPEN if not provided)'
+          },
+          initial_customer_status: {
+            type: 'string', 
+            enum: ['ACC', 'VERIF', 'PROCESS', 'CLOSED', 'DECLINED', 'RESOLVED'],
+            example: 'PROCESS',
+            description: 'Initial customer status (Employee only - defaults to ACC if not provided)'
+          },
         },
       },
       CreateTicketResponse: {
@@ -401,6 +413,13 @@ const swaggerDefinition = {
                 },
               },
               created_time: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
+              closed_time: { 
+                type: 'string', 
+                format: 'date-time', 
+                nullable: true,
+                example: null,
+                description: 'Auto-set if initial_employee_status is CLOSED or RESOLVED'
+              },
               sla_info: {
                 type: 'object',
                 properties: {
@@ -856,11 +875,64 @@ const swaggerPaths = {
     post: {
       tags: ['Tickets'],
       summary: 'Create new ticket',
-      description: 'Role-based constraints applied.',
+      description: 'Create new ticket with role-based constraints. Employees can set initial status to ESCALATED or CLOSED for immediate handling.',
       security: [{ bearerAuth: [] }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketRequest' } } } },
+      requestBody: { 
+        required: true, 
+        content: { 
+          'application/json': { 
+            schema: { $ref: '#/components/schemas/CreateTicketRequest' },
+            examples: {
+              customer_ticket: {
+                summary: 'Customer creates ticket (default status)',
+                value: {
+                  description: 'Kartu ATM saya tertelan di mesin ATM BNI Sudirman',
+                  issue_channel_id: 1,
+                  complaint_id: 1,
+                  transaction_date: '2025-01-15T14:30:00Z',
+                  amount: 500000,
+                  related_account_id: 1,
+                  terminal_id: 1
+                }
+              },
+              employee_default: {
+                summary: 'Employee creates ticket (default status)',
+                value: {
+                  description: 'Customer complaint via phone call',
+                  issue_channel_id: 2,
+                  complaint_id: 3,
+                  customer_id: 5,
+                  intake_source_id: 1
+                }
+              },
+              employee_escalated: {
+                summary: 'Employee creates ticket (immediately escalated)',
+                value: {
+                  description: 'Complex technical issue requiring specialist attention',
+                  issue_channel_id: 1,
+                  complaint_id: 2,
+                  customer_id: 5,
+                  initial_employee_status: 'ESCALATED',
+                  initial_customer_status: 'PROCESS'
+                }
+              },
+              employee_closed: {
+                summary: 'Employee creates ticket (already resolved)',
+                value: {
+                  description: 'Issue resolved during phone call',
+                  issue_channel_id: 2,
+                  complaint_id: 1,
+                  customer_id: 5,
+                  initial_employee_status: 'CLOSED',
+                  initial_customer_status: 'RESOLVED'
+                }
+              }
+            }
+          } 
+        } 
+      },
       responses: {
-        '201': { description: 'Ticket created successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketResponse' } } } },
+        '201': { description: 'Ticket created successfully (may be immediately closed if initial_employee_status is CLOSED/RESOLVED)', content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketResponse' } } } },
         '400': { description: 'Bad request - Missing required fields or invalid data', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
         '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
         '403': { description: 'Forbidden - Access denied or insufficient permissions', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
