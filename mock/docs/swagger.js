@@ -10,7 +10,7 @@ const swaggerDefinition = {
     contact: { name: 'Tim Backend B-Care', email: 'alfitobramoda@gmail.com' }
   },
   servers: [
-    { url: 'https://c76a9bb1e844.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
+    { url: 'https://2ac77297606f.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
     { url: 'https://bcare.my.id/v1', description: 'GCP Server' },
     { url: 'http://localhost:3001/v1', description: 'Development server' },
   ],
@@ -537,6 +537,12 @@ const swaggerDefinition = {
         type: 'object',
         required: ['description', 'issue_channel_id', 'complaint_id'],
         properties: {
+          action: {
+            type: 'string',
+            enum: ['ESCALATED', 'CLOSED'],
+            description: 'Action to take when creating ticket. If not provided, creates with default status (ACC/OPEN). ESCALATED sets PROCESS/ESCALATED status, CLOSED sets CLOSED/CLOSED status.',
+            example: 'ESCALATED'
+          },
           description: {
             type: 'string',
             example: 'Kartu ATM saya tertelan di mesin ATM BNI Sudirman',
@@ -566,17 +572,19 @@ const swaggerDefinition = {
           terminal_id: { type: 'integer', example: 1, description: 'Terminal ID (optional)' },
           intake_source_id: { type: 'integer', example: 1, description: 'Source of ticket intake (optional)' },
           customer_id: { type: 'integer', example: 1, description: 'Customer ID (for employee flows)' },
-          initial_employee_status: {
-            type: 'string',
-            enum: ['OPEN', 'HANDLEDCXC', 'ESCALATED', 'CLOSED', 'RESOLVED'],
-            example: 'ESCALATED',
-            description: 'Initial employee status (Employee only - defaults to OPEN if not provided)'
-          },
-          initial_customer_status: {
-            type: 'string', 
-            enum: ['ACC', 'VERIF', 'PROCESS', 'CLOSED', 'DECLINED', 'RESOLVED'],
-            example: 'PROCESS',
-            description: 'Initial customer status (Employee only - defaults to ACC if not provided)'
+          priority_id: { type: 'integer', example: 2, description: 'Priority ID (1=Critical, 2=High, 3=Regular, defaults to 3)' },
+          division_notes: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                division: { type: 'string', example: 'CXC' },
+                timestamp: { type: 'string', example: '21/08/2025' },
+                msg: { type: 'string', example: 'Initial ticket creation notes' },
+                author: { type: 'string', example: 'Agent Name' }
+              }
+            },
+            description: 'Division notes array (optional)'
           },
           reason: {
             type: 'string',
@@ -602,12 +610,30 @@ const swaggerDefinition = {
               ticket_number: { type: 'string', example: 'BNI-20250115001' },
               description: { type: 'string', example: 'Kartu ATM saya tertelan di mesin ATM BNI Sudirman' },
               record: { type: 'string', example: '' },
+              reason: { type: 'string', example: 'System error during transaction' },
+              solution: { type: 'string', example: 'Manual intervention required' },
               customer_status: {
                 type: 'object',
                 properties: {
                   customer_status_id: { type: 'integer', example: 1 },
-                  customer_status_name: { type: 'string', example: 'Open' },
-                  customer_status_code: { type: 'string', example: 'OPEN' },
+                  customer_status_name: { type: 'string', example: 'Accepted' },
+                  customer_status_code: { type: 'string', example: 'ACC' },
+                },
+              },
+              employee_status: {
+                type: 'object',
+                properties: {
+                  employee_status_id: { type: 'integer', example: 1 },
+                  employee_status_name: { type: 'string', example: 'Open' },
+                  employee_status_code: { type: 'string', example: 'OPEN' },
+                },
+              },
+              priority: {
+                type: 'object',
+                properties: {
+                  priority_id: { type: 'integer', example: 3 },
+                  priority_name: { type: 'string', example: 'Regular Priority' },
+                  priority_code: { type: 'string', example: 'REGULAR' },
                 },
               },
               issue_channel: {
@@ -626,18 +652,29 @@ const swaggerDefinition = {
                   complaint_code: { type: 'string', example: 'CARD_SWALLOWED' },
                 },
               },
+              responsible_employee: {
+                type: 'object',
+                nullable: true,
+                properties: {
+                  employee_id: { type: 'integer', example: 5 },
+                  full_name: { type: 'string', example: 'Ahmad Supervisor' },
+                  npp: { type: 'string', example: 'EMP00005' }
+                },
+                description: 'Only set when action is ESCALATED or CLOSED'
+              },
               created_time: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
               closed_time: { 
                 type: 'string', 
                 format: 'date-time', 
                 nullable: true,
                 example: null,
-                description: 'Auto-set if initial_employee_status is CLOSED or RESOLVED'
+                description: 'Auto-set if action is CLOSED'
               },
               sla_info: {
                 type: 'object',
                 properties: {
                   committed_due_at: { type: 'string', format: 'date-time', example: '2025-01-16T10:30:00.000Z' },
+                  sla_days: { type: 'integer', example: 1 },
                   sla_hours: { type: 'integer', example: 24 },
                 },
               },
@@ -1089,7 +1126,7 @@ const swaggerPaths = {
     post: {
       tags: ['Tickets'],
       summary: 'Create new ticket',
-      description: 'Create new ticket with role-based constraints. Employees can set initial status to ESCALATED or CLOSED for immediate handling.',
+      description: 'Create new ticket with optional action parameter. No action = default status (ACC/OPEN). Action ESCALATED = PROCESS/ESCALATED status with assignment. Action CLOSED = CLOSED/CLOSED status with closed_time.',
       security: [{ bearerAuth: [] }],
       requestBody: { 
         required: true, 
@@ -1097,8 +1134,9 @@ const swaggerPaths = {
           'application/json': { 
             schema: { $ref: '#/components/schemas/CreateTicketRequest' },
             examples: {
-              customer_ticket: {
-                summary: 'Customer creates ticket (default status)',
+              customer_default: {
+                summary: 'Customer creates ticket (default status: ACC/OPEN)',
+                description: 'Customer creates ticket without action parameter - gets default ACC/OPEN status',
                 value: {
                   description: 'Kartu ATM saya tertelan di mesin ATM BNI Sudirman',
                   issue_channel_id: 1,
@@ -1110,35 +1148,79 @@ const swaggerPaths = {
                 }
               },
               employee_default: {
-                summary: 'Employee creates ticket (default status)',
+                summary: 'Employee creates ticket (default status: ACC/OPEN)',
+                description: 'Employee creates ticket without action parameter - gets default ACC/OPEN status',
                 value: {
                   description: 'Customer complaint via phone call',
                   issue_channel_id: 2,
                   complaint_id: 3,
                   customer_id: 5,
-                  intake_source_id: 1
+                  intake_source_id: 1,
+                  priority_id: 2
                 }
               },
               employee_escalated: {
-                summary: 'Employee creates ticket (immediately escalated)',
+                summary: 'Employee creates ticket (action: ESCALATED)',
+                description: 'Employee creates ticket with ESCALATED action - sets PROCESS/ESCALATED status and assigns to creator',
                 value: {
+                  action: 'ESCALATED',
                   description: 'Complex technical issue requiring specialist attention',
                   issue_channel_id: 1,
                   complaint_id: 2,
                   customer_id: 5,
-                  initial_employee_status: 'ESCALATED',
-                  initial_customer_status: 'PROCESS'
+                  priority_id: 1,
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Ticket escalated due to complexity',
+                    author: 'Agent CXC'
+                  }]
                 }
               },
               employee_closed: {
-                summary: 'Employee creates ticket (already resolved)',
+                summary: 'Employee creates ticket (action: CLOSED)',
+                description: 'Employee creates ticket with CLOSED action - sets CLOSED/CLOSED status and closed_time',
                 value: {
+                  action: 'CLOSED',
                   description: 'Issue resolved during phone call',
                   issue_channel_id: 2,
                   complaint_id: 1,
                   customer_id: 5,
-                  initial_employee_status: 'CLOSED',
-                  initial_customer_status: 'RESOLVED'
+                  priority_id: 3,
+                  solution: 'PIN reset completed, customer can now access account',
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Issue resolved immediately during call',
+                    author: 'Agent CXC'
+                  }]
+                }
+              },
+              comprehensive_example: {
+                summary: 'Complete ticket with all optional fields',
+                description: 'Example showing all possible fields that can be included',
+                value: {
+                  action: 'ESCALATED',
+                  description: 'ATM transaction failed but amount was debited from account',
+                  issue_channel_id: 1,
+                  complaint_id: 4,
+                  customer_id: 10,
+                  transaction_date: '2025-01-15T14:30:00Z',
+                  amount: 1000000,
+                  record: 'TXN-REF-123456789',
+                  related_account_id: 15,
+                  related_card_id: 8,
+                  terminal_id: 25,
+                  intake_source_id: 1,
+                  priority_id: 1,
+                  reason: 'System timeout during transaction processing',
+                  solution: 'Manual reversal initiated, funds will be credited within 24 hours',
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'High priority case - customer VIP status',
+                    author: 'Senior Agent'
+                  }]
                 }
               }
             }
@@ -1146,7 +1228,7 @@ const swaggerPaths = {
         } 
       },
       responses: {
-        '201': { description: 'Ticket created successfully (may be immediately closed if initial_employee_status is CLOSED/RESOLVED)', content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketResponse' } } } },
+        '201': { description: 'Ticket created successfully (status depends on action parameter: no action=ACC/OPEN, ESCALATED=PROCESS/ESCALATED, CLOSED=CLOSED/CLOSED)', content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketResponse' } } } },
         '400': { description: 'Bad request - Missing required fields or invalid data', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
         '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
         '403': { description: 'Forbidden - Access denied or insufficient permissions', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
