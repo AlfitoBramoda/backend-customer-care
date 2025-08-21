@@ -692,7 +692,6 @@ class TicketController {
 
             return {
                 ...commonData,
-                ticket_id: ticket.ticket_id,
                 
                 employee: employee ? {
                     employee_id: employee.employee_id,
@@ -773,6 +772,8 @@ class TicketController {
                 related_account_id,
                 related_card_id,
                 division_notes,
+                reason,
+                solution,
             } = req.body;
 
             // Validation
@@ -920,6 +921,9 @@ class TicketController {
 
             this.db.get('ticket_activity').push(initialActivity).write();
 
+            // Create status history activities based on action
+            this.createStatusHistoryActivities(newTicket, action, req.user, customerStatus, employeeStatus);
+
             // Return created ticket with enriched data
             const enrichedTicket = this.enrichTicketData(newTicket, 'customer');
 
@@ -1011,6 +1015,51 @@ class TicketController {
         const now = new Date();
         const dueDate = new Date(now.getTime() + (slaDays * 24 * 60 * 60 * 1000));
         return dueDate.toISOString();
+    }
+
+    createStatusHistoryActivities(ticket, action, user, customerStatus, employeeStatus) {
+        const timestamp = new Date().toISOString();
+        const activities = [];
+
+        if (!action) {
+            // Default creation - ACC/OPEN status
+            activities.push({
+                ticket_activity_id: this.getNextId('ticket_activity'),
+                ticket_id: ticket.ticket_id,
+                ticket_activity_type_id: 2, // STATUS_CHANGE
+                sender_type_id: user.role === 'customer' ? 1 : 2,
+                sender_id: user.id,
+                content: `Initial status set: customer status to ${customerStatus.customer_status_code}, employee status to ${employeeStatus.employee_status_code}`,
+                ticket_activity_time: timestamp
+            });
+        } else if (action === 'ESCALATED') {
+            // Escalated creation - PROCESS/ESCALATED status
+            activities.push({
+                ticket_activity_id: this.getNextId('ticket_activity'),
+                ticket_id: ticket.ticket_id,
+                ticket_activity_type_id: 2, // STATUS_CHANGE
+                sender_type_id: 2, // Employee
+                sender_id: user.id,
+                content: `Ticket created and escalated: customer status to ${customerStatus.customer_status_code}, employee status to ${employeeStatus.employee_status_code}`,
+                ticket_activity_time: timestamp
+            });
+        } else if (action === 'CLOSED') {
+            // Closed creation - CLOSED/CLOSED status
+            activities.push({
+                ticket_activity_id: this.getNextId('ticket_activity'),
+                ticket_id: ticket.ticket_id,
+                ticket_activity_type_id: 2, // STATUS_CHANGE
+                sender_type_id: 2, // Employee
+                sender_id: user.id,
+                content: `Ticket created and closed: customer status to ${customerStatus.customer_status_code}, employee status to ${employeeStatus.employee_status_code}`,
+                ticket_activity_time: timestamp
+            });
+        }
+
+        // Save all status history activities
+        activities.forEach(activity => {
+            this.db.get('ticket_activity').push(activity).write();
+        });
     }
 
     getNextId(tableName) {
@@ -1664,7 +1713,10 @@ class TicketController {
             .value()
             .filter(activity => {
                 const content = activity.content || '';
-                return content.includes('status to') || content.includes('Ticket created');
+                return content.includes('status to') || 
+                       content.includes('Initial status set') || 
+                       content.includes('created and escalated') || 
+                       content.includes('created and closed');
             })
             .sort((a, b) => new Date(a.ticket_activity_time) - new Date(b.ticket_activity_time));
 
@@ -1704,12 +1756,18 @@ class TicketController {
                         .find({ customer_status_code: newStatus })
                         .value();
                     
+                    let action_type = 'updated';
+                    if (content.includes('Initial status set')) action_type = 'created';
+                    else if (content.includes('created and escalated')) action_type = 'escalated';
+                    else if (content.includes('created and closed')) action_type = 'closed';
+                    
                     history.customer_status_history.push({
                         status_code: newStatus,
                         status_name: statusData?.customer_status_name || newStatus,
                         changed_by: changedBy,
                         changed_at: timestamp,
-                        activity_id: activity.ticket_activity_id
+                        activity_id: activity.ticket_activity_id,
+                        action_type: action_type
                     });
                 }
             }
@@ -1723,46 +1781,18 @@ class TicketController {
                         .find({ employee_status_code: newStatus })
                         .value();
                     
+                    let action_type = 'updated';
+                    if (content.includes('Initial status set')) action_type = 'created';
+                    else if (content.includes('created and escalated')) action_type = 'escalated';
+                    else if (content.includes('created and closed')) action_type = 'closed';
+                    
                     history.employee_status_history.push({
                         status_code: newStatus,
                         status_name: statusData?.employee_status_name || newStatus,
                         changed_by: changedBy,
                         changed_at: timestamp,
-                        activity_id: activity.ticket_activity_id
-                    });
-                }
-            }
-
-            // Handle initial ticket creation - set default initial statuses
-            if (content.includes('Ticket created') && history.customer_status_history.length === 0 && history.employee_status_history.length === 0) {
-                // Add default initial statuses (ACC for customer, OPEN for employee)
-                const accStatus = this.db.get('customer_status')
-                    .find({ customer_status_code: 'ACC' })
-                    .value();
-                
-                const openStatus = this.db.get('employee_status')
-                    .find({ employee_status_code: 'OPEN' })
-                    .value();
-                
-                if (accStatus) {
-                    history.customer_status_history.push({
-                        status_code: accStatus.customer_status_code,
-                        status_name: accStatus.customer_status_name,
-                        changed_by: changedBy,
-                        changed_at: timestamp,
                         activity_id: activity.ticket_activity_id,
-                        is_initial: true
-                    });
-                }
-                
-                if (openStatus) {
-                    history.employee_status_history.push({
-                        status_code: openStatus.employee_status_code,
-                        status_name: openStatus.employee_status_name,
-                        changed_by: changedBy,
-                        changed_at: timestamp,
-                        activity_id: activity.ticket_activity_id,
-                        is_initial: true
+                        action_type: action_type
                     });
                 }
             }

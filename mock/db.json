@@ -3473,6 +3473,72 @@
       "solution": "",
       "delete_at": null,
       "delete_by": null
+    },
+    {
+      "ticket_id": 48,
+      "ticket_number": "BNI-202508220001",
+      "description": "ATM transaction failed but amount was debited from account",
+      "record": "TXN-REF-123456789",
+      "reason": "System timeout during transaction processing",
+      "solution": "Manual reversal initiated, funds will be credited within 24 hours",
+      "customer_id": 10,
+      "customer_status_id": 3,
+      "employee_status_id": 3,
+      "priority_id": {
+        "priority_id": 1,
+        "priority_code": "CRITICAL",
+        "priority_name": "Critical",
+        "id": 1
+      },
+      "issue_channel_id": 1,
+      "intake_source_id": 1,
+      "related_account_id": 15,
+      "related_card_id": 8,
+      "complaint_id": 4,
+      "responsible_employee_id": 1,
+      "policy_id": 11,
+      "committed_due_at": "2025-08-26T20:24:41.870Z",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 1000000,
+      "terminal_id": 25,
+      "created_time": "2025-08-21T20:24:41.871Z",
+      "closed_time": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"21/08/2025\",\"msg\":\"High priority case - customer VIP status\",\"author\":\"Senior Agent\"}]",
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 49,
+      "ticket_number": "BNI-202508220002",
+      "description": "Testing Ticket",
+      "record": "TXN-REF-123456789",
+      "reason": "System timeout during transaction processing",
+      "solution": "Manual reversal initiated, funds will be credited within 24 hours",
+      "customer_id": 10,
+      "customer_status_id": 3,
+      "employee_status_id": 3,
+      "priority_id": {
+        "priority_id": 1,
+        "priority_code": "CRITICAL",
+        "priority_name": "Critical",
+        "id": 1
+      },
+      "issue_channel_id": 1,
+      "intake_source_id": 1,
+      "related_account_id": 15,
+      "related_card_id": 8,
+      "complaint_id": 4,
+      "responsible_employee_id": 1,
+      "policy_id": 11,
+      "committed_due_at": "2025-08-26T20:31:25.792Z",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 1000000,
+      "terminal_id": 25,
+      "created_time": "2025-08-21T20:31:25.792Z",
+      "closed_time": null,
+      "division_notes": "[{\"division\":\"CXC\",\"timestamp\":\"21/08/2025\",\"msg\":\"High priority case - customer VIP status\",\"author\":\"Senior Agent\"}]",
+      "delete_at": null,
+      "delete_by": null
     }
   ],
   "ticket_activity": [
@@ -4010,6 +4076,33 @@
       "sender_id": 6,
       "content": "Ticket created: ngngngnhnhmhmjm",
       "ticket_activity_time": "2025-08-21T04:56:01.440Z"
+    },
+    {
+      "ticket_activity_id": 60,
+      "ticket_id": 48,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created by employee for customer Sari Indah: ATM transaction failed but amount was debited from account",
+      "ticket_activity_time": "2025-08-21T20:24:41.874Z"
+    },
+    {
+      "ticket_activity_id": 61,
+      "ticket_id": 49,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created by employee for customer Sari Indah: Testing Ticket",
+      "ticket_activity_time": "2025-08-21T20:31:25.796Z"
+    },
+    {
+      "ticket_activity_id": 62,
+      "ticket_id": 49,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created and escalated: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-21T20:31:25.800Z"
     }
   ],
   "attachment": [
