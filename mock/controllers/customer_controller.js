@@ -15,6 +15,7 @@ class CustomerController {
                 page = 1,
                 limit = 10,
                 search,
+                search_type = 'customer',
                 gender_type,
                 sort_by = 'created_at',
                 sort_order = 'desc'
@@ -27,17 +28,68 @@ class CustomerController {
 
             // Get all customers
             let customers = this.db.get('customer').value();
+            let searchInfo = null;
 
-            // Apply search filter
+            // Apply search filter based on search_type
             if (search) {
                 const searchLower = search.toLowerCase();
-                customers = customers.filter(customer => 
-                    customer.full_name?.toLowerCase().includes(searchLower) ||
-                    customer.email?.toLowerCase().includes(searchLower) ||
-                    customer.phone_number?.includes(search) ||
-                    customer.cif?.includes(search) ||
-                    customer.nik?.includes(search)
-                );
+                
+                switch (search_type) {
+                    case 'account':
+                        // Search by account number
+                        const matchedAccounts = this.db.get('account')
+                            .filter(acc => acc.account_number.toString().includes(search))
+                            .value();
+                        
+                        const accountCustomerIds = matchedAccounts.map(acc => acc.customer_id);
+                        customers = customers.filter(customer => 
+                            accountCustomerIds.includes(customer.customer_id)
+                        );
+                        
+                        searchInfo = {
+                            type: 'account',
+                            query: search,
+                            matched_accounts: matchedAccounts.length
+                        };
+                        break;
+                        
+                    case 'card':
+                        // Search by card number
+                        const matchedCards = this.db.get('card')
+                            .filter(card => card.card_number.toString().includes(search))
+                            .value();
+                        
+                        const cardAccountIds = matchedCards.map(card => card.account_id);
+                        const cardAccounts = this.db.get('account')
+                            .filter(acc => cardAccountIds.includes(acc.account_id))
+                            .value();
+                        
+                        const cardCustomerIds = cardAccounts.map(acc => acc.customer_id);
+                        customers = customers.filter(customer => 
+                            cardCustomerIds.includes(customer.customer_id)
+                        );
+                        
+                        searchInfo = {
+                            type: 'card',
+                            query: search,
+                            matched_cards: matchedCards.length
+                        };
+                        break;
+                        
+                    default: // customer
+                        customers = customers.filter(customer => 
+                            customer.full_name?.toLowerCase().includes(searchLower) ||
+                            customer.email?.toLowerCase().includes(searchLower) ||
+                            customer.phone_number?.includes(search) ||
+                            customer.cif?.includes(search) ||
+                            customer.nik?.includes(search)
+                        );
+                        
+                        searchInfo = {
+                            type: 'customer',
+                            query: search
+                        };
+                }
             }
 
             // Apply gender filter
@@ -99,7 +151,7 @@ class CustomerController {
             const hasNext = pageNum < totalPages;
             const hasPrev = pageNum > 1;
 
-            res.status(HTTP_STATUS.OK).json({
+            const response = {
                 success: true,
                 message: "Customers retrieved successfully",
                 data: enrichedCustomers,
@@ -111,7 +163,14 @@ class CustomerController {
                     has_next: hasNext,
                     has_prev: hasPrev
                 }
-            });
+            };
+            
+            // Add search info if search was performed
+            if (searchInfo) {
+                response.search_info = searchInfo;
+            }
+            
+            res.status(HTTP_STATUS.OK).json(response);
 
         } catch (error) {
             next(error);

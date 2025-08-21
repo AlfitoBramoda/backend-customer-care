@@ -157,6 +157,17 @@ const swaggerDefinition = {
               },
             },
           },
+          search_info: {
+            type: 'object',
+            nullable: true,
+            description: 'Search information (only present when search is performed)',
+            properties: {
+              type: { type: 'string', enum: ['customer', 'account', 'card'], example: 'account' },
+              query: { type: 'string', example: '1234567890' },
+              matched_accounts: { type: 'integer', example: 1, description: 'Number of matched accounts (for account search)' },
+              matched_cards: { type: 'integer', example: 1, description: 'Number of matched cards (for card search)' },
+            },
+          },
           pagination: {
             type: 'object',
             properties: {
@@ -776,13 +787,14 @@ const swaggerPaths = {
   '/customers': {
     get: {
       tags: ['Customers'],
-      summary: 'Get customers list with filters',
-      description: 'List all customers with filtering, search, and pagination. Employee access only.',
+      summary: 'Get customers list with filters and search',
+      description: 'List all customers with filtering, search by customer data/account/card, and pagination. Employee access only.',
       security: [{ bearerAuth: [] }],
       parameters: [
         { in: 'query', name: 'page', schema: { type: 'integer', minimum: 1, default: 1 }, description: 'Page number' },
         { in: 'query', name: 'limit', schema: { type: 'integer', minimum: 1, maximum: 100, default: 10 }, description: 'Items per page' },
-        { in: 'query', name: 'search', schema: { type: 'string' }, description: 'Search by name, email, phone, CIF, or NIK' },
+        { in: 'query', name: 'search', schema: { type: 'string' }, description: 'Search term - behavior depends on search_type parameter', example: '1234567890' },
+        { in: 'query', name: 'search_type', schema: { type: 'string', enum: ['customer', 'account', 'card'], default: 'customer' }, description: 'Search type: customer (name/email/phone/CIF/NIK), account (account number), or card (card number)' },
         { in: 'query', name: 'gender_type', schema: { type: 'string', enum: ['Male', 'Female'] }, description: 'Filter by gender' },
         { in: 'query', name: 'sort_by', schema: { type: 'string', enum: ['created_at', 'full_name', 'email'], default: 'created_at' }, description: 'Sort field' },
         { in: 'query', name: 'sort_order', schema: { type: 'string', enum: ['asc', 'desc'], default: 'desc' }, description: 'Sort order' },
