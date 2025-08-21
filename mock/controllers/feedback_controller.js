@@ -1,3 +1,5 @@
+const { HTTP_STATUS } = require('../constants/statusCodes');
+
 class FeedbackController {
   constructor(db) {
     this.db = db;
@@ -13,11 +15,11 @@ class FeedbackController {
       const { id: ticketId } = req.params;
       const { score, comment } = req.body;
       const userId = req.user.id;
-      const userRole = req.user.role_id;
+      const userRole = req.user.role;
 
       // Validasi input
       if (!score || score < 1 || score > 5) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
           message: 'Score harus antara 1-5'
         });
@@ -26,24 +28,25 @@ class FeedbackController {
       // Cek apakah ticket exists
       const ticket = this.db.get('ticket').find({ ticket_id: parseInt(ticketId) }).value();
       if (!ticket) {
-        return res.status(404).json({
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
           message: 'Ticket tidak ditemukan'
         });
       }
 
       // Role-based access control
-      if (userRole !== 1) { // Bukan CXC agent
-        if (userRole === 3) { // Customer
-          if (ticket.customer_id !== userId) {
-            return res.status(403).json({
-              success: false,
-              message: 'Anda hanya dapat memberikan feedback untuk ticket Anda sendiri'
-            });
-          }
-        } else { // Employee non-CXC
+      if (userRole === 'customer') {
+        if (ticket.customer_id !== userId) {
+          return res.status(HTTP_STATUS.FORBIDDEN).json({
+            success: false,
+            message: 'Anda hanya dapat memberikan feedback untuk ticket Anda sendiri'
+          });
+        }
+      } else if (userRole === 'employee') {
+        // Employee can submit feedback for any ticket they have access to
+        if (req.user.role_id !== 1 || req.user.division_id !== 1) {
           if (ticket.responsible_employee_id !== userId) {
-            return res.status(403).json({
+            return res.status(HTTP_STATUS.FORBIDDEN).json({
               success: false,
               message: 'Anda hanya dapat memberikan feedback untuk ticket yang ditugaskan kepada Anda'
             });
@@ -54,7 +57,7 @@ class FeedbackController {
       // Cek apakah sudah ada feedback untuk ticket ini
       const existingFeedback = this.db.get('feedback').find({ ticket_id: parseInt(ticketId) }).value();
       if (existingFeedback) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
           message: 'Feedback untuk ticket ini sudah ada'
         });
@@ -80,7 +83,7 @@ class FeedbackController {
       // Ambil data customer dan ticket untuk response
       const customer = this.db.get('customer').find({ customer_id: ticket.customer_id }).value();
 
-      res.status(201).json({
+      res.status(HTTP_STATUS.CREATED).json({
         success: true,
         message: 'Feedback berhasil dikirim',
         data: {
@@ -105,7 +108,7 @@ class FeedbackController {
 
     } catch (error) {
       console.error('Error submitting feedback:', error);
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Terjadi kesalahan saat mengirim feedback'
       });
@@ -117,11 +120,11 @@ class FeedbackController {
     try {
       const { id } = req.params;
       const userId = req.user.id;
-      const userRole = req.user.role_id;
+      const userRole = req.user.role;
 
       const feedback = this.db.get('feedback').find({ feedback_id: parseInt(id) }).value();
       if (!feedback) {
-        return res.status(404).json({
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
           message: 'Feedback tidak ditemukan'
         });
@@ -132,17 +135,17 @@ class FeedbackController {
       const customer = this.db.get('customer').find({ customer_id: feedback.customer_id }).value();
 
       // Role-based access control
-      if (userRole !== 1) { // Bukan CXC agent
-        if (userRole === 3) { // Customer
-          if (ticket.customer_id !== userId) {
-            return res.status(403).json({
-              success: false,
-              message: 'Anda tidak memiliki akses ke feedback ini'
-            });
-          }
-        } else { // Employee non-CXC
+      if (userRole === 'customer') {
+        if (ticket.customer_id !== userId) {
+          return res.status(HTTP_STATUS.FORBIDDEN).json({
+            success: false,
+            message: 'Anda tidak memiliki akses ke feedback ini'
+          });
+        }
+      } else if (userRole === 'employee') {
+        if (req.user.role_id !== 1 || req.user.division_id !== 1) {
           if (ticket.responsible_employee_id !== userId) {
-            return res.status(403).json({
+            return res.status(HTTP_STATUS.FORBIDDEN).json({
               success: false,
               message: 'Anda tidak memiliki akses ke feedback ini'
             });
@@ -174,7 +177,7 @@ class FeedbackController {
 
     } catch (error) {
       console.error('Error getting feedback detail:', error);
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Terjadi kesalahan saat mengambil detail feedback'
       });
@@ -184,11 +187,11 @@ class FeedbackController {
   // GET /v1/feedback - Get all feedback (Employee only)
   async getAllFeedback(req, res) {
     try {
-      const userRole = req.user.role_id;
+      const userRole = req.user.role;
       
       // Only employees can access all feedback
-      if (userRole === 3) { // Customer role
-        return res.status(403).json({
+      if (userRole === 'customer') {
+        return res.status(HTTP_STATUS.FORBIDDEN).json({
           success: false,
           message: 'Akses ditolak. Hanya employee yang dapat melihat semua feedback'
         });
@@ -245,7 +248,7 @@ class FeedbackController {
 
     } catch (error) {
       console.error('Error getting all feedback:', error);
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Terjadi kesalahan saat mengambil data feedback'
       });
@@ -258,11 +261,11 @@ class FeedbackController {
       const { id } = req.params;
       const { comment } = req.body;
       const userId = req.user.id;
-      const userRole = req.user.role_id;
+      const userRole = req.user.role;
 
       const feedback = this.db.get('feedback').find({ feedback_id: parseInt(id) }).value();
       if (!feedback) {
-        return res.status(404).json({
+        return res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
           message: 'Feedback tidak ditemukan'
         });
@@ -272,17 +275,17 @@ class FeedbackController {
       const ticket = this.db.get('ticket').find({ ticket_id: feedback.ticket_id }).value();
 
       // Role-based access control
-      if (userRole !== 1) { // Bukan CXC agent
-        if (userRole === 3) { // Customer
-          if (ticket.customer_id !== userId) {
-            return res.status(403).json({
-              success: false,
-              message: 'Anda hanya dapat mengupdate feedback Anda sendiri'
-            });
-          }
-        } else { // Employee non-CXC
+      if (userRole === 'customer') {
+        if (ticket.customer_id !== userId) {
+          return res.status(HTTP_STATUS.FORBIDDEN).json({
+            success: false,
+            message: 'Anda hanya dapat mengupdate feedback Anda sendiri'
+          });
+        }
+      } else if (userRole === 'employee') {
+        if (req.user.role_id !== 1 || req.user.division_id !== 1) {
           if (ticket.responsible_employee_id !== userId) {
-            return res.status(403).json({
+            return res.status(HTTP_STATUS.FORBIDDEN).json({
               success: false,
               message: 'Anda tidak memiliki akses untuk mengupdate feedback ini'
             });
@@ -325,7 +328,7 @@ class FeedbackController {
 
     } catch (error) {
       console.error('Error updating feedback:', error);
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Terjadi kesalahan saat mengupdate feedback'
       });

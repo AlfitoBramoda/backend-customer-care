@@ -1,4 +1,5 @@
 const { Op } = require('sequelize');
+const { HTTP_STATUS } = require('../constants/statusCodes');
 
 class ReferenceController {
     constructor(db) {
@@ -37,7 +38,7 @@ class ReferenceController {
                 };
             });
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Channels retrieved successfully",
                 data: enrichedChannels
@@ -82,7 +83,7 @@ class ReferenceController {
                 };
             });
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Complaint categories retrieved successfully",
                 data: enrichedCategories
@@ -169,7 +170,7 @@ class ReferenceController {
                 return acc;
             }, {});
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "SLA data retrieved successfully",
                 summary: {
@@ -236,7 +237,7 @@ class ReferenceController {
                 };
             });
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "UICs retrieved successfully",
                 summary: {
@@ -264,7 +265,7 @@ class ReferenceController {
                 priority_name: priority.priority_name
             }));
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Priorities retrieved successfully",
                 data: enrichedPriorities
@@ -286,7 +287,7 @@ class ReferenceController {
                 source_name: source.source_name
             }));
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Sources retrieved successfully",
                 data: enrichedSources
@@ -415,7 +416,7 @@ class ReferenceController {
             // Pagination metadata
             const totalPages = Math.ceil(totalPolicies / limitNum);
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Policies retrieved successfully",
                 pagination: {

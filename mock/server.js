@@ -1,6 +1,7 @@
 // ===== bootstrap env =====
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+const { HTTP_STATUS } = require('./constants/statusCodes');
 
 const EnvValidator = require('./config/env_validator');
 EnvValidator.validateAndSetDefaults();
@@ -45,7 +46,7 @@ server.use((req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, ngrok-skip-browser-warning');
   
   if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
+    res.sendStatus(HTTP_STATUS.OK);
   } else {
     next();
   }
@@ -126,7 +127,7 @@ server.use('/v1', (req, res, next) => {
   const isCustomRoute = customRoutes.some(route => pathname.startsWith(route));
   
   if (isCustomRoute) {
-    return res.status(404).json({ success: false, message: 'Route handled by custom controller' });
+    return res.status(HTTP_STATUS.NOT_FOUND).json({ success: false, message: 'Route handled by custom controller' });
   }
   
   // Timestamp middleware for json-server routes

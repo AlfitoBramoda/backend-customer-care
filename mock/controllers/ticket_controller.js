@@ -1,4 +1,5 @@
 const { NotFoundError, ForbiddenError, ValidationError, ConflictError } = require('../middlewares/error_handler');
+const { HTTP_STATUS } = require('../constants/statusCodes');
 
 class TicketController {
     constructor(db) {
@@ -107,7 +108,7 @@ class TicketController {
                 this.enrichTicketData(ticket, req.user.role)
             );
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Tickets retrieved successfully',
                 data: enrichedTickets,
@@ -308,7 +309,7 @@ class TicketController {
                 // Check role_id and division_id from JWT token
                 if (req.user.role_id !== 1 || req.user.division_id !== 1) {
                     if (ticket.responsible_employee_id !== req.user.id) {
-                        return res.status(403).json({
+                        return res.status(HTTP_STATUS.FORBIDDEN).json({
                             success: false,
                             message: 'Access denied - you can only view tickets assigned to you'
                         });
@@ -318,7 +319,7 @@ class TicketController {
 
             const detailedTicket = this.getDetailedTicketData(ticket, req.user.role);
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Ticket retrieved successfully',
                 data: detailedTicket
@@ -688,7 +689,7 @@ class TicketController {
             // Return created ticket with enriched data
             const enrichedTicket = this.enrichTicketData(newTicket, 'customer');
 
-            res.status(201).json({
+            res.status(HTTP_STATUS.CREATED).json({
                 success: true,
                 message: 'Ticket created successfully',
                 data: {

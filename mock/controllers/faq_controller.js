@@ -1,3 +1,5 @@
+const { HTTP_STATUS } = require('../constants/statusCodes');
+
 class FAQController {
     constructor(db) {
         this.db = db;
@@ -85,7 +87,7 @@ class FAQController {
             // Pagination metadata
             const totalPages = Math.ceil(totalFAQs / limitNum);
             
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "FAQs retrieved successfully",
                 pagination: {

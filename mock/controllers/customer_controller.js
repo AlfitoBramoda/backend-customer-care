@@ -1,3 +1,5 @@
+const { HTTP_STATUS } = require('../constants/statusCodes');
+
 class CustomerController {
     constructor(db) {
         this.db = db;
@@ -97,7 +99,7 @@ class CustomerController {
             const hasNext = pageNum < totalPages;
             const hasPrev = pageNum > 1;
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Customers retrieved successfully",
                 data: enrichedCustomers,
@@ -127,7 +129,7 @@ class CustomerController {
                 .value();
 
             if (!customer) {
-                return res.status(404).json({
+                return res.status(HTTP_STATUS.NOT_FOUND).json({
                     success: false,
                     message: "Customer not found",
                     error_code: "CUSTOMER_NOT_FOUND"
@@ -216,7 +218,7 @@ class CustomerController {
                 }
             };
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Customer detail retrieved successfully",
                 data: customerDetail
@@ -239,7 +241,7 @@ class CustomerController {
                 .value();
 
             if (!customer) {
-                return res.status(404).json({
+                return res.status(HTTP_STATUS.NOT_FOUND).json({
                     success: false,
                     message: "Customer not found"
                 });
@@ -267,7 +269,7 @@ class CustomerController {
                 })
                 .value();
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Customer accounts retrieved successfully",
                 data: accounts
@@ -290,7 +292,7 @@ class CustomerController {
                 .value();
 
             if (!customer) {
-                return res.status(404).json({
+                return res.status(HTTP_STATUS.NOT_FOUND).json({
                     success: false,
                     message: "Customer not found"
                 });
@@ -319,7 +321,7 @@ class CustomerController {
                 })
                 .value();
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Customer cards retrieved successfully",
                 data: cards

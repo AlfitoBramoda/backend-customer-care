@@ -1,12 +1,14 @@
+const { HTTP_STATUS } = require('../constants/statusCodes');
+
 // HTTP Status Code Messages
 const HTTP_MESSAGES = {
-    400: 'Bad Request',
-    401: 'Unauthorized', 
-    403: 'Forbidden',
-    404: 'Not Found',
-    409: 'Conflict',
-    422: 'Unprocessable Entity',
-    500: 'Internal Server Error'
+    [HTTP_STATUS.BAD_REQUEST]: 'Bad Request',
+    [HTTP_STATUS.UNAUTHORIZED]: 'Unauthorized', 
+    [HTTP_STATUS.FORBIDDEN]: 'Forbidden',
+    [HTTP_STATUS.NOT_FOUND]: 'Not Found',
+    [HTTP_STATUS.CONFLICT]: 'Conflict',
+    [HTTP_STATUS.UNPROCESSABLE_ENTITY]: 'Unprocessable Entity',
+    [HTTP_STATUS.INTERNAL_SERVER_ERROR]: 'Internal Server Error'
 };
 
 // Custom Error Classes
@@ -22,31 +24,31 @@ class AppError extends Error {
 
 class ValidationError extends AppError {
     constructor(message = 'Validation failed') {
-        super(message, 400);
+        super(message, HTTP_STATUS.BAD_REQUEST);
     }
 }
 
 class NotFoundError extends AppError {
     constructor(resource = 'Resource') {
-        super(`${resource} not found`, 404);
+        super(`${resource} not found`, HTTP_STATUS.NOT_FOUND);
     }
 }
 
 class ForbiddenError extends AppError {
     constructor(message = 'Access denied') {
-        super(message, 403);
+        super(message, HTTP_STATUS.FORBIDDEN);
     }
 }
 
 class ConflictError extends AppError {
     constructor(message = 'Resource conflict') {
-        super(message, 409);
+        super(message, HTTP_STATUS.CONFLICT);
     }
 }
 
 class UnauthorizedError extends AppError {
     constructor(message = 'Authentication required') {
-        super(message, 401);
+        super(message, HTTP_STATUS.UNAUTHORIZED);
     }
 }
 
@@ -55,7 +57,7 @@ const errorHandler = (err, req, res, next) => {
     
     // Default to 500 if no status code
     if (!statusCode) {
-        statusCode = 500;
+        statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
     }
     
     // Use custom message or default HTTP message
@@ -65,22 +67,22 @@ const errorHandler = (err, req, res, next) => {
     
     // Handle specific error types
     if (err.name === 'ValidationError') {
-        statusCode = 400;
-        message = err.message || HTTP_MESSAGES[400];
+        statusCode = HTTP_STATUS.BAD_REQUEST;
+        message = err.message || HTTP_MESSAGES[HTTP_STATUS.BAD_REQUEST];
     }
     
     if (err.name === 'JsonWebTokenError') {
-        statusCode = 401;
+        statusCode = HTTP_STATUS.UNAUTHORIZED;
         message = 'Invalid or expired token';
     }
     
     if (err.name === 'TokenExpiredError') {
-        statusCode = 401;
+        statusCode = HTTP_STATUS.UNAUTHORIZED;
         message = 'Token has expired';
     }
     
     if (err.code === 'ENOENT') {
-        statusCode = 404;
+        statusCode = HTTP_STATUS.NOT_FOUND;
         message = 'File not found';
     }
     
