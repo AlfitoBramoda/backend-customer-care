@@ -10,7 +10,7 @@ const swaggerDefinition = {
     contact: { name: 'Tim Backend B-Care', email: 'alfitobramoda@gmail.com' }
   },
   servers: [
-    { url: 'https://275232686ea9.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
+    { url: 'https://c76a9bb1e844.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
     { url: 'https://bcare.my.id/v1', description: 'GCP Server' },
     { url: 'http://localhost:3001/v1', description: 'Development server' },
   ],
@@ -323,6 +323,210 @@ const swaggerDefinition = {
               },
               content: { type: 'string', example: 'Customer provided additional information about the issue' },
               ticket_activity_time: { type: 'string', format: 'date-time', example: '2024-01-15T10:30:00.000Z' }
+            }
+          }
+        }
+      },
+
+      // Update Ticket Schemas
+      UpdateTicketRequestCXCAgent: {
+        type: 'object',
+        description: 'Complete update request body for CXC Agent (role_id=1, division_id=1) - can update all fields',
+        properties: {
+          description: {
+            type: 'string',
+            example: 'Nasabah mengalami masalah kartu tertelan di ATM BNI Cabang Jakarta Pusat',
+            description: 'Updated ticket description (CXC Agent only)'
+          },
+          record: {
+            type: 'string',
+            example: 'REC-2025-001234',
+            description: 'Updated record information (CXC Agent only)'
+          },
+          customer_status: {
+            type: 'string',
+            enum: ['ACC', 'VERIF', 'PROCESS', 'CLOSED', 'DECLINED', 'RESOLVED'],
+            example: 'PROCESS',
+            description: 'Customer status code'
+          },
+          employee_status: {
+            type: 'string',
+            enum: ['OPEN', 'HANDLEDCXC', 'ESCALATED', 'CLOSED', 'DECLINED', 'RESOLVED'],
+            example: 'HANDLEDCXC',
+            description: 'Employee status code'
+          },
+          priority: {
+            type: 'string',
+            enum: ['CRITICAL', 'HIGH', 'REGULAR'],
+            example: 'HIGH',
+            description: 'Priority level (CXC Agent only)'
+          },
+          responsible_employee_id: {
+            type: 'integer',
+            example: 5,
+            description: 'ID of responsible employee (CXC Agent only)'
+          },
+          division_notes: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                division: { type: 'string', example: 'CXC' },
+                timestamp: { type: 'string', example: '21/08/2025' },
+                msg: { type: 'string', example: 'Ticket sudah diverifikasi dan sedang dalam proses penanganan' },
+                author: { type: 'string', example: 'Agent CXC' }
+              }
+            },
+            example: [{
+              division: 'CXC',
+              timestamp: '21/08/2025',
+              msg: 'Ticket sudah diverifikasi dan sedang dalam proses penanganan',
+              author: 'Agent CXC'
+            }],
+            description: 'Division notes array'
+          },
+          transaction_date: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-08-20T10:30:00.000Z',
+            description: 'Transaction date (CXC Agent only)'
+          },
+          amount: {
+            type: 'number',
+            format: 'float',
+            example: 500000,
+            description: 'Transaction amount (CXC Agent only)'
+          },
+          related_account_id: {
+            type: 'integer',
+            example: 12345,
+            description: 'Related account ID (CXC Agent only)'
+          },
+          related_card_id: {
+            type: 'integer',
+            example: 67890,
+            description: 'Related card ID (CXC Agent only)'
+          },
+          terminal_id: {
+            type: 'integer',
+            example: 98765,
+            description: 'Terminal ID (CXC Agent only)'
+          },
+          reason: {
+            type: 'string',
+            example: 'Kartu tertelan karena kesalahan sistem ATM',
+            description: 'Reason for the issue'
+          },
+          solution: {
+            type: 'string',
+            example: 'Kartu akan dikembalikan dalam 3 hari kerja, sementara nasabah dapat menggunakan mobile banking',
+            description: 'Solution provided'
+          }
+        }
+      },
+      UpdateTicketRequestRegularEmployee: {
+        type: 'object',
+        description: 'Limited update request body for Regular Employee (non-CXC) - can only update assigned tickets with limited fields',
+        properties: {
+          customer_status: {
+            type: 'string',
+            enum: ['ACC', 'VERIF', 'PROCESS', 'CLOSED', 'DECLINED', 'RESOLVED'],
+            example: 'PROCESS',
+            description: 'Customer status code'
+          },
+          employee_status: {
+            type: 'string',
+            enum: ['OPEN', 'HANDLEDCXC', 'ESCALATED', 'CLOSED', 'DECLINED', 'RESOLVED'],
+            example: 'ESCALATED',
+            description: 'Employee status code'
+          },
+          division_notes: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                division: { type: 'string', example: 'OPR' },
+                timestamp: { type: 'string', example: '21/08/2025' },
+                msg: { type: 'string', example: 'Proses refund sudah dijalankan, menunggu konfirmasi sistem' },
+                author: { type: 'string', example: 'Budi' }
+              }
+            },
+            example: [{
+              division: 'OPR',
+              timestamp: '21/08/2025',
+              msg: 'Proses refund sudah dijalankan, menunggu konfirmasi sistem',
+              author: 'Budi'
+            }],
+            description: 'Division notes array'
+          },
+          reason: {
+            type: 'string',
+            example: 'Sistem mengalami gangguan sementara',
+            description: 'Reason for the issue'
+          },
+          solution: {
+            type: 'string',
+            example: 'Refund akan diproses dalam 1x24 jam',
+            description: 'Solution provided'
+          }
+        }
+      },
+      UpdateTicketResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Ticket updated successfully' },
+          data: {
+            type: 'object',
+            properties: {
+              ticket_id: { type: 'integer', example: 42 },
+              ticket_number: { type: 'string', example: 'BNI-202508200008' },
+              description: { type: 'string', example: 'Nasabah mengalami masalah kartu tertelan di ATM BNI Cabang Jakarta Pusat' },
+              record: { type: 'string', example: 'REC-2025-001234' },
+              customer_status: {
+                type: 'object',
+                properties: {
+                  customer_status_id: { type: 'integer', example: 3 },
+                  customer_status_name: { type: 'string', example: 'Process' },
+                  customer_status_code: { type: 'string', example: 'PROCESS' }
+                }
+              },
+              employee_status: {
+                type: 'object',
+                properties: {
+                  employee_status_id: { type: 'integer', example: 2 },
+                  employee_status_name: { type: 'string', example: 'Handled by CXC' },
+                  employee_status_code: { type: 'string', example: 'HANDLEDCXC' }
+                }
+              },
+              priority: {
+                type: 'object',
+                properties: {
+                  priority_id: { type: 'integer', example: 2 },
+                  priority_name: { type: 'string', example: 'High Priority' },
+                  priority_code: { type: 'string', example: 'HIGH' }
+                }
+              },
+              responsible_employee: {
+                type: 'object',
+                nullable: true,
+                properties: {
+                  employee_id: { type: 'integer', example: 5 },
+                  full_name: { type: 'string', example: 'Ahmad Supervisor' },
+                  npp: { type: 'string', example: 'EMP00005' }
+                }
+              },
+              division_notes: { type: 'string', example: '[{"division":"CXC","timestamp":"21/08/2025","msg":"Ticket sudah diverifikasi dan sedang dalam proses penanganan","author":"Agent CXC"}]' },
+              transaction_date: { type: 'string', format: 'date-time', example: '2025-08-20T10:30:00.000Z' },
+              amount: { type: 'number', example: 500000 },
+              related_account_id: { type: 'integer', example: 12345 },
+              related_card_id: { type: 'integer', example: 67890 },
+              terminal_id: { type: 'integer', example: 98765 },
+              reason: { type: 'string', example: 'Kartu tertelan karena kesalahan sistem ATM' },
+              solution: { type: 'string', example: 'Kartu akan dikembalikan dalam 3 hari kerja, sementara nasabah dapat menggunakan mobile banking' },
+              created_time: { type: 'string', format: 'date-time', example: '2025-08-20T12:34:49.081Z' },
+              closed_time: { type: 'string', format: 'date-time', nullable: true, example: null },
+              committed_due_at: { type: 'string', format: 'date-time', example: '2025-08-25T12:34:49.081Z' }
             }
           }
         }
@@ -979,47 +1183,162 @@ const swaggerPaths = {
     patch: {
       tags: ['Tickets'],
       summary: 'Update ticket (Employee only)',
-      description: 'Role-based updatability.',
+      description: 'Update ticket with role-based field access. CXC Agents can update all fields, Regular Employees can only update limited fields on assigned tickets.',
       security: [{ bearerAuth: [] }],
       parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Ticket ID' }],
       requestBody: {
         required: true,
-        content: { 'application/json': { schema: {
-          type: 'object',
-          description: 'Fields vary by employee role',
-          properties: {
-            description: { type: 'string', example: 'Updated ticket description' },
-            record: { type: 'string', example: 'Additional record information' },
-            customer_status: { type: 'string', enum: ['ACC', 'VERIF', 'PROCESS', 'CLOSED', 'DECLINED'], example: 'PROCESS' },
-            employee_status: { type: 'string', enum: ['OPEN', 'HANDLEDCXC', 'ESCALATED', 'CLOSED', 'DECLINED'], example: 'HANDLEDCXC' },
-            priority: { type: 'string', enum: ['CRITICAL', 'HIGH', 'REGULAR'], example: 'HIGH' },
-            responsible_employee_id: { type: 'integer', example: 2 },
-            division_notes: { type: 'string', example: 'Escalated to technical team for further investigation' },
-            transaction_date: { type: 'string', format: 'date-time', example: '2025-01-15T14:30:00Z' },
-            amount: { type: 'number', format: 'float', example: 750000 },
-            related_account_id: { type: 'integer', example: 2 },
-            related_card_id: { type: 'integer', example: 2 },
-            terminal_id: { type: 'integer', example: 2 },
-          },
-        } } },
+        content: {
+          'application/json': {
+            schema: {
+              oneOf: [
+                { $ref: '#/components/schemas/UpdateTicketRequestCXCAgent' },
+                { $ref: '#/components/schemas/UpdateTicketRequestRegularEmployee' }
+              ]
+            },
+            examples: {
+              cxc_agent_full_update: {
+                summary: 'CXC Agent - Complete Update (All Fields)',
+                description: 'CXC Agent (role_id=1, division_id=1) can update all fields',
+                value: {
+                  description: 'Nasabah mengalami masalah kartu tertelan di ATM BNI Cabang Jakarta Pusat',
+                  record: 'REC-2025-001234',
+                  customer_status: 'PROCESS',
+                  employee_status: 'HANDLEDCXC',
+                  priority: 'HIGH',
+                  responsible_employee_id: 5,
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Ticket sudah diverifikasi dan sedang dalam proses penanganan',
+                    author: 'Agent CXC'
+                  }],
+                  transaction_date: '2025-08-20T10:30:00.000Z',
+                  amount: 500000,
+                  related_account_id: 12345,
+                  related_card_id: 67890,
+                  terminal_id: 98765,
+                  reason: 'Kartu tertelan karena kesalahan sistem ATM',
+                  solution: 'Kartu akan dikembalikan dalam 3 hari kerja, sementara nasabah dapat menggunakan mobile banking'
+                }
+              },
+              cxc_agent_status_only: {
+                summary: 'CXC Agent - Status Update Only',
+                description: 'CXC Agent updating only status fields',
+                value: {
+                  customer_status: 'CLOSED',
+                  employee_status: 'RESOLVED',
+                  solution: 'Masalah telah diselesaikan, kartu sudah dikembalikan ke nasabah'
+                }
+              },
+              regular_employee_update: {
+                summary: 'Regular Employee - Limited Update',
+                description: 'Regular Employee (non-CXC) can only update limited fields on assigned tickets',
+                value: {
+                  customer_status: 'PROCESS',
+                  employee_status: 'ESCALATED',
+                  division_notes: [{
+                    division: 'OPR',
+                    timestamp: '21/08/2025',
+                    msg: 'Proses refund sudah dijalankan, menunggu konfirmasi sistem',
+                    author: 'Budi'
+                  }],
+                  reason: 'Sistem mengalami gangguan sementara',
+                  solution: 'Refund akan diproses dalam 1x24 jam'
+                }
+              },
+              status_change_with_notes: {
+                summary: 'Status Change with Division Notes',
+                description: 'Update status and add division notes',
+                value: {
+                  employee_status: 'ESCALATED',
+                  division_notes: [{
+                    division: 'TBS',
+                    timestamp: '21/08/2025',
+                    msg: 'Koordinasi dengan tim teknis untuk penyelesaian masalah',
+                    author: 'Ahmad'
+                  }]
+                }
+              },
+              close_ticket: {
+                summary: 'Close Ticket with Solution',
+                description: 'Close ticket with final solution (auto-sets closed_time)',
+                value: {
+                  customer_status: 'RESOLVED',
+                  employee_status: 'CLOSED',
+                  solution: 'Masalah telah diselesaikan sepenuhnya. Kartu baru telah diterbitkan dan dikirim ke alamat nasabah.',
+                  reason: 'Kartu lama rusak dan perlu diganti'
+                }
+              }
+            }
+          }
+        }
       },
       responses: {
         '200': {
-          description: 'Updated',
-          content: { 'application/json': { schema: {
-            type: 'object',
-            properties: {
-              success: { type: 'boolean', example: true },
-              message: { type: 'string', example: 'Ticket updated successfully' },
-              data: { type: 'object', description: 'Updated ticket data' },
-            },
-          } } },
+          description: 'Ticket updated successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateTicketResponse' } } }
         },
-        '400': { description: 'Bad request', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-        '403': { description: 'Forbidden', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-        '404': { description: 'Not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-      },
+        '400': {
+          description: 'Bad request - Invalid status codes, employee ID, or validation errors',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          examples: {
+            invalid_status: {
+              summary: 'Invalid Status Code',
+              value: {
+                success: false,
+                message: 'Invalid customer_status code'
+              }
+            },
+            invalid_employee: {
+              summary: 'Invalid Employee ID',
+              value: {
+                success: false,
+                message: 'Invalid responsible_employee_id'
+              }
+            }
+          }
+        },
+        '401': {
+          description: 'Unauthorized - No token provided or invalid token',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Access denied based on role or ticket assignment',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          examples: {
+            customer_access: {
+              summary: 'Customer Cannot Update',
+              value: {
+                success: false,
+                message: 'Customers cannot update tickets'
+              }
+            },
+            not_assigned: {
+              summary: 'Not Assigned to Employee',
+              value: {
+                success: false,
+                message: 'Access denied - you can only update tickets assigned to you'
+              }
+            },
+            limited_fields: {
+              summary: 'Non-CXC Limited Fields',
+              value: {
+                success: false,
+                message: 'Non-CXC employees can only update: customer_status, employee_status, division_notes'
+              }
+            }
+          }
+        },
+        '404': {
+          description: 'Ticket not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '419': {
+          description: 'Token expired - Please refresh session',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } }
+        }
+      }
     },
     delete: {
       tags: ['Tickets'],
