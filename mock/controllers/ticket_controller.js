@@ -273,12 +273,27 @@ class TicketController {
                     source_code: source.source_code
                 } : null,
                 
-                policy: policy ? {
-                    policy_id: policy.policy_id,
-                    sla_days: policy.sla,
-                    sla_hours: policy.sla * 24,
-                    uic_id: policy.uic_id
-                } : null,
+                policy: policy ? (() => {
+                    const policyData = {
+                        policy_id: policy.policy_id,
+                        sla_days: policy.sla,
+                        sla_hours: policy.sla * 24,
+                        uic_id: policy.uic_id
+                    };
+                    
+                    if (policy.uic_id) {
+                        const division = this.db.get('division')
+                            .find({ division_id: policy.uic_id })
+                            .value();
+                        
+                        if (division) {
+                            policyData.uic_code = division.division_code;
+                            policyData.uic_name = division.division_name;
+                        }
+                    }
+                    
+                    return policyData;
+                })() : null,
                 
                 committed_due_at: ticket.committed_due_at,
                 division_notes: ticket.division_notes,
@@ -536,11 +551,26 @@ class TicketController {
                     source_code: source.source_code
                 } : null,
                 
-                policy: policy ? {
-                    policy_id: policy.policy_id,
-                    sla: policy.sla,
-                    uic_id: policy.uic_id
-                } : null,
+                policy: policy ? (() => {
+                    const policyData = {
+                        policy_id: policy.policy_id,
+                        sla: policy.sla,
+                        uic_id: policy.uic_id
+                    };
+                    
+                    if (policy.uic_id) {
+                        const division = this.db.get('division')
+                            .find({ division_id: policy.uic_id })
+                            .value();
+                        
+                        if (division) {
+                            policyData.uic_code = division.division_code;
+                            policyData.uic_name = division.division_name;
+                        }
+                    }
+                    
+                    return policyData;
+                })() : null,
                 
                 committed_due_at: ticket.committed_due_at,
                 division_notes: this.parseDivisionNotes(ticket.division_notes),

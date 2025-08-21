@@ -3006,6 +3006,32 @@
       "division_notes": null,
       "delete_at": null,
       "delete_by": null
+    },
+    {
+      "ticket_id": 45,
+      "ticket_number": "BNI-202508210002",
+      "description": "whhababaha",
+      "record": "",
+      "customer_id": 1,
+      "customer_status_id": 1,
+      "employee_status_id": 1,
+      "priority_id": 3,
+      "issue_channel_id": 4,
+      "intake_source_id": 2,
+      "related_account_id": null,
+      "related_card_id": null,
+      "complaint_id": 1,
+      "responsible_employee_id": null,
+      "policy_id": 85,
+      "committed_due_at": "2025-09-30T02:32:15.944Z",
+      "transaction_date": null,
+      "amount": null,
+      "terminal_id": null,
+      "created_time": "2025-08-21T02:32:15.944Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
     }
   ],
   "ticket_activity": [
@@ -3525,6 +3551,15 @@
       "sender_id": 1,
       "content": "Ticket created: Hhhhhhhhhhhh",
       "ticket_activity_time": "2025-08-21T01:54:10.081Z"
+    },
+    {
+      "ticket_activity_id": 58,
+      "ticket_id": 45,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 1,
+      "content": "Ticket created: whhababaha",
+      "ticket_activity_time": "2025-08-21T02:32:15.948Z"
     }
   ],
   "attachment": [
