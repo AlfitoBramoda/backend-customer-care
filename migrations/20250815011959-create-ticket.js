@@ -194,13 +194,23 @@ module.exports = {
         comment: 'Employee who performed soft delete'
       },
 
-      // tambahan field record 
+      // tambahan field record, reason, and solution
       record: {
         type: Sequelize.TEXT,
         allowNull: true,
         defaultValue: null
       },
-      
+      reason: {
+        type: Sequelize.TEXT,
+        allowNull: true,    
+        defaultValue: null
+      },
+      solution: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+        defaultValue: null
+      },
+
       // Sequelize timestamps
       created_at: {
         allowNull: false,

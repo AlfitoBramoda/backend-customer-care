@@ -154,6 +154,8 @@ module.exports = (sequelize, DataTypes) => {
     closed_time: DataTypes.DATE,
     division_notes: DataTypes.JSON,
     record: DataTypes.TEXT,
+    reason: DataTypes.TEXT,
+    solution: DataTypes.TEXT,
     delete_at: {
       type: DataTypes.DATE,
       allowNull: true
