@@ -740,17 +740,48 @@ class TicketController {
     }
 
     resolvePolicy(complaintId, channelId) {
-        // Find policy based on complaint and channel
-        const policy = this.db.get('complaint_policy')
-            .find(p => p.complaint_id === complaintId && p.channel_id === channelId)
+        // Get all matching policies
+        const policies = this.db.get('complaint_policy')
+            .filter(p => p.complaint_id === complaintId && p.channel_id === channelId)
             .value();
         
-        if (policy) return policy;
+        if (policies.length === 0) {
+            // Fallback: find by complaint only
+            return this.db.get('complaint_policy')
+                .find({ complaint_id: complaintId })
+                .value();
+        }
         
-        // Fallback: find policy by complaint only
-        return this.db.get('complaint_policy')
-            .find({ complaint_id: complaintId })
-            .value();
+        if (policies.length === 1) {
+            return policies[0];
+        }
+        
+        // SMART SELECTION for multiple policies
+        return this.selectBestPolicy(policies, complaintId, channelId);
+    }
+
+    selectBestPolicy(policies, complaintId, channelId) {
+        // Rule 1: Prioritize by SLA (shortest = most critical)
+        const shortestSLA = Math.min(...policies.map(p => p.sla));
+        let candidates = policies.filter(p => p.sla === shortestSLA);
+        
+        if (candidates.length === 1) return candidates[0];
+        
+        // Rule 2: Prioritize specific descriptions over generic
+        const specificKeywords = ['BNI', 'Bank Lain', 'ATM BNI', 'ATM Bank Lain'];
+        const specificPolicy = candidates.find(p => 
+            specificKeywords.some(keyword => p.description.includes(keyword))
+        );
+        
+        if (specificPolicy) return specificPolicy;
+        
+        // Rule 3: Prioritize by UIC (lower UIC = more specialized)
+        candidates.sort((a, b) => a.uic_id - b.uic_id);
+        
+        // Rule 4: Log for monitoring
+        console.warn(`Multiple policies found for channel ${channelId} + complaint ${complaintId}. Selected policy ${candidates[0].policy_id}`);
+        
+        return candidates[0];
     }
 
     generateTicketNumber() {
