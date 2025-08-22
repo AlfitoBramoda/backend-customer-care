@@ -741,13 +741,10 @@ class TicketController {
             });
 
         } catch (error) {
-            if (!transaction.finished) {
-                await transaction.rollback();
-            }
-            console.log('Create ticket error details:', error.original);
-            console.log('Error message:', error.message);
+            await transaction.rollback();
             next(error);
         }
+
     }
 
     async resolvePolicy(complaintId, channelId) {
