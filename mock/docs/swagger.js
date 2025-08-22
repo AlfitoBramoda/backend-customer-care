@@ -10,7 +10,7 @@ const swaggerDefinition = {
     contact: { name: 'Tim Backend B-Care', email: 'alfitobramoda@gmail.com' }
   },
   servers: [
-    { url: 'https://2ac77297606f.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
+    { url: 'https://8fc9f60f4dbd.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
     { url: 'https://bcare.my.id/v1', description: 'GCP Server' },
     { url: 'http://localhost:3001/v1', description: 'Development server' },
   ],
@@ -1109,6 +1109,7 @@ const swaggerPaths = {
                   complaint_id: 2,
                   customer_id: 5,
                   priority_id: 1,
+                  committed_due_at: null,
                   division_notes: [{
                     division: 'CXC',
                     timestamp: '21/08/2025',
@@ -1128,6 +1129,7 @@ const swaggerPaths = {
                   customer_id: 5,
                   priority_id: 3,
                   solution: 'PIN reset completed, customer can now access account',
+                  committed_due_at: null,
                   division_notes: [{
                     division: 'CXC',
                     timestamp: '21/08/2025',
@@ -1155,6 +1157,7 @@ const swaggerPaths = {
                   priority_id: 1,
                   reason: 'System timeout during transaction processing',
                   solution: 'Manual reversal initiated, funds will be credited within 24 hours',
+                  committed_due_at: null,
                   division_notes: [{
                     division: 'CXC',
                     timestamp: '21/08/2025',
@@ -1238,8 +1241,14 @@ const swaggerPaths = {
                 description: 'CXC agent escalates ticket - sets PROCESS/ESCALATED status with full field updates',
                 value: {
                   action: 'ESCALATED',
-                  priority_id: 1,
+                  priority_id: 3,
                   record: 'REC-2025-001234',
+                  issue_channel_id: 1,
+                  intake_source_id: 1,
+                  complaint_id: 31,
+                  amount: 50000,
+                  transaction_date: '2025-01-15T14:30:00Z',
+                  terminal_id: 1,
                   description: 'Complex technical issue requiring specialist attention',
                   division_notes: [{
                     division: 'CXC',
@@ -1254,11 +1263,20 @@ const swaggerPaths = {
                 description: 'CXC agent closes ticket - sets CLOSED/CLOSED status with solution and auto-sets closed_time',
                 value: {
                   action: 'CLOSED',
-                  solution: 'Issue resolved - card returned to customer',
+                  priority_id: 3,
+                  record: 'REC-2025-001234',
+                  issue_channel_id: 1,
+                  intake_source_id: 1,
+                  complaint_id: 31,
+                  amount: 50000,
+                  transaction_date: '2025-01-15T14:30:00Z',
+                  terminal_id: 1,
+                  description: 'Complex technical issue requiring specialist attention',
+                  solution: 'Technical issue resolved, customer notified',
                   division_notes: [{
                     division: 'CXC',
                     timestamp: '21/08/2025',
-                    msg: 'Ticket resolved successfully',
+                    msg: 'Escalated to technical team due to complexity',
                     author: 'Agent CXC'
                   }]
                 }
@@ -1268,11 +1286,20 @@ const swaggerPaths = {
                 description: 'CXC agent declines ticket - sets DECLINED/DECLINED status with reason',
                 value: {
                   action: 'DECLINED',
-                  reason: 'Request does not meet policy requirements',
+                  priority_id: 3,
+                  record: 'REC-2025-001234',
+                  issue_channel_id: 1,
+                  intake_source_id: 1,
+                  complaint_id: 31,
+                  amount: 50000,
+                  transaction_date: '2025-01-15T14:30:00Z',
+                  terminal_id: 1,
+                  description: 'Complex technical issue requiring specialist attention',
+                  reason: 'Tidak Masuk Akal',
                   division_notes: [{
                     division: 'CXC',
                     timestamp: '21/08/2025',
-                    msg: 'Ticket declined - insufficient documentation',
+                    msg: 'Escalated to technical team due to complexity',
                     author: 'Agent CXC'
                   }]
                 }

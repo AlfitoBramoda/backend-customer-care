@@ -30,7 +30,7 @@ class AuthController {
         this.jwtConfig = {
             secret: process.env.JWT_SECRET,
             refreshSecret: process.env.JWT_REFRESH_SECRET,
-            expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+            expiresIn: process.env.JWT_EXPIRES_IN || '60m',
             refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
             issuer: process.env.JWT_ISSUER || 'bcare-api',
             audience: process.env.JWT_AUDIENCE || 'bcare-client'

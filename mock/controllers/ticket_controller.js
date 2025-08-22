@@ -25,9 +25,6 @@ class TicketController {
                 date_to,
                 search
             } = req.query;
-            
-            console.log(req.user);
-            
 
             // Get all tickets from database
             let tickets = this.db.get('ticket').value();
@@ -59,8 +56,6 @@ class TicketController {
                         
                         return policy?.uic_id == req.user.division_id;
                     });
-
-                    console.log(tickets);
                     
                 }
             }
@@ -774,6 +769,8 @@ class TicketController {
                 division_notes,
                 reason,
                 solution,
+                committed_due_at,
+                policy_id
             } = req.body;
 
             // Validation
@@ -833,9 +830,6 @@ class TicketController {
             // Generate ticket number
             const ticketNumber = this.generateTicketNumber();
             
-            // Calculate SLA due date
-            const committedDueAt = this.calculateSLADueDate(policy?.sla || 1);
-            
             // Get statuses (default or employee-specified)
             let customerStatus, employeeStatus;
             
@@ -888,7 +882,7 @@ class TicketController {
                 complaint_id: parseInt(complaint_id),
                 responsible_employee_id: !action ? null : req.user.id, // Will be assigned later
                 policy_id: policy?.policy_id || null,
-                committed_due_at: committedDueAt,
+                committed_due_at: committed_due_at,
                 transaction_date: transaction_date || null,
                 amount: amount || null,
                 terminal_id: terminal_id ? parseInt(terminal_id) : null,
@@ -931,7 +925,7 @@ class TicketController {
                     ticket_id: newTicket.ticket_id,
                     record: newTicket.record,
                     sla_info: {
-                        committed_due_at: committedDueAt,
+                        committed_due_at: committed_due_at,
                         sla_days: policy?.sla || 1,
                         sla_hours: (policy?.sla || 1) * 24
                     }
