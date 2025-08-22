@@ -329,42 +329,62 @@ const swaggerDefinition = {
       },
 
       // Update Ticket Schemas
-      UpdateTicketRequestCXCAgent: {
+      UpdateTicketRequest: {
         type: 'object',
-        description: 'Complete update request body for CXC Agent (role_id=1, division_id=1) - can update all fields',
+        description: 'Update ticket request with action-based workflow',
         properties: {
-          description: {
+          action: {
             type: 'string',
-            example: 'Nasabah mengalami masalah kartu tertelan di ATM BNI Cabang Jakarta Pusat',
-            description: 'Updated ticket description (CXC Agent only)'
+            enum: ['HANDLEDCXC', 'ESCALATED', 'CLOSED', 'DECLINED', 'DONE_BY_UIC'],
+            description: 'Action to perform on ticket. Determines status changes and field updates.',
+            example: 'HANDLEDCXC'
+          },
+          priority_id: {
+            type: 'integer',
+            example: 2,
+            description: 'Priority ID (1=Critical, 2=High, 3=Regular)'
           },
           record: {
             type: 'string',
             example: 'REC-2025-001234',
-            description: 'Updated record information (CXC Agent only)'
+            description: 'Record information'
           },
-          customer_status: {
-            type: 'string',
-            enum: ['ACC', 'VERIF', 'PROCESS', 'CLOSED', 'DECLINED', 'RESOLVED'],
-            example: 'PROCESS',
-            description: 'Customer status code'
-          },
-          employee_status: {
-            type: 'string',
-            enum: ['OPEN', 'HANDLEDCXC', 'ESCALATED', 'CLOSED', 'DECLINED', 'RESOLVED'],
-            example: 'HANDLEDCXC',
-            description: 'Employee status code'
-          },
-          priority: {
-            type: 'string',
-            enum: ['CRITICAL', 'HIGH', 'REGULAR'],
-            example: 'HIGH',
-            description: 'Priority level (CXC Agent only)'
-          },
-          responsible_employee_id: {
+          issue_channel_id: {
             type: 'integer',
-            example: 5,
-            description: 'ID of responsible employee (CXC Agent only)'
+            example: 1,
+            description: 'Issue channel ID'
+          },
+          intake_source_id: {
+            type: 'integer',
+            example: 1,
+            description: 'Intake source ID'
+          },
+          amount: {
+            type: 'number',
+            format: 'float',
+            example: 500000,
+            description: 'Transaction amount'
+          },
+          complaint_id: {
+            type: 'integer',
+            example: 1,
+            description: 'Complaint category ID'
+          },
+          transaction_date: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-08-20T10:30:00.000Z',
+            description: 'Transaction date'
+          },
+          terminal_id: {
+            type: 'integer',
+            example: 98765,
+            description: 'Terminal ID'
+          },
+          description: {
+            type: 'string',
+            example: 'Updated ticket description',
+            description: 'Ticket description'
           },
           division_notes: {
             type: 'array',
@@ -373,100 +393,20 @@ const swaggerDefinition = {
               properties: {
                 division: { type: 'string', example: 'CXC' },
                 timestamp: { type: 'string', example: '21/08/2025' },
-                msg: { type: 'string', example: 'Ticket sudah diverifikasi dan sedang dalam proses penanganan' },
-                author: { type: 'string', example: 'Agent CXC' }
+                msg: { type: 'string', example: 'Ticket update notes' },
+                author: { type: 'string', example: 'Agent Name' }
               }
             },
-            example: [{
-              division: 'CXC',
-              timestamp: '21/08/2025',
-              msg: 'Ticket sudah diverifikasi dan sedang dalam proses penanganan',
-              author: 'Agent CXC'
-            }],
-            description: 'Division notes array'
-          },
-          transaction_date: {
-            type: 'string',
-            format: 'date-time',
-            example: '2025-08-20T10:30:00.000Z',
-            description: 'Transaction date (CXC Agent only)'
-          },
-          amount: {
-            type: 'number',
-            format: 'float',
-            example: 500000,
-            description: 'Transaction amount (CXC Agent only)'
-          },
-          related_account_id: {
-            type: 'integer',
-            example: 12345,
-            description: 'Related account ID (CXC Agent only)'
-          },
-          related_card_id: {
-            type: 'integer',
-            example: 67890,
-            description: 'Related card ID (CXC Agent only)'
-          },
-          terminal_id: {
-            type: 'integer',
-            example: 98765,
-            description: 'Terminal ID (CXC Agent only)'
-          },
-          reason: {
-            type: 'string',
-            example: 'Kartu tertelan karena kesalahan sistem ATM',
-            description: 'Reason for the issue'
-          },
-          solution: {
-            type: 'string',
-            example: 'Kartu akan dikembalikan dalam 3 hari kerja, sementara nasabah dapat menggunakan mobile banking',
-            description: 'Solution provided'
-          }
-        }
-      },
-      UpdateTicketRequestRegularEmployee: {
-        type: 'object',
-        description: 'Limited update request body for Regular Employee (non-CXC) - can only update assigned tickets with limited fields',
-        properties: {
-          customer_status: {
-            type: 'string',
-            enum: ['ACC', 'VERIF', 'PROCESS', 'CLOSED', 'DECLINED', 'RESOLVED'],
-            example: 'PROCESS',
-            description: 'Customer status code'
-          },
-          employee_status: {
-            type: 'string',
-            enum: ['OPEN', 'HANDLEDCXC', 'ESCALATED', 'CLOSED', 'DECLINED', 'RESOLVED'],
-            example: 'ESCALATED',
-            description: 'Employee status code'
-          },
-          division_notes: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                division: { type: 'string', example: 'OPR' },
-                timestamp: { type: 'string', example: '21/08/2025' },
-                msg: { type: 'string', example: 'Proses refund sudah dijalankan, menunggu konfirmasi sistem' },
-                author: { type: 'string', example: 'Budi' }
-              }
-            },
-            example: [{
-              division: 'OPR',
-              timestamp: '21/08/2025',
-              msg: 'Proses refund sudah dijalankan, menunggu konfirmasi sistem',
-              author: 'Budi'
-            }],
             description: 'Division notes array'
           },
           reason: {
             type: 'string',
-            example: 'Sistem mengalami gangguan sementara',
+            example: 'Root cause of the issue',
             description: 'Reason for the issue'
           },
           solution: {
             type: 'string',
-            example: 'Refund akan diproses dalam 1x24 jam',
+            example: 'Solution provided to resolve the issue',
             description: 'Solution provided'
           }
         }
@@ -1265,91 +1205,89 @@ const swaggerPaths = {
     patch: {
       tags: ['Tickets'],
       summary: 'Update ticket (Employee only)',
-      description: 'Update ticket with role-based field access. CXC Agents can update all fields, Regular Employees can only update limited fields on assigned tickets.',
+      description: 'Update ticket using action-based workflow. Different actions trigger different status changes and field updates. CXC agents can use all actions, non-CXC employees can only use DONE_BY_UIC action.',
       security: [{ bearerAuth: [] }],
       parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Ticket ID' }],
       requestBody: {
         required: true,
         content: {
           'application/json': {
-            schema: {
-              oneOf: [
-                { $ref: '#/components/schemas/UpdateTicketRequestCXCAgent' },
-                { $ref: '#/components/schemas/UpdateTicketRequestRegularEmployee' }
-              ]
-            },
+            schema: { $ref: '#/components/schemas/UpdateTicketRequest' },
             examples: {
-              cxc_agent_full_update: {
-                summary: 'CXC Agent - Complete Update (All Fields)',
-                description: 'CXC Agent (role_id=1, division_id=1) can update all fields',
+              notes_only: {
+                summary: 'Update Division Notes Only',
+                description: 'Update without action - only adds division notes',
                 value: {
-                  description: 'Nasabah mengalami masalah kartu tertelan di ATM BNI Cabang Jakarta Pusat',
-                  record: 'REC-2025-001234',
-                  customer_status: 'PROCESS',
-                  employee_status: 'HANDLEDCXC',
-                  priority: 'HIGH',
-                  responsible_employee_id: 5,
                   division_notes: [{
                     division: 'CXC',
                     timestamp: '21/08/2025',
-                    msg: 'Ticket sudah diverifikasi dan sedang dalam proses penanganan',
+                    msg: 'Additional information gathered from customer',
                     author: 'Agent CXC'
-                  }],
-                  transaction_date: '2025-08-20T10:30:00.000Z',
-                  amount: 500000,
-                  related_account_id: 12345,
-                  related_card_id: 67890,
-                  terminal_id: 98765,
-                  reason: 'Kartu tertelan karena kesalahan sistem ATM',
-                  solution: 'Kartu akan dikembalikan dalam 3 hari kerja, sementara nasabah dapat menggunakan mobile banking'
-                }
-              },
-              cxc_agent_status_only: {
-                summary: 'CXC Agent - Status Update Only',
-                description: 'CXC Agent updating only status fields',
-                value: {
-                  customer_status: 'CLOSED',
-                  employee_status: 'RESOLVED',
-                  solution: 'Masalah telah diselesaikan, kartu sudah dikembalikan ke nasabah'
-                }
-              },
-              regular_employee_update: {
-                summary: 'Regular Employee - Limited Update',
-                description: 'Regular Employee (non-CXC) can only update limited fields on assigned tickets',
-                value: {
-                  customer_status: 'PROCESS',
-                  employee_status: 'ESCALATED',
-                  division_notes: [{
-                    division: 'OPR',
-                    timestamp: '21/08/2025',
-                    msg: 'Proses refund sudah dijalankan, menunggu konfirmasi sistem',
-                    author: 'Budi'
-                  }],
-                  reason: 'Sistem mengalami gangguan sementara',
-                  solution: 'Refund akan diproses dalam 1x24 jam'
-                }
-              },
-              status_change_with_notes: {
-                summary: 'Status Change with Division Notes',
-                description: 'Update status and add division notes',
-                value: {
-                  employee_status: 'ESCALATED',
-                  division_notes: [{
-                    division: 'TBS',
-                    timestamp: '21/08/2025',
-                    msg: 'Koordinasi dengan tim teknis untuk penyelesaian masalah',
-                    author: 'Ahmad'
                   }]
                 }
               },
-              close_ticket: {
-                summary: 'Close Ticket with Solution',
-                description: 'Close ticket with final solution (auto-sets closed_time)',
+              handledcxc: {
+                summary: 'CXC Agent Handles Ticket (HANDLEDCXC)',
+                description: 'CXC agent takes ownership - sets VERIF/HANDLEDCXC status and assigns to agent',
                 value: {
-                  customer_status: 'RESOLVED',
-                  employee_status: 'CLOSED',
-                  solution: 'Masalah telah diselesaikan sepenuhnya. Kartu baru telah diterbitkan dan dikirim ke alamat nasabah.',
-                  reason: 'Kartu lama rusak dan perlu diganti'
+                  action: 'HANDLEDCXC'
+                }
+              },
+              escalated: {
+                summary: 'CXC Agent Escalates Ticket (ESCALATED)',
+                description: 'CXC agent escalates ticket - sets PROCESS/ESCALATED status with full field updates',
+                value: {
+                  action: 'ESCALATED',
+                  priority_id: 1,
+                  record: 'REC-2025-001234',
+                  description: 'Complex technical issue requiring specialist attention',
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Escalated to technical team due to complexity',
+                    author: 'Agent CXC'
+                  }]
+                }
+              },
+              closed: {
+                summary: 'CXC Agent Closes Ticket (CLOSED)',
+                description: 'CXC agent closes ticket - sets CLOSED/CLOSED status with solution and auto-sets closed_time',
+                value: {
+                  action: 'CLOSED',
+                  solution: 'Issue resolved - card returned to customer',
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Ticket resolved successfully',
+                    author: 'Agent CXC'
+                  }]
+                }
+              },
+              declined: {
+                summary: 'CXC Agent Declines Ticket (DECLINED)',
+                description: 'CXC agent declines ticket - sets DECLINED/DECLINED status with reason',
+                value: {
+                  action: 'DECLINED',
+                  reason: 'Request does not meet policy requirements',
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Ticket declined - insufficient documentation',
+                    author: 'Agent CXC'
+                  }]
+                }
+              },
+              done_by_uic: {
+                summary: 'UIC Division Completes Work (DONE_BY_UIC)',
+                description: 'Non-CXC division completes their part - sets PROCESS/DONE_BY_UIC status',
+                value: {
+                  action: 'DONE_BY_UIC',
+                  division_notes: [{
+                    division: 'OPR',
+                    timestamp: '21/08/2025',
+                    msg: 'Technical work completed, returning to CXC',
+                    author: 'Technical Team'
+                  }]
                 }
               }
             }
@@ -1362,21 +1300,21 @@ const swaggerPaths = {
           content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateTicketResponse' } } }
         },
         '400': {
-          description: 'Bad request - Invalid status codes, employee ID, or validation errors',
+          description: 'Bad request - No valid update data provided or validation errors',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
           examples: {
-            invalid_status: {
-              summary: 'Invalid Status Code',
+            no_update_data: {
+              summary: 'No Update Data',
               value: {
                 success: false,
-                message: 'Invalid customer_status code'
+                message: 'No valid update data provided'
               }
             },
-            invalid_employee: {
-              summary: 'Invalid Employee ID',
+            invalid_action: {
+              summary: 'Invalid Action',
               value: {
                 success: false,
-                message: 'Invalid responsible_employee_id'
+                message: 'Invalid action parameter'
               }
             }
           }
@@ -1386,7 +1324,7 @@ const swaggerPaths = {
           content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } }
         },
         '403': {
-          description: 'Forbidden - Access denied based on role or ticket assignment',
+          description: 'Forbidden - Access denied based on role or division restrictions',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
           examples: {
             customer_access: {
@@ -1396,18 +1334,18 @@ const swaggerPaths = {
                 message: 'Customers cannot update tickets'
               }
             },
-            not_assigned: {
-              summary: 'Not Assigned to Employee',
+            non_cxc_action: {
+              summary: 'Non-CXC Action Restriction',
               value: {
                 success: false,
-                message: 'Access denied - you can only update tickets assigned to you'
+                message: 'Only CXC agents can use this action'
               }
             },
-            limited_fields: {
-              summary: 'Non-CXC Limited Fields',
+            division_restriction: {
+              summary: 'Division Access Restriction',
               value: {
                 success: false,
-                message: 'Non-CXC employees can only update: customer_status, employee_status, division_notes'
+                message: 'Access denied - insufficient division permissions'
               }
             }
           }
