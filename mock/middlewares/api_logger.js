@@ -6,8 +6,7 @@ const apiLogger = (req, res, next) => {
         '103.132.239.226': 'Laptop-Alfito',
         '110.138.80.224': 'Tim Website 1',
         '180.242.70.236': 'Tim Website 2',
-        '182.253.54.138': 'Havis',
-        '103.166.137.244': 'Ester'
+        '182.253.54.138': 'Havis'
     };
     
     const timestamp = new Date().toLocaleString('id-ID', {
