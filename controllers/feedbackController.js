@@ -1,4 +1,5 @@
 const { NotFoundError, ForbiddenError, ValidationError } = require('../middlewares/error_handler');
+const { HTTP_STATUS } = require('../constants/statusCodes');
 const { Op } = require('sequelize');
 
 const db = require('../models');
@@ -25,7 +26,7 @@ class FeedbackController {
             const { id: ticketId } = req.params;
             const { score, comment } = req.body;
             const userId = req.user.id;
-            const userRole = req.user.role_id;
+            const userRole = req.user.role;
 
             // Validasi input
             if (!score || score < 1 || score > 5) {
@@ -39,12 +40,13 @@ class FeedbackController {
             }
 
             // Role-based access control
-            if (userRole !== 1) { // Bukan CXC agent
-                if (userRole === 3) { // Customer
-                    if (ticket.customer_id !== userId) {
-                        throw new ForbiddenError('Anda hanya dapat memberikan feedback untuk ticket Anda sendiri');
-                    }
-                } else { // Employee non-CXC
+            if (userRole === 'customer') {
+                if (ticket.customer_id !== userId) {
+                    throw new ForbiddenError('Anda hanya dapat memberikan feedback untuk ticket Anda sendiri');
+                }
+            } else if (userRole === 'employee') {
+                // Employee can submit feedback for any ticket they have access to
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
                     if (ticket.responsible_employee_id !== userId) {
                         throw new ForbiddenError('Anda hanya dapat memberikan feedback untuk ticket yang ditugaskan kepada Anda');
                     }
@@ -57,7 +59,7 @@ class FeedbackController {
             });
 
             if (existingFeedback) {
-                return res.status(400).json({
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({
                     success: false,
                     message: 'Feedback untuk ticket ini sudah ada'
                 });
@@ -84,7 +86,7 @@ class FeedbackController {
                 }]
             });
 
-            res.status(201).json({
+            res.status(HTTP_STATUS.CREATED).json({
                 success: true,
                 message: 'Feedback berhasil dikirim',
                 data: {
@@ -117,24 +119,12 @@ class FeedbackController {
         try {
             const { id } = req.params;
             const userId = req.user.id;
-            const userRole = req.user.role_id;
-
-            // console.log('=== DEBUG getFeedbackDetail ===');
-            // console.log('Feedback ID:', id);
-            // console.log('User ID:', userId);
-            // console.log('User Role:', userRole);
+            const userRole = req.user.role;
 
             const feedback = await Feedback.findByPk(parseInt(id));
-            // console.log('Feedback found:', feedback ? 'YES' : 'NO');
-            // console.log('Feedback data:', feedback?.toJSON());
-
             if (!feedback) {
                 throw new NotFoundError('Feedback');
             }
-
-            // if (feedback) {
-            //     console.log('Looking for ticket_id:', feedback.ticket_id);
-            // }
 
             // Ambil data ticket dan customer
             const ticket = await Ticket.findByPk(feedback.ticket_id, {
@@ -146,7 +136,7 @@ class FeedbackController {
             });
 
             if (!ticket) {
-                return res.status(404).json({
+                return res.status(HTTP_STATUS.NOT_FOUND).json({
                     success: false,
                     message: 'Associated ticket not found'
                 });
@@ -157,19 +147,19 @@ class FeedbackController {
             });
 
             // Role-based access control
-            if (userRole !== 1) { // Bukan CXC agent
-                if (userRole === 3) { // Customer
-                    if (ticket.customer_id !== userId) {
-                        throw new ForbiddenError('Anda tidak memiliki akses ke feedback ini');
-                    }
-                } else { // Employee non-CXC
+            if (userRole === 'customer') {
+                if (ticket.customer_id !== userId) {
+                    throw new ForbiddenError('Anda tidak memiliki akses ke feedback ini');
+                }
+            } else if (userRole === 'employee') {
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
                     if (ticket.responsible_employee_id !== userId) {
                         throw new ForbiddenError('Anda tidak memiliki akses ke feedback ini');
                     }
                 }
             }
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Feedback detail retrieved successfully',
                 data: {
@@ -200,10 +190,10 @@ class FeedbackController {
     // GET /v1/feedback - Get all feedback (Employee only)
     async getAllFeedback(req, res, next) {
         try {
-            const userRole = req.user.role_id;
+            const userRole = req.user.role;
             
             // Only employees can access all feedback
-            if (userRole === 3) { // Customer role
+            if (userRole === 'customer') {
                 throw new ForbiddenError('Akses ditolak. Hanya employee yang dapat melihat semua feedback');
             }
 
@@ -264,7 +254,7 @@ class FeedbackController {
 
             const totalPages = Math.ceil(count / limit);
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Data feedback berhasil diambil',
                 data: enrichedFeedback,
@@ -289,7 +279,7 @@ class FeedbackController {
             const { id } = req.params;
             const { comment } = req.body;
             const userId = req.user.id;
-            const userRole = req.user.role_id;
+            const userRole = req.user.role;
 
             const feedback = await Feedback.findByPk(parseInt(id));
             if (!feedback) {
@@ -306,19 +296,19 @@ class FeedbackController {
             });
 
             if (!ticket) {
-                return res.status(404).json({
+                return res.status(HTTP_STATUS.NOT_FOUND).json({
                     success: false,
                     message: 'Associated ticket not found'
                 });
             }
 
             // Role-based access control
-            if (userRole !== 1) { // Bukan CXC agent
-                if (userRole === 3) { // Customer
-                    if (ticket.customer_id !== userId) {
-                        throw new ForbiddenError('Anda hanya dapat mengupdate feedback Anda sendiri');
-                    }
-                } else { // Employee non-CXC
+            if (userRole === 'customer') {
+                if (ticket.customer_id !== userId) {
+                    throw new ForbiddenError('Anda hanya dapat mengupdate feedback Anda sendiri');
+                }
+            } else if (userRole === 'employee') {
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
                     if (ticket.responsible_employee_id !== userId) {
                         throw new ForbiddenError('Anda tidak memiliki akses untuk mengupdate feedback ini');
                     }
@@ -329,19 +319,13 @@ class FeedbackController {
             await feedback.update({
                 comment: comment !== undefined ? comment : feedback.comment
             });
-            console.log('Update berhasil');
 
-            console.log('Mengambil customer untuk ticket.customer_id:', ticket.customer_id);
-            console.log('ticket.customer_id type:', typeof ticket.customer_id);
-            console.log('ticket.customer_id value:', ticket.customer_id);
-
-            // Ambil data customer untuk response
-            const customer = await Customer.findByPk(parseInt(ticket.customer_id), {
+            // Ambil data customer untuk response melalui ticket
+            const customer = await Customer.findByPk(ticket.customer_id, {
                 attributes: ['customer_id', 'full_name', 'email', 'phone_number']
             });
-            console.log('Customer found:', customer ? 'YES' : 'NO');
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Feedback berhasil diupdate',
                 data: {

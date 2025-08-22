@@ -1,4 +1,5 @@
 const { NotFoundError, ForbiddenError, ValidationError } = require('../middlewares/error_handler');
+const { HTTP_STATUS } = require('../constants/statusCodes');
 const { Op } = require('sequelize');
 
 const db = require('../models');
@@ -32,6 +33,7 @@ class CustomerController {
                 page = 1,
                 limit = 10,
                 search,
+                search_type = 'customer',
                 gender_type,
                 sort_by = 'created_at',
                 sort_order = 'desc'
@@ -44,16 +46,79 @@ class CustomerController {
 
             // Build where clause
             let whereClause = {};
+            let searchInfo = null;
 
-            // Apply search filter
+            // Apply search filter based on search_type
             if (search) {
-                whereClause[Op.or] = [
-                    { full_name: { [Op.iLike]: `%${search}%` } },
-                    { email: { [Op.iLike]: `%${search}%` } },
-                    { phone_number: { [Op.like]: `%${search}%` } },
-                    { cif: { [Op.like]: `%${search}%` } },
-                    { nik: { [Op.like]: `%${search}%` } }
-                ];
+                const searchLower = search.toLowerCase();
+                
+                switch (search_type) {
+                    case 'account':
+                        // Search by account number
+                        const matchedAccounts = await Account.findAll({
+                            where: {
+                                account_number: { [Op.like]: `%${search}%` }
+                            },
+                            attributes: ['customer_id']
+                        });
+                        
+                        const accountCustomerIds = matchedAccounts.map(acc => acc.customer_id);
+                        if (accountCustomerIds.length > 0) {
+                            whereClause.customer_id = { [Op.in]: accountCustomerIds };
+                        } else {
+                            // No matching accounts found, return empty result
+                            whereClause.customer_id = { [Op.in]: [] };
+                        }
+                        
+                        searchInfo = {
+                            type: 'account',
+                            query: search,
+                            matched_accounts: matchedAccounts.length
+                        };
+                        break;
+                        
+                    case 'card':
+                        // Search by card number
+                        const matchedCards = await Card.findAll({
+                            where: {
+                                card_number: { [Op.like]: `%${search}%` }
+                            },
+                            include: [{
+                                model: Account,
+                                as: 'account',
+                                attributes: ['customer_id']
+                            }]
+                        });
+                        
+                        const cardCustomerIds = matchedCards.map(card => card.account.customer_id);
+                        if (cardCustomerIds.length > 0) {
+                            whereClause.customer_id = { [Op.in]: cardCustomerIds };
+                        } else {
+                            // No matching cards found, return empty result
+                            whereClause.customer_id = { [Op.in]: [] };
+                        }
+                        
+                        searchInfo = {
+                            type: 'card',
+                            query: search,
+                            matched_cards: matchedCards.length
+                        };
+                        break;
+                        
+                    default: // customer
+                        whereClause[Op.or] = [
+                            { full_name: { [Op.iLike]: `%${search}%` } },
+                            { email: { [Op.iLike]: `%${search}%` } },
+                            { phone_number: { [Op.like]: `%${search}%` } },
+                            { cif: { [Op.like]: `%${search}%` } },
+                            { nik: { [Op.like]: `%${search}%` } }
+                        ];
+                        
+                        searchInfo = {
+                            type: 'customer',
+                            query: search
+                        };
+                }
             }
 
             // Apply gender filter
@@ -101,7 +166,7 @@ class CustomerController {
             const hasNext = pageNum < totalPages;
             const hasPrev = pageNum > 1;
 
-            res.status(200).json({
+            const response = {
                 success: true,
                 message: "Customers retrieved successfully",
                 data: enrichedCustomers,
@@ -113,7 +178,14 @@ class CustomerController {
                     has_next: hasNext,
                     has_prev: hasPrev
                 }
-            });
+            };
+            
+            // Add search info if search was performed
+            if (searchInfo) {
+                response.search_info = searchInfo;
+            }
+
+            res.status(HTTP_STATUS.OK).json(response);
 
         } catch (error) {
             next(error);
@@ -142,29 +214,39 @@ class CustomerController {
                 include: [{
                     model: AccountType,
                     as: 'account_type'
-                }]
+                }],
+                attributes: [
+                    'account_id',
+                    'account_number',
+                    'account_type_id', 
+                    'is_primary',
+                    'created_at'
+                ]
             });
 
             // Get customer cards through accounts
-            let cards = [];
             const customerAccounts = await Account.findAll({
                 where: { customer_id: customerId },
                 attributes: ['account_id']
             });
 
             const accountIds = customerAccounts.map(acc => acc.account_id);
-
-            if (accountIds.length > 0) {
-                cards = await Card.findAll({
-                    where: { 
-                        account_id: { [Op.in]: accountIds }
-                    },
-                    include: [{
-                        model: CardStatus,
-                        as: 'card_status'
-                    }]
-                });
-            }
+            const cards = accountIds.length > 0 ? await Card.findAll({
+                where: { 
+                    account_id: { [Op.in]: accountIds }
+                },
+                include: [{
+                    model: CardStatus,
+                    as: 'card_status'
+                }],
+                attributes: [
+                    'card_id',
+                    'card_number',
+                    'card_type', 
+                    'exp_date',
+                    'created_at'
+                ]
+            }) : [];
 
             // Get customer tickets with basic info
             const tickets = await Ticket.findAll({
@@ -230,15 +312,29 @@ class CustomerController {
             const transformedAccounts = accounts.map(account => account.toJSON());
 
             // Transform cards data
-            const transformedCards = cards.map(card => card.toJSON());
+            const transformedCards = cards.map(card => {
+                const cardData = card.toJSON();
+                return {
+                    card_id: cardData.card_id,
+                    card_number: cardData.card_number,
+                    card_type: cardData.card_type,
+                    card_status: cardData.card_status ? {
+                        card_status_id: cardData.card_status.card_status_id,
+                        status_name: cardData.card_status.card_status_name,
+                        status_code: cardData.card_status.card_status_code
+                    } : null,
+                    exp_date: cardData.exp_date,
+                    created_at: cardData.created_at
+                };
+            });
 
             // Calculate summary statistics
             const activeAccounts = transformedAccounts.filter(acc => 
-                acc.account_status === 'ACTIVE'
+                acc.is_primary === true
             ).length;
 
             const activeCards = transformedCards.filter(card => 
-                card.card_status?.status_name === 'ACTIVE'
+                card.card_status?.status_code === 'ACTIVE'
             ).length;
 
             const openTickets = transformedTickets.filter(ticket => 
@@ -262,7 +358,7 @@ class CustomerController {
                 }
             };
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Customer detail retrieved successfully",
                 data: customerDetail
@@ -273,7 +369,134 @@ class CustomerController {
         }
     }
 
+    // GET /v1/customers/:id/accounts - Get customer accounts
+    async getCustomerAccounts(req, res, next) {
+        try {
+            const { id } = req.params;
+            const customerId = parseInt(id);
 
+            // Verify customer exists
+            const customer = await Customer.findByPk(customerId);
+            if (!customer) {
+                return res.status(HTTP_STATUS.NOT_FOUND).json({
+                    success: false,
+                    message: "Customer not found"
+                });
+            }
+
+            // Get customer accounts with account type details
+            const accounts = await Account.findAll({
+                where: { customer_id: customerId },
+                include: [{
+                    model: AccountType,
+                    as: 'account_type',
+                    attributes: ['account_type_id', 'account_type_name', 'account_type_code']
+                }],
+                attributes: [
+                    'account_id',
+                    'account_number',
+                    'account_type_id', 
+                    'is_primary',
+                    'created_at'
+                ]
+            });
+
+            const transformedAccounts = accounts.map(account => {
+                const accountData = account.toJSON();
+                return {
+                    account_id: accountData.account_id,
+                    account_number: accountData.account_number,
+                    is_primary: accountData.is_primary,
+                    account_type: accountData.account_type ? {
+                        account_type_id: accountData.account_type.account_type_id,
+                        account_type_name: accountData.account_type.account_type_name,
+                        account_type_code: accountData.account_type.account_type_code
+                    } : null,
+                    created_at: accountData.created_at
+                };
+            });
+
+            res.status(HTTP_STATUS.OK).json({
+                success: true,
+                message: "Customer accounts retrieved successfully",
+                data: transformedAccounts
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // GET /v1/customers/:id/cards - Get customer cards
+    async getCustomerCards(req, res, next) {
+        try {
+            const { id } = req.params;
+            const customerId = parseInt(id);
+
+            // Verify customer exists
+            const customer = await Customer.findByPk(customerId);
+            if (!customer) {
+                return res.status(HTTP_STATUS.NOT_FOUND).json({
+                    success: false,
+                    message: "Customer not found"
+                });
+            }
+
+            // Get customer cards through accounts
+            const customerAccounts = await Account.findAll({
+                where: { customer_id: customerId },
+                attributes: ['account_id']
+            });
+
+            const accountIds = customerAccounts.map(acc => acc.account_id);
+            let transformedCards = [];
+
+            if (accountIds.length > 0) {
+                const cards = await Card.findAll({
+                    where: { 
+                        account_id: { [Op.in]: accountIds }
+                    },
+                    include: [{
+                        model: CardStatus,
+                        as: 'card_status',
+                        attributes: ['card_status_id', 'card_status_name', 'card_status_code']
+                    }],
+                    attributes: [
+                        'card_id',
+                        'card_number',
+                        'card_type', 
+                        'exp_date',
+                        'created_at'
+                    ]
+                });
+
+                transformedCards = cards.map(card => {
+                    const cardData = card.toJSON();
+                    return {
+                        card_id: cardData.card_id,
+                        card_number: cardData.card_number,
+                        card_type: cardData.card_type,
+                        card_status: cardData.card_status ? {
+                            card_status_id: cardData.card_status.card_status_id,
+                            status_name: cardData.card_status.card_status_name,
+                            status_code: cardData.card_status.card_status_code
+                        } : null,
+                        exp_date: cardData.exp_date,
+                        created_at: cardData.created_at
+                    };
+                });
+            }
+
+            res.status(HTTP_STATUS.OK).json({
+                success: true,
+                message: "Customer cards retrieved successfully",
+                data: transformedCards
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = CustomerController;

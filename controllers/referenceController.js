@@ -1,4 +1,5 @@
 const { Op } = require('sequelize');
+const { HTTP_STATUS } = require('../constants/statusCodes');
 
 const db = require('../models');
 
@@ -10,7 +11,9 @@ const {
     terminal: Terminal,
     ticket: Ticket,
     employee: Employee,
-    faq: FAQ
+    faq: FAQ,
+    priority: Priority,
+    source: Source
 } = db;
 
 class ReferenceController {
@@ -50,7 +53,7 @@ class ReferenceController {
                 };
             }));
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Channels retrieved successfully",
                 data: enrichedChannels
@@ -100,7 +103,7 @@ class ReferenceController {
                 };
             }));
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Complaint categories retrieved successfully",
                 data: enrichedCategories
@@ -164,7 +167,7 @@ class ReferenceController {
                     sla_hours: policyData.sla ? policyData.sla * 24 : null,
                     channel: policyData.channel,
                     complaint_category: policyData.complaint_category,
-                    uic: policyData.uic_division_division,
+                    uic: policyData.uic_division,
                     description: policyData.description
                 };
             });
@@ -185,7 +188,7 @@ class ReferenceController {
                 return acc;
             }, {});
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "SLA data retrieved successfully",
                 summary: {
@@ -253,7 +256,7 @@ class ReferenceController {
                 };
             }));
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "UICs retrieved successfully",
                 summary: {
@@ -263,6 +266,54 @@ class ReferenceController {
                     total_active_employees: uicData.reduce((sum, uic) => sum + uic.active_employees_count, 0)
                 },
                 data: uicData
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // GET /v1/priorities - List all priorities
+    async getPriorities(req, res, next) {
+        try {
+            const priorities = await Priority.findAll({
+                order: [['priority_id', 'ASC']]
+            });
+
+            const enrichedPriorities = priorities.map(priority => ({
+                priority_id: priority.priority_id,
+                priority_code: priority.priority_code,
+                priority_name: priority.priority_name
+            }));
+
+            res.status(HTTP_STATUS.OK).json({
+                success: true,
+                message: "Priorities retrieved successfully",
+                data: enrichedPriorities
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // GET /v1/sources - List all intake sources
+    async getSources(req, res, next) {
+        try {
+            const sources = await Source.findAll({
+                order: [['source_id', 'ASC']]
+            });
+
+            const enrichedSources = sources.map(source => ({
+                source_id: source.source_id,
+                source_code: source.source_code,
+                source_name: source.source_name
+            }));
+
+            res.status(HTTP_STATUS.OK).json({
+                success: true,
+                message: "Sources retrieved successfully",
+                data: enrichedSources
             });
 
         } catch (error) {
@@ -373,14 +424,14 @@ class ReferenceController {
                     tickets_count: ticketsCount,
                     channel: policyData.channel,
                     complaint_category: policyData.complaint_category,
-                    uic: policyData.uic
+                    uic: policyData.uic_division
                 };
             }));
 
             // Pagination metadata
             const totalPages = Math.ceil(count / limitNum);
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Policies retrieved successfully",
                 pagination: {
