@@ -1,5 +1,6 @@
 const gcsConfig = require('../config/gcs');
 const { NotFoundError, ForbiddenError, ValidationError } = require('../middlewares/error_handler');
+const { HTTP_STATUS } = require('../constants/statusCodes');
 const { Op } = require('sequelize');
 
 const db = require('../models');
@@ -25,7 +26,7 @@ class AttachmentController {
         try {
             // Check if GCS is configured
             if (!gcsConfig.isReady()) {
-                return res.status(503).json({
+                return res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
                     success: false,
                     message: 'File upload service not available. GCS not configured.',
                     error: 'SERVICE_UNAVAILABLE'
@@ -111,13 +112,13 @@ class AttachmentController {
             }
 
             if (uploadedFiles.length === 0) {
-                return res.status(500).json({
+                return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
                     success: false,
                     message: 'Failed to upload any files'
                 });
             }
 
-            res.status(201).json({
+            res.status(HTTP_STATUS.CREATED).json({
                 success: true,
                 message: `Successfully uploaded ${uploadedFiles.length} file(s)`,
                 data: {
@@ -136,7 +137,7 @@ class AttachmentController {
         try {
             // Check if GCS is configured
             if (!gcsConfig.isReady()) {
-                return res.status(503).json({
+                return res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
                     success: false,
                     message: 'File download service not available. GCS not configured.',
                     error: 'SERVICE_UNAVAILABLE'
@@ -175,7 +176,7 @@ class AttachmentController {
             // Generate signed URL for download
             const signedUrl = await gcsConfig.generateSignedUrl(attachment.file_path, 3600); // 1 hour
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Attachment retrieved successfully',
                 data: {
@@ -201,7 +202,7 @@ class AttachmentController {
         try {
             // Check if GCS is configured
             if (!gcsConfig.isReady()) {
-                return res.status(503).json({
+                return res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({
                     success: false,
                     message: 'File delete service not available. GCS not configured.',
                     error: 'SERVICE_UNAVAILABLE'
@@ -256,7 +257,7 @@ class AttachmentController {
                 ticket_activity_time: new Date().toISOString()
             });
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Attachment deleted successfully',
                 data: {

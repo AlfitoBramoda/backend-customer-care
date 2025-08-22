@@ -40,6 +40,8 @@ module.exports = {
           }
         ]),
         record: '',
+        reason: '',
+        solution: '',
         delete_at: null,
         delete_by: null,
         created_at: new Date(),
@@ -81,6 +83,8 @@ module.exports = {
           }
         ]),
         record: '',
+        reason: '',
+        solution: '',
         delete_at: null,
         delete_by: null,
         created_at: new Date(),
@@ -122,6 +126,8 @@ module.exports = {
           }
         ]),
         record: '',
+        reason: '',
+        solution: '',
         delete_at: null,
         delete_by: null,
         created_at: new Date(),

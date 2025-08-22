@@ -1,13 +1,12 @@
-// controllers/authController.js - Fix the import
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
+const { HTTP_STATUS } = require('../constants/statusCodes');
 
 const db = require('../models');
 
-// Use lowercase model names (as they actually exist)
 const { 
-    customer: Customer,           // rename to PascalCase
+    customer: Customer,
     employee: Employee, 
     account: Account, 
     card: Card, 
@@ -20,9 +19,6 @@ const {
     role: Role,
     division: Division
 } = db;
-
-console.log('Customer after fix:', Customer);
-console.log('Customer.findOne method exists:', typeof Customer?.findOne);
 
 class AuthController {
     constructor() {
@@ -87,10 +83,10 @@ class AuthController {
             }
 
             if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
-                console.log(`🔐 Password upgraded to bcrypt for ${userType} ID: ${userId}`);
+                console.log(`Password upgraded to bcrypt for ${userType} ID: ${userId}`);
             }
         } catch (error) {
-            console.error(`❌ Failed to upgrade password for ${userType} ID: ${userId}`, error);
+            console.error(`Failed to upgrade password for ${userType} ID: ${userId}`, error);
         }
     }
 
@@ -132,7 +128,7 @@ class AuthController {
             const { refresh_token } = req.body;
             
             if (!refresh_token) {
-                throw { status: 400, message: "Refresh token is required" };
+                throw { status: HTTP_STATUS.BAD_REQUEST, message: "Refresh token is required" };
             }
 
             // Remove 'Bearer ' prefix if exists
@@ -163,10 +159,10 @@ class AuthController {
 
             // Security logging
             if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
-                console.log(`🔄 Token refreshed for: ${decoded.email} (${decoded.role})`);
+                console.log(`Token refreshed for: ${decoded.email} (${decoded.role})`);
             }
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Token refreshed successfully",
                 access_token: "Bearer " + accessToken,
@@ -176,7 +172,7 @@ class AuthController {
 
         } catch (error) {
             if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-                error.status = 401;
+                error.status = HTTP_STATUS.UNAUTHORIZED;
                 error.message = 'Invalid or expired refresh token';
             }
             next(error);
@@ -275,14 +271,14 @@ class AuthController {
             // Validation
             if (!email || !password) {
                 throw {
-                    status: 400,
+                    status: HTTP_STATUS.BAD_REQUEST,
                     message: "Bad Request: Email and password are required"
                 };
             }
 
             if (!validator.isEmail(email)) {
                 throw {
-                    status: 400,
+                    status: HTTP_STATUS.BAD_REQUEST,
                     message: "Bad Request: Invalid email format"
                 };
             }
@@ -294,7 +290,7 @@ class AuthController {
 
             if (!customer) {
                 throw {
-                    status: 404,
+                    status: HTTP_STATUS.NOT_FOUND,
                     message: "Customer not found"
                 };
             }
@@ -309,7 +305,7 @@ class AuthController {
 
             if (!isValidPassword) {
                 throw {
-                    status: 401,
+                    status: HTTP_STATUS.UNAUTHORIZED,
                     message: "Email or password incorrect"
                 };
             }
@@ -326,10 +322,10 @@ class AuthController {
 
             // Security logging
             if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
-                console.log(`🔐 Customer login successful: ${email}`);
+                console.log(`Customer login successful: ${email}`);
             }
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Login successful",
                 access_token: "Bearer " + accessToken,
@@ -346,7 +342,7 @@ class AuthController {
         } catch (error) {
             // Security logging for failed attempts
             if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
-                console.log(`🚨 Customer login failed: ${req.body.email || 'unknown'}`);
+                console.log(`Customer login failed: ${req.body.email || 'unknown'}`);
             }
             next(error);
         }
@@ -392,7 +388,7 @@ class AuthController {
             // Validation
             if (!npp || !password) {
                 throw {
-                    status: 400,
+                    status: HTTP_STATUS.BAD_REQUEST,
                     message: "Bad Request: NPP and password are required"
                 };
             }
@@ -414,14 +410,14 @@ class AuthController {
 
             if (!employee) {
                 throw {
-                    status: 404,
+                    status: HTTP_STATUS.NOT_FOUND,
                     message: "Employee not found"
                 };
             }
 
             if (!employee.is_active) {
                 throw {
-                    status: 403,
+                    status: HTTP_STATUS.FORBIDDEN,
                     message: "Employee account is inactive"
                 };
             }
@@ -436,7 +432,7 @@ class AuthController {
 
             if (!isValidPassword) {
                 throw {
-                    status: 401,
+                    status: HTTP_STATUS.UNAUTHORIZED,
                     message: "NPP or password incorrect"
                 };
             }
@@ -458,10 +454,10 @@ class AuthController {
 
             // Security logging
             if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
-                console.log(`🔐 Employee login successful: ${npp}`);
+                console.log(`Employee login successful: ${npp}`);
             }
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Login successful",
                 access_token: "Bearer " + accessToken,
@@ -479,7 +475,7 @@ class AuthController {
         } catch (error) {
             // Security logging for failed attempts
             if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
-                console.log(`🚨 Employee login failed: ${req.body.npp || 'unknown'}`);
+                console.log(`Employee login failed: ${req.body.npp || 'unknown'}`);
             }
             next(error);
         }
@@ -502,31 +498,22 @@ class AuthController {
     // Logout Method - Handle both customer & employee
     async logout(req, res, next) {
         try {
-            const authHeader = req.headers.authorization;
-            
-            if (authHeader && process.env.ENABLE_SECURITY_LOGGING === 'true') {
-                try {
-                    const token = authHeader.split(' ')[1];
-                    const decoded = this.verifyToken(token);
-                    
-                    // Smart logging based on role
-                    let userIdentifier;
-                    if (decoded.role === 'customer') {
-                        userIdentifier = decoded.email;
-                    } else if (decoded.role === 'employee') {
-                        userIdentifier = `${decoded.npp} (${decoded.email})`;
-                    } else {
-                        userIdentifier = decoded.email || decoded.id;
-                    }
-                    
-                    console.log(`🔐 User logout: ${userIdentifier} (${decoded.role})`);
-                } catch (error) {
-                    // Token invalid, but logout should still succeed
-                    console.log(`🔐 User logout: invalid token`);
+            // Security logging using middleware-provided user data
+            if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
+                const user = req.user;
+                let userIdentifier;
+                if (user.role === 'customer') {
+                    userIdentifier = user.email;
+                } else if (user.role === 'employee') {
+                    userIdentifier = `${user.npp} (${user.email})`;
+                } else {
+                    userIdentifier = user.email || user.id;
                 }
+                
+                console.log(`User logout: ${userIdentifier} (${user.role})`);
             }
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "Logout successful"
             });
@@ -539,50 +526,42 @@ class AuthController {
     // Get Current User Method - Handle both customer & employee
     async getCurrentUser(req, res, next) {
         try {
-            const authHeader = req.headers.authorization;
-
-            console.log(authHeader)
-            
-            if (!authHeader || !authHeader.startsWith('Bearer ')) {
-                throw { status: 401, message: "Authorization token required" };
-            }
-
-            const token = authHeader.split(' ')[1];
-            const decoded = this.verifyToken(token);
+            // Use middleware-provided user data
+            const user = req.user;
 
             let userData;
             
-            if (decoded.role === 'customer') {
-                userData = await this.getCustomerFullData(decoded.id);
-            } else if (decoded.role === 'employee') {
-                userData = await this.getEmployeeFullData(decoded.id);
+            if (user.role === 'customer') {
+                userData = await this.getCustomerFullData(user.id);
+            } else if (user.role === 'employee') {
+                userData = await this.getEmployeeFullData(user.id);
             }
 
             if (!userData) {
-                throw { status: 404, message: "User not found" };
+                throw { status: HTTP_STATUS.NOT_FOUND, message: "User not found" };
             }
 
             // Enhanced response with proper user identification
             const userInfo = {
-                id: decoded.id,
-                role: decoded.role,
-                email: decoded.email,
+                id: user.id,
+                role: user.role,
+                email: user.email,
                 token_info: {
-                    issued_at: new Date(decoded.iat * 1000).toISOString(),
-                    expires_at: new Date(decoded.exp * 1000).toISOString()
+                    issued_at: new Date(user.iat * 1000).toISOString(),
+                    expires_at: new Date(user.exp * 1000).toISOString()
                 }
             };
 
             // Add role-specific info
-            if (decoded.role === 'employee') {
-                userInfo.npp = decoded.npp;
-                userInfo.role_id = decoded.role_id;
-                userInfo.division_id = decoded.division_id;
-                userInfo.role_code = decoded.role_code;
-                userInfo.division_code = decoded.division_code;
+            if (user.role === 'employee') {
+                userInfo.npp = user.npp;
+                userInfo.role_id = user.role_id;
+                userInfo.division_id = user.division_id;
+                userInfo.role_code = user.role_code;
+                userInfo.division_code = user.division_code;
             }
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: "User data retrieved successfully",
                 data: {
@@ -592,10 +571,6 @@ class AuthController {
             });
 
         } catch (error) {
-            if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-                error.status = 401;
-                error.message = 'Invalid or expired token';
-            }
             next(error);
         }
     }

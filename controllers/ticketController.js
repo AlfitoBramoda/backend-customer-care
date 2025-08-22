@@ -1,28 +1,29 @@
 const { NotFoundError, ForbiddenError, ValidationError, ConflictError } = require('../middlewares/error_handler');
+const { HTTP_STATUS } = require('../constants/statusCodes');
 const { Op } = require('sequelize');
 
 const db = require('../models');
 
-const { 
+const {
     ticket: Ticket,
     customer: Customer,
     employee: Employee,
-    account: Account,
-    card: Card,
     customer_status: CustomerStatus,
     employee_status: EmployeeStatus,
     channel: Channel,
     complaint_category: ComplaintCategory,
-    priority: Priority,
-    terminal: Terminal,
-    source: Source,
     complaint_policy: ComplaintPolicy,
+    priority: Priority,
+    source: Source,
+    terminal: Terminal,
+    account: Account,
+    card: Card,
+    division: Division,
     ticket_activity: TicketActivity,
     ticket_activity_type: TicketActivityType,
     sender_type: SenderType,
     attachment: Attachment,
     feedback: Feedback,
-    division: Division,
     role: Role
 } = db;
 
@@ -50,30 +51,45 @@ class TicketController {
                 date_to,
                 search
             } = req.query;
-
-            // Build where clause based on role
-            let whereClause = {};
             
+            console.log(req.user);
+
+            // Build base where clause
+            let whereClause = {
+                delete_at: null // Only non-deleted tickets
+            };
+
             // Role-based access control
             if (req.user.role === 'customer') {
                 whereClause.customer_id = req.user.id;
             } else if (req.user.role === 'employee') {
-                // Check role_id and division_id from JWT token
-                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
-                    // Other employees can only see tickets assigned to them
-                    whereClause.responsible_employee_id = req.user.id;
+                if (req.user.role_id === 1 && req.user.division_id === 1) {
+                    // CXC Agent can see all tickets - no additional filter
+                } else {
+                    // Other employees: only see tickets escalated to their division
+                    whereClause['$employee_status.employee_status_code$'] = 'ESCALATED';
+                    whereClause['$policy.uic_id$'] = req.user.division_id;
                 }
-                // CXC Agent can see all tickets - no additional filter
             }
 
-            // Additional filters for employees
-            if (req.user.role === 'employee') {
-                if (customer_id) {
-                    whereClause.customer_id = customer_id;
-                }
-                if (employee_id) {
-                    whereClause.responsible_employee_id = employee_id;
-                }
+            // Apply filters
+            if (status) {
+                whereClause[Op.or] = [
+                    { '$customer_status.customer_status_code$': status.toUpperCase() },
+                    { '$employee_status.employee_status_code$': status.toUpperCase() }
+                ];
+            }
+
+            if (customer_id && req.user.role === 'employee') {
+                whereClause.customer_id = customer_id;
+            }
+
+            if (employee_id && req.user.role === 'employee') {
+                whereClause.responsible_employee_id = employee_id;
+            }
+
+            if (priority) {
+                whereClause['$priority.priority_code$'] = priority.toUpperCase();
             }
 
             if (channel_id) {
@@ -84,18 +100,13 @@ class TicketController {
                 whereClause.complaint_id = complaint_id;
             }
 
-            // Date range filter
             if (date_from || date_to) {
-                whereClause.created_time = {};
-                if (date_from) {
-                    whereClause.created_time[Op.gte] = new Date(date_from);
-                }
-                if (date_to) {
-                    whereClause.created_time[Op.lte] = new Date(date_to);
-                }
+                const dateFilter = {};
+                if (date_from) dateFilter[Op.gte] = new Date(date_from);
+                if (date_to) dateFilter[Op.lte] = new Date(date_to);
+                whereClause.created_time = dateFilter;
             }
 
-            // Search filter
             if (search) {
                 whereClause[Op.or] = [
                     { description: { [Op.iLike]: `%${search}%` } },
@@ -103,106 +114,143 @@ class TicketController {
                 ];
             }
 
-            // Include related models
-            const includeOptions = [
+            // Build includes
+            const includes = [
                 {
-                    model: Customer,
-                    as: 'customer',
-                    attributes: ['customer_id', 'full_name', 'email']
+                    model: Channel,
+                    as: 'issue_channel',
+                    attributes: ['channel_id', 'channel_name', 'channel_code']
                 },
                 {
                     model: CustomerStatus,
-                    as: 'customer_status'
-                },
-                {
-                    model: EmployeeStatus,
-                    as: 'employee_status'
-                },
-                {
-                    model: Channel,
-                    as: 'issue_channel'
-                },
-                {
-                    model: ComplaintCategory,
-                    as: 'complaint_category'
-                },
-                {
-                    model: Account,
-                    as: 'related_account',
-                    required: false
-                },
-                {
-                    model: Card,
-                    as: 'related_card',
-                    required: false
+                    as: 'customer_status',
+                    attributes: ['customer_status_id', 'customer_status_name', 'customer_status_code']
                 }
             ];
 
-            // Add employee-specific includes
             if (req.user.role === 'employee') {
-                includeOptions.push(
+                includes.push(
                     {
-                        model: Employee,
-                        as: 'responsible_employee',
-                        attributes: ['employee_id', 'full_name', 'npp', 'email'],
-                        required: false
+                        model: Customer,
+                        as: 'customer',
+                        attributes: ['customer_id', 'full_name', 'email']
                     },
                     {
-                        model: Priority,
-                        as: 'priority'
+                        model: ComplaintCategory,
+                        as: 'complaint_category',
+                        attributes: ['complaint_id', 'complaint_name', 'complaint_code']
                     },
                     {
-                        model: Terminal,
-                        as: 'terminal',
-                        required: false
-                    },
-                    {
-                        model: Source,
-                        as: 'intake_source',
-                        required: false
+                        model: EmployeeStatus,
+                        as: 'employee_status',
+                        attributes: ['employee_status_id', 'employee_status_name', 'employee_status_code']
                     },
                     {
                         model: ComplaintPolicy,
                         as: 'policy',
+                        attributes: ['policy_id', 'sla', 'uic_id'],
                         required: false
                     }
                 );
+
+                if (req.user.role_id === 1 && req.user.division_id === 1) {
+                    includes.push(
+                        {
+                            model: Account,
+                            as: 'related_account',
+                            attributes: ['account_id', 'account_number'],
+                            required: false
+                        },
+                        {
+                            model: Card,
+                            as: 'related_card',
+                            attributes: ['card_id', 'card_number', 'card_type'],
+                            required: false
+                        },
+                        {
+                            model: Source,
+                            as: 'intake_source',
+                            attributes: ['source_id', 'source_name', 'source_code'],
+                            required: false
+                        },
+                        {
+                            model: Priority,
+                            as: 'priority',
+                            attributes: ['priority_id', 'priority_name', 'priority_code'],
+                            required: false
+                        }
+                    );
+                }
             }
 
-            // Status filter (more complex due to multiple status types)
-            if (status) {
-                const statusWhere = {
-                    [Op.or]: [
-                        { '$customer_status.customer_status_code$': status.toUpperCase() },
-                        { '$employee_status.employee_status_code$': status.toUpperCase() }
-                    ]
-                };
-                whereClause = { ...whereClause, ...statusWhere };
-            }
-
-            // Priority filter
-            if (priority) {
-                whereClause['$priority.priority_code$'] = priority.toUpperCase();
-            }
-
+            // Execute query
             const { count, rows: tickets } = await Ticket.findAndCountAll({
                 where: whereClause,
-                include: includeOptions,
+                include: includes,
                 limit: parseInt(limit),
                 offset: parseInt(offset),
                 order: [['created_time', 'DESC']],
-                distinct: true
+                distinct: true,
+                logging: console.log // Tambahkan ini untuk melihat SQL query
             });
 
             // Transform data based on role
-            const enrichedTickets = tickets.map(ticket => 
-                this.enrichTicketData(ticket.toJSON(), req.user.role)
-            );
+            const allTickets = await Promise.all(tickets.map(async (ticket) => {
+                const baseTicket = {
+                    ticket_id: ticket.ticket_id,
+                    ticket_number: ticket.ticket_number,
+                    issue_channel: ticket.issue_channel,
+                    created_time: ticket.created_time
+                };
 
-            res.status(200).json({
+                if (req.user.role === 'employee') {
+                    const customTicket = {
+                        ...baseTicket,
+                        customer: ticket.customer,
+                        complaint: ticket.complaint_category,
+                        employee_status: ticket.employee_status
+                    };
+
+                    if (req.user.role_id === 1 && req.user.division_id === 1) {
+                        const division = await this.calculateDivision(ticket);
+                        return {
+                            ...customTicket,
+                            related_account: ticket.related_account,
+                            related_card: ticket.related_card,
+                            intake_source: ticket.intake_source,
+                            division: division,
+                            policy: ticket.policy ? {
+                                policy_id: ticket.policy.policy_id,
+                                sla_days: ticket.policy.sla,
+                                sla_hours: ticket.policy.sla * 24
+                            } : null,
+                            committed_due_at: ticket.committed_due_at,
+                            sla_info: this.calculateSLAInfo(ticket)
+                        };
+                    } else {
+                        return {
+                            ...customTicket,
+                            policy: ticket.policy ? {
+                                policy_id: ticket.policy.policy_id,
+                                sla_days: ticket.policy.sla,
+                                sla_hours: ticket.policy.sla * 24
+                            } : null,
+                            committed_due_at: ticket.committed_due_at,
+                            sla_info: this.calculateSLAInfo(ticket)
+                        };
+                    }
+                } else {
+                    return {
+                        ...baseTicket,
+                        customer_status: ticket.customer_status
+                    };
+                }
+            }));
+
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Tickets retrieved successfully',
-                data: enrichedTickets,
+                data: allTickets,
                 pagination: {
                     total: count,
                     limit: parseInt(limit),
@@ -216,56 +264,55 @@ class TicketController {
         }
     }
 
-    // Role-based data enrichment
-    enrichTicketData(ticket, userRole) {
-        // Base data yang selalu ada
+    async enrichTicketData(ticket, userRole) {
+        // Load ticket with all necessary relations if not already loaded
+        let fullTicket = ticket;
+        if (!ticket.customer) {
+            fullTicket = await Ticket.findByPk(ticket.ticket_id, {
+                include: [
+                    { model: Customer, as: 'customer' },
+                    { model: CustomerStatus, as: 'customer_status' },
+                    { model: Channel, as: 'issue_channel' },
+                    { model: ComplaintCategory, as: 'complaint_category' },
+                    { model: Account, as: 'related_account', required: false },
+                    { model: Card, as: 'related_card', required: false },
+                    { model: Employee, as: 'responsible_employee', required: false },
+                    { model: Priority, as: 'priority', required: false },
+                    { model: EmployeeStatus, as: 'employee_status', required: false },
+                    { model: Terminal, as: 'terminal', required: false },
+                    { model: Source, as: 'intake_source', required: false },
+                    { 
+                        model: ComplaintPolicy, 
+                        as: 'policy', 
+                        required: false,
+                        include: [{ model: Division, as: 'uic_division', required: false }]
+                    }
+                ]
+            });
+        }
+
+        // Base data
         const baseData = {
-            ticket_number: ticket.ticket_number,
-            description: ticket.description,
-            transaction_date: ticket.transaction_date,
-            amount: ticket.amount,
-            record: ticket.record || "",
-            created_time: ticket.created_time,
-            closed_time: ticket.closed_time
+            ticket_id: fullTicket.ticket_id,
+            ticket_number: fullTicket.ticket_number,
+            description: fullTicket.description,
+            transaction_date: fullTicket.transaction_date,
+            amount: fullTicket.amount,
+            reason: fullTicket.reason || "",
+            solution: fullTicket.solution || "",
+            created_time: fullTicket.created_time,
+            closed_time: fullTicket.closed_time
         };
 
         // Common data for both roles
         const commonData = {
             ...baseData,
-            customer_status: ticket.customer_status ? {
-                customer_status_id: ticket.customer_status.customer_status_id,
-                customer_status_name: ticket.customer_status.customer_status_name,
-                customer_status_code: ticket.customer_status.customer_status_code
-            } : null,
-            
-            issue_channel: ticket.issue_channel ? {
-                channel_id: ticket.issue_channel.channel_id,
-                channel_name: ticket.issue_channel.channel_name,
-                channel_code: ticket.issue_channel.channel_code
-            } : null,
-            
-            customer: ticket.customer ? {
-                customer_id: ticket.customer.customer_id,
-                full_name: ticket.customer.full_name,
-                email: ticket.customer.email
-            } : null,
-            
-            related_account: ticket.related_account ? {
-                account_id: ticket.related_account.account_id,
-                account_number: ticket.related_account.account_number
-            } : null,
-            
-            related_card: ticket.related_card ? {
-                card_id: ticket.related_card.card_id,
-                card_number: ticket.related_card.card_number,
-                card_type: ticket.related_card.card_type
-            } : null,
-            
-            complaint: ticket.complaint_category ? {
-                complaint_id: ticket.complaint_category.complaint_id,
-                complaint_name: ticket.complaint_category.complaint_name,
-                complaint_code: ticket.complaint_category.complaint_code
-            } : null
+            customer_status: fullTicket.customer_status,
+            issue_channel: fullTicket.issue_channel,
+            customer: fullTicket.customer,
+            related_account: fullTicket.related_account,
+            related_card: fullTicket.related_card,
+            complaint: fullTicket.complaint
         };
 
         // Customer role: return limited data
@@ -277,50 +324,22 @@ class TicketController {
         if (userRole === 'employee') {
             return {
                 ...commonData,
-                ticket_id: ticket.ticket_id,
-                
-                employee: ticket.responsible_employee ? {
-                    employee_id: ticket.responsible_employee.employee_id,
-                    full_name: ticket.responsible_employee.full_name,
-                    npp: ticket.responsible_employee.npp,
-                    email: ticket.responsible_employee.email
+                employee: fullTicket.responsible_employee,
+                priority: fullTicket.priority,
+                employee_status: fullTicket.employee_status,
+                terminal: fullTicket.terminal,
+                intake_source: fullTicket.intake_source,
+                policy: fullTicket.policy ? {
+                    policy_id: fullTicket.policy.policy_id,
+                    sla_days: fullTicket.policy.sla,
+                    sla_hours: fullTicket.policy.sla * 24,
+                    uic_id: fullTicket.policy.uic_id,
+                    uic_code: fullTicket.policy.uic_division?.division_code,
+                    uic_name: fullTicket.policy.uic_division?.division_name
                 } : null,
-                
-                priority: ticket.priority ? {
-                    priority_id: ticket.priority.priority_id,
-                    priority_name: ticket.priority.priority_name,
-                    priority_code: ticket.priority.priority_code
-                } : null,
-                
-                employee_status: ticket.employee_status ? {
-                    employee_status_id: ticket.employee_status.employee_status_id,
-                    employee_status_name: ticket.employee_status.employee_status_name,
-                    employee_status_code: ticket.employee_status.employee_status_code
-                } : null,
-                
-                terminal: ticket.terminal ? {
-                    terminal_id: ticket.terminal.terminal_id,
-                    terminal_code: ticket.terminal.terminal_code,
-                    location: ticket.terminal.location
-                } : null,
-                
-                intake_source: ticket.intake_source ? {
-                    source_id: ticket.intake_source.source_id,
-                    source_name: ticket.intake_source.source_name,
-                    source_code: ticket.intake_source.source_code
-                } : null,
-                
-                policy: ticket.policy ? {
-                    policy_id: ticket.policy.policy_id,
-                    sla_days: ticket.policy.sla,
-                    sla_hours: ticket.policy.sla * 24,
-                    uic_id: ticket.policy.uic_id
-                } : null,
-                
-                committed_due_at: ticket.committed_due_at,
-                division_notes: ticket.division_notes,
-                
-                sla_info: this.calculateSLAInfo(ticket)
+                committed_due_at: fullTicket.committed_due_at,
+                division_notes: this.parseDivisionNotes(fullTicket.division_notes),
+                sla_info: this.calculateSLAInfo(fullTicket)
             };
         }
 
@@ -332,65 +351,11 @@ class TicketController {
             const { id } = req.params;
             
             const ticket = await Ticket.findOne({
-                where: { ticket_id: parseInt(id) },
-                include: [
-                    {
-                        model: Customer,
-                        as: 'customer',
-                        attributes: ['customer_id', 'full_name', 'email', 'phone_number']
-                    },
-                    {
-                        model: CustomerStatus,
-                        as: 'customer_status'
-                    },
-                    {
-                        model: EmployeeStatus,
-                        as: 'employee_status'
-                    },
-                    {
-                        model: Channel,
-                        as: 'issue_channel'
-                    },
-                    {
-                        model: ComplaintCategory,
-                        as: 'complaint_category'
-                    },
-                    {
-                        model: Account,
-                        as: 'related_account',
-                        required: false
-                    },
-                    {
-                        model: Card,
-                        as: 'related_card',
-                        required: false
-                    },
-                    {
-                        model: Employee,
-                        as: 'responsible_employee',
-                        attributes: ['employee_id', 'full_name', 'npp', 'email'],
-                        required: false
-                    },
-                    {
-                        model: Priority,
-                        as: 'priority'
-                    },
-                    {
-                        model: Terminal,
-                        as: 'terminal',
-                        required: false
-                    },
-                    {
-                        model: Source,
-                        as: 'intake_source',
-                        required: false
-                    },
-                    {
-                        model: ComplaintPolicy,
-                        as: 'policy',
-                        required: false
-                    }
-                ]
+                where: { 
+                    ticket_id: parseInt(id),
+                    delete_at: null
+                },
+                include: this.getDetailedIncludes()
             });
 
             if (!ticket) {
@@ -401,10 +366,9 @@ class TicketController {
             if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
                 throw new ForbiddenError('Access denied');
             } else if (req.user.role === 'employee') {
-                // Check role_id and division_id from JWT token
                 if (req.user.role_id !== 1 || req.user.division_id !== 1) {
                     if (ticket.responsible_employee_id !== req.user.id) {
-                        return res.status(403).json({
+                        return res.status(HTTP_STATUS.FORBIDDEN).json({
                             success: false,
                             message: 'Access denied - you can only view tickets assigned to you'
                         });
@@ -414,7 +378,7 @@ class TicketController {
 
             const detailedTicket = await this.getDetailedTicketData(ticket, req.user.role);
 
-            res.status(200).json({
+            res.status(HTTP_STATUS.OK).json({
                 success: true,
                 message: 'Ticket retrieved successfully',
                 data: detailedTicket
@@ -425,120 +389,151 @@ class TicketController {
         }
     }
 
+    getDetailedIncludes() {
+        return [
+            {
+                model: Customer,
+                as: 'customer',
+                attributes: ['customer_id', 'full_name', 'email', 'phone_number']
+            },
+            {
+                model: CustomerStatus,
+                as: 'customer_status'
+            },
+            {
+                model: Channel,
+                as: 'issue_channel'
+            },
+            {
+                model: ComplaintCategory,
+                as: 'complaint_category',
+            },
+            {
+                model: Account,
+                as: 'related_account',
+                required: false
+            },
+            {
+                model: Card,
+                as: 'related_card',
+                required: false
+            },
+            {
+                model: Employee,
+                as: 'responsible_employee',
+                required: false
+            },
+            {
+                model: Priority,
+                as: 'priority',
+                required: false
+            },
+            {
+                model: EmployeeStatus,
+                as: 'employee_status',
+                required: false
+            },
+            {
+                model: Terminal,
+                as: 'terminal',
+                required: false
+            },
+            {
+                model: Source,
+                as: 'intake_source',
+                required: false
+            },
+            {
+                model: ComplaintPolicy,
+                as: 'policy',
+                required: false,
+                include: [{
+                    model: Division,
+                    as: 'uic_division',
+                    required: false
+                }]
+            },
+            {
+                model: TicketActivity,
+                as: 'activities',
+                include: [
+                    {
+                        model: TicketActivityType,
+                        as: 'activity_type'
+                    },
+                    {
+                        model: SenderType,
+                        as: 'sender_type'
+                    },
+                    {
+                        model: Attachment,
+                        as: 'attachments',
+                        required: false
+                    }
+                ]
+            },
+            {
+                model: Feedback,
+                as: 'feedback',
+                required: false
+            }
+        ];
+    }
+
     async getDetailedTicketData(ticket, userRole) {
-        const ticketData = ticket.toJSON();
-        
         const baseData = {
-            ticket_number: ticketData.ticket_number,
-            description: ticketData.description,
-            transaction_date: ticketData.transaction_date,
-            amount: ticketData.amount,
-            record: ticketData.record || "",
-            created_time: ticketData.created_time,
-            closed_time: ticketData.closed_time
+            ticket_number: ticket.ticket_number,
+            description: ticket.description,
+            transaction_date: ticket.transaction_date,
+            amount: ticket.amount,
+            record: ticket.record || "",
+            reason: ticket.reason || "",
+            solution: ticket.solution || "",
+            created_time: ticket.created_time,
+            closed_time: ticket.closed_time
         };
 
-        // Get status history from activities
-        const statusHistory = await this.getStatusHistory(ticketData.ticket_id);
+        // Get status history
+        const statusHistory = await this.getStatusHistory(ticket.ticket_id);
 
-        // Get activities
-        const activities = await TicketActivity.findAll({
-            where: { ticket_id: ticketData.ticket_id },
-            include: [
-                {
-                    model: TicketActivityType,
-                    as: 'activity_type'
-                },
-                {
-                    model: SenderType,
-                    as: 'sender_type'
-                }
-            ],
-            order: [['ticket_activity_time', 'DESC']]
-        });
+        // Process activities
+        const activities = ticket.activities?.map(activity => ({
+            ticket_activity_id: activity.ticket_activity_id,
+            activity_type: activity.activity_type,
+            sender_type: activity.sender_type,
+            sender_id: activity.sender_id,
+            content: activity.content,
+            ticket_activity_time: activity.ticket_activity_time
+        })) || [];
 
-        const enrichedActivities = await Promise.all(activities.map(async (activity) => {
-            const activityData = activity.toJSON();
-            
-            // Get sender details based on sender type
-            let sender = null;
-            if (activityData.sender_type?.sender_type_code === 'CUSTOMER') {
-                const customer = await Customer.findByPk(activityData.sender_id, {
-                    attributes: ['customer_id', 'full_name', 'email']
-                });
-                if (customer) {
-                    sender = {
-                        sender_id: customer.customer_id,
-                        full_name: customer.full_name,
-                        email: customer.email,
-                        type: 'customer'
-                    };
-                }
-            } else if (activityData.sender_type?.sender_type_code === 'EMPLOYEE') {
-                const employee = await Employee.findByPk(activityData.sender_id, {
-                    attributes: ['employee_id', 'full_name', 'npp', 'email', 'division_id'],
-                    include: [{
-                        model: Division,
-                        as: 'division',
-                        attributes: ['division_id', 'division_name', 'division_code']
-                    }]
-                });
-                if (employee) {
-                    const empData = employee.toJSON();
-                    sender = {
-                        sender_id: empData.employee_id,
-                        full_name: empData.full_name,
-                        npp: empData.npp,
-                        email: empData.email,
-                        division: empData.division,
-                        type: 'employee'
-                    };
-                }
+        // Process attachments
+        const attachments = [];
+        ticket.activities?.forEach(activity => {
+            if (activity.attachments) {
+                attachments.push(...activity.attachments.map(attachment => ({
+                    attachment_id: attachment.attachment_id,
+                    ticket_activity_id: attachment.ticket_activity_id,
+                    file_name: attachment.file_name,
+                    file_path: attachment.file_path,
+                    file_size: attachment.file_size,
+                    file_type: attachment.file_type,
+                    upload_time: attachment.upload_time
+                })));
             }
-
-            return {
-                ticket_activity_id: activityData.ticket_activity_id,
-                activity_type: activityData.activity_type,
-                sender_type: activityData.sender_type,
-                sender: sender,
-                content: activityData.content,
-                ticket_activity_time: activityData.ticket_activity_time
-            };
-        }));
-
-        // Get attachments
-        const attachments = await Attachment.findAll({
-            include: [{
-                model: TicketActivity,
-                as: 'ticket_activity',
-                where: { ticket_id: ticketData.ticket_id },
-                attributes: ['ticket_activity_id']
-            }],
-            attributes: ['attachment_id', 'ticket_activity_id', 'file_name', 'file_path', 'file_size', 'file_type', 'upload_time']
-        });
-
-        // Get feedback
-        const feedback = await Feedback.findOne({
-            where: { ticket_id: ticketData.ticket_id }
         });
 
         const commonData = {
             ...baseData,
-            customer: ticketData.customer,
-            customer_status: ticketData.customer_status,
-            issue_channel: ticketData.issue_channel,
-            complaint: ticketData.complaint_category,
-            related_account: ticketData.related_account,
-            related_card: ticketData.related_card,
-            activities: enrichedActivities,
-            attachments: attachments.map(a => a.toJSON()),
+            customer: ticket.customer,
+            customer_status: ticket.customer_status,
+            issue_channel: ticket.issue_channel,
+            complaint: ticket.complaint_category,
+            related_account: ticket.related_account,
+            related_card: ticket.related_card,
+            activities: activities,
+            attachments: attachments,
             status_history: statusHistory,
-            feedback: feedback ? {
-                feedback_id: feedback.feedback_id,
-                rating: feedback.rating,
-                comment: feedback.comment,
-                created_time: feedback.created_time
-            } : null
+            feedback: ticket.feedback
         };
 
         // Customer role: return limited data
@@ -550,20 +545,21 @@ class TicketController {
         if (userRole === 'employee') {
             return {
                 ...commonData,
-                ticket_id: ticketData.ticket_id,
-                employee: ticketData.responsible_employee,
-                priority: ticketData.priority,
-                employee_status: ticketData.employee_status,
-                terminal: ticketData.terminal,
-                intake_source: ticketData.intake_source,
-                policy: ticketData.policy ? {
-                    policy_id: ticketData.policy.policy_id,
-                    sla: ticketData.policy.sla,
-                    uic_id: ticketData.policy.uic_id
+                employee: ticket.responsible_employee,
+                priority: ticket.priority,
+                employee_status: ticket.employee_status,
+                terminal: ticket.terminal,
+                intake_source: ticket.intake_source,
+                policy: ticket.policy ? {
+                    policy_id: ticket.policy.policy_id,
+                    sla: ticket.policy.sla,
+                    uic_id: ticket.policy.uic_id,
+                    uic_code: ticket.policy.uic_division?.division_code,
+                    uic_name: ticket.policy.uic_division?.division_name
                 } : null,
-                committed_due_at: ticketData.committed_due_at,
-                division_notes: ticketData.division_notes,
-                sla_info: this.calculateSLAInfo(ticketData)
+                committed_due_at: ticket.committed_due_at,
+                division_notes: this.parseDivisionNotes(ticket.division_notes),
+                sla_info: this.calculateSLAInfo(ticket)
             };
         }
 
@@ -571,19 +567,26 @@ class TicketController {
     }
 
     async createTicket(req, res, next) {
+        const transaction = await db.sequelize.transaction();
+        
         try {
             const {
-                description,
-                transaction_date,
-                amount,
+                action,
+                customer_id,
+                priority_id,
                 record,
                 issue_channel_id,
+                intake_source_id,
+                amount,
                 complaint_id,
+                transaction_date,
+                terminal_id,
+                description,
                 related_account_id,
                 related_card_id,
-                terminal_id,
-                intake_source_id,
-                customer_id // For employee use
+                division_notes,
+                reason,
+                solution,
             } = req.body;
 
             // Validation
@@ -593,24 +596,22 @@ class TicketController {
 
             // Employee role and permission check
             if (req.user.role === 'employee') {
-                // Check role_id and division_id from JWT token
                 if (req.user.role_id !== 1 || req.user.division_id !== 1) {
-                    return res.status(403).json({
+                    return res.status(HTTP_STATUS.FORBIDDEN).json({
                         success: false,
                         message: 'Only CXC agents can create tickets'
                     });
                 }
                 
-                // CXC agent must provide customer_id
                 if (!customer_id) {
-                    return res.status(400).json({
+                    return res.status(HTTP_STATUS.BAD_REQUEST).json({
                         success: false,
                         message: 'Employee must provide customer_id'
                     });
                 }
             }
 
-            // Validate references exist
+            // Validate references
             const channel = await Channel.findByPk(issue_channel_id);
             if (!channel) {
                 return res.status(400).json({
@@ -627,7 +628,7 @@ class TicketController {
                 });
             }
 
-            // Get customer data (role-based)
+            // Get customer
             const targetCustomerId = req.user.role === 'customer' ? req.user.id : parseInt(customer_id);
             const customer = await Customer.findByPk(targetCustomerId);
             if (!customer) {
@@ -637,7 +638,7 @@ class TicketController {
                 });
             }
 
-            // Business Logic: Resolve Policy & SLA
+            // Resolve policy
             const policy = await this.resolvePolicy(complaint.complaint_id, channel.channel_id);
             
             // Generate ticket number
@@ -646,42 +647,63 @@ class TicketController {
             // Calculate SLA due date
             const committedDueAt = this.calculateSLADueDate(policy?.sla || 1);
             
-            // Get default statuses
-            const defaultCustomerStatus = await CustomerStatus.findOne({
-                where: { customer_status_code: 'ACC' }
-            });
+            // Get statuses
+            let customerStatus, employeeStatus;
             
-            const defaultEmployeeStatus = await EmployeeStatus.findOne({
-                where: { employee_status_code: 'OPEN' }
-            });
-            
-            const defaultPriority = await Priority.findOne({
-                where: { priority_code: 'REGULAR' }
-            });
+            if (!action) {
+                customerStatus = await CustomerStatus.findOne({
+                    where: { customer_status_code: "ACC" }
+                });
+                employeeStatus = await EmployeeStatus.findOne({
+                    where: { employee_status_code: "OPEN" }
+                });
+            }
+
+            if (action === 'ESCALATED') {
+                customerStatus = await CustomerStatus.findOne({
+                    where: { customer_status_code: "PROCESS" }
+                });
+                employeeStatus = await EmployeeStatus.findOne({
+                    where: { employee_status_code: "ESCALATED" }
+                });
+            }
+
+            if (action === 'CLOSED') {
+                customerStatus = await CustomerStatus.findOne({
+                    where: { customer_status_code: "CLOSED" }
+                });
+                employeeStatus = await EmployeeStatus.findOne({
+                    where: { employee_status_code: "CLOSED" }
+                });
+            }
 
             // Create ticket
             const newTicket = await Ticket.create({
                 ticket_number: ticketNumber,
-                customer_id: targetCustomerId,
                 description: description,
-                transaction_date: transaction_date || null,
-                amount: amount || null,
-                record: record || "", // Initialize empty record field
+                record: record || "",
+                reason: reason || "",
+                solution: solution || "",
+                customer_id: targetCustomerId,
+                customer_status_id: customerStatus?.customer_status_id,
+                employee_status_id: employeeStatus?.employee_status_id,
+                priority_id: priority_id || 3,
                 issue_channel_id: parseInt(issue_channel_id),
-                complaint_id: parseInt(complaint_id),
+                intake_source_id: req.user.role === 'customer' ? 2 : intake_source_id,
                 related_account_id: related_account_id ? parseInt(related_account_id) : null,
                 related_card_id: related_card_id ? parseInt(related_card_id) : null,
-                terminal_id: terminal_id ? parseInt(terminal_id) : null,
-                intake_source_id: req.user.role === 'employee' ? 1 : 2, // 1 for employee, 2 for customer
-                customer_status_id: defaultCustomerStatus?.customer_status_id || 1,
-                employee_status_id: defaultEmployeeStatus?.employee_status_id || 1,
-                priority_id: defaultPriority?.priority_id || 3,
+                complaint_id: parseInt(complaint_id),
+                responsible_employee_id: !action ? null : req.user.id,
                 policy_id: policy?.policy_id || null,
                 committed_due_at: committedDueAt,
-                responsible_employee_id: null, // Will be assigned later
-                division_notes: null,
-                created_time: new Date().toISOString(),
-                closed_time: null
+                transaction_date: transaction_date || null,
+                amount: amount || null,
+                terminal_id: terminal_id ? parseInt(terminal_id) : null,
+                closed_time: employeeStatus?.employee_status_id === 4 ? new Date() : null,
+                division_notes: division_notes ? JSON.stringify(division_notes) : null
+            }, { 
+                transaction,
+                logging: console.log
             });
 
             // Create initial activity
@@ -692,31 +714,24 @@ class TicketController {
                 sender_id: req.user.id,
                 content: req.user.role === 'customer' 
                     ? `Ticket created: ${description}`
-                    : `Ticket created by employee for customer ${customer.full_name}: ${description}`,
-                ticket_activity_time: new Date().toISOString()
-            });
+                    : `Ticket created by employee for customer ${customer.full_name}: ${description}`
+            }, { transaction });
 
-            // Reload ticket with associations for response
-            const ticketWithAssociations = await Ticket.findByPk(newTicket.ticket_id, {
-                include: [
-                    { model: Customer, as: 'customer' },
-                    { model: CustomerStatus, as: 'customer_status' },
-                    { model: Channel, as: 'issue_channel' },
-                    { model: ComplaintCategory, as: 'complaint_category' },
-                    { model: Account, as: 'related_account', required: false },
-                    { model: Card, as: 'related_card', required: false }
-                ]
-            });
+            // Create status history activities
+            await this.createStatusHistoryActivities(newTicket, action, req.user, customerStatus, employeeStatus, transaction);
 
-            // Return created ticket with enriched data
-            const enrichedTicket = this.enrichTicketData(ticketWithAssociations.toJSON(), 'customer');
+            await transaction.commit();
 
-            res.status(201).json({
+            // Return enriched ticket data
+            const enrichedTicket = await this.enrichTicketData(newTicket, 'customer');
+
+            res.status(HTTP_STATUS.CREATED).json({
                 success: true,
                 message: 'Ticket created successfully',
                 data: {
                     ...enrichedTicket,
                     ticket_id: newTicket.ticket_id,
+                    record: newTicket.record,
                     sla_info: {
                         committed_due_at: committedDueAt,
                         sla_days: policy?.sla || 1,
@@ -726,31 +741,61 @@ class TicketController {
             });
 
         } catch (error) {
-            console.error('=== DETAILED ERROR ===');
-            console.error('Message:', error.message);
-            console.error('Name:', error.name);
-            console.error('Original:', error.original);
-            console.error('SQL:', error.sql);
-            console.error('Parameters:', error.parameters);
+            if (!transaction.finished) {
+                await transaction.rollback();
+            }
+            console.log('Create ticket error details:', error.original);
+            console.log('Error message:', error.message);
             next(error);
         }
     }
 
     async resolvePolicy(complaintId, channelId) {
-        // Find policy based on complaint and channel
-        let policy = await ComplaintPolicy.findOne({
-            where: { 
+        // Get all matching policies
+        const policies = await ComplaintPolicy.findAll({
+            where: {
                 complaint_id: complaintId,
                 channel_id: channelId
             }
         });
         
-        if (policy) return policy;
+        if (policies.length === 0) {
+            // Fallback: find by complaint only
+            return await ComplaintPolicy.findOne({
+                where: { complaint_id: complaintId }
+            });
+        }
         
-        // Fallback: find policy by complaint only
-        return await ComplaintPolicy.findOne({
-            where: { complaint_id: complaintId }
-        });
+        if (policies.length === 1) {
+            return policies[0];
+        }
+        
+        // SMART SELECTION for multiple policies
+        return this.selectBestPolicy(policies, complaintId, channelId);
+    }
+
+    selectBestPolicy(policies, complaintId, channelId) {
+        // Rule 1: Prioritize by SLA (shortest = most critical)
+        const shortestSLA = Math.min(...policies.map(p => p.sla));
+        let candidates = policies.filter(p => p.sla === shortestSLA);
+        
+        if (candidates.length === 1) return candidates[0];
+        
+        // Rule 2: Prioritize specific descriptions over generic
+        const specificKeywords = ['BNI', 'Bank Lain', 'ATM BNI', 'ATM Bank Lain'];
+        const specificPolicy = candidates.find(p => 
+            specificKeywords.some(keyword => p.description?.includes(keyword))
+        );
+        
+        if (specificPolicy) return specificPolicy;
+        
+        // Rule 3: Prioritize by UIC (lower UIC = more specialized)
+        candidates.sort((a, b) => a.uic_id - b.uic_id);
+        
+        // Rule 4: Log for monitoring
+        console.warn(`Multiple policies found for channel ${channelId} + complaint ${complaintId}. Selected policy ${candidates[0].policy_id}`);
+        
+        return candidates[0];
     }
 
     async generateTicketNumber() {
@@ -763,7 +808,7 @@ class TicketController {
         const todayStart = new Date(year, now.getMonth(), now.getDate());
         const todayEnd = new Date(year, now.getMonth(), now.getDate() + 1);
         
-        const todayTicketsCount = await Ticket.count({
+        const todayTickets = await Ticket.count({
             where: {
                 created_time: {
                     [Op.gte]: todayStart,
@@ -772,7 +817,7 @@ class TicketController {
             }
         });
         
-        const sequence = String(todayTicketsCount + 1).padStart(4, '0');
+        const sequence = String(todayTickets + 1).padStart(4, '0');
         
         return `BNI-${year}${month}${day}${sequence}`;
     }
@@ -780,172 +825,176 @@ class TicketController {
     calculateSLADueDate(slaDays) {
         const now = new Date();
         const dueDate = new Date(now.getTime() + (slaDays * 24 * 60 * 60 * 1000));
-        return dueDate.toISOString();
+        return dueDate;
+    }
+
+    async createStatusHistoryActivities(ticket, action, user, customerStatus, employeeStatus, transaction) {
+        const activities = [];
+
+        if (!action) {
+            activities.push({
+                ticket_id: ticket.ticket_id,
+                ticket_activity_type_id: 2, // STATUS_CHANGE
+                sender_type_id: user.role === 'customer' ? 1 : 2,
+                sender_id: user.id,
+                content: `Initial status set: customer status to ${customerStatus.customer_status_code}, employee status to ${employeeStatus.employee_status_code}`
+            });
+        } else if (action === 'ESCALATED') {
+            activities.push({
+                ticket_id: ticket.ticket_id,
+                ticket_activity_type_id: 2, // STATUS_CHANGE
+                sender_type_id: 2, // Employee
+                sender_id: user.id,
+                content: `Ticket created and escalated: customer status to ${customerStatus.customer_status_code}, employee status to ${employeeStatus.employee_status_code}`
+            });
+        } else if (action === 'CLOSED') {
+            activities.push({
+                ticket_id: ticket.ticket_id,
+                ticket_activity_type_id: 2, // STATUS_CHANGE
+                sender_type_id: 2, // Employee
+                sender_id: user.id,
+                content: `Ticket created and closed: customer status to ${customerStatus.customer_status_code}, employee status to ${employeeStatus.employee_status_code}`
+            });
+        }
+
+        // Save all activities
+        for (const activity of activities) {
+            await TicketActivity.create(activity, { transaction });
+        }
+    }
+
+    async createUpdateActivity(ticketId, action, user, customerStatus, employeeStatus, transaction) {
+        let content = '';
+
+        const actionMessages = {
+            'HANDLEDCXC': 'Ticket handled by CXC agent',
+            'ESCALATED': 'Ticket escalated to specialist division',
+            'CLOSED': 'Ticket closed by CXC agent',
+            'DECLINED': 'Ticket declined by CXC agent',
+            'DONE_BY_UIC': 'Ticket completed by UIC division'
+        };
+
+        content = actionMessages[action] || 'Ticket updated';
+
+        await TicketActivity.create({
+            ticket_id: ticketId,
+            ticket_activity_type_id: 1, // COMMENT
+            sender_type_id: 2, // Employee
+            sender_id: user.id,
+            content: content
+        }, { transaction });
+    }
+
+    async createUpdateStatusHistory(ticketId, action, user, customerStatus, employeeStatus, transaction) {
+        let content = '';
+
+        if (customerStatus && employeeStatus) {
+            content = `Status updated via ${action}: customer status to ${customerStatus.customer_status_code}, employee status to ${employeeStatus.employee_status_code}`;
+        } else if (customerStatus) {
+            content = `Status updated via ${action}: customer status to ${customerStatus.customer_status_code}`;
+        } else if (employeeStatus) {
+            content = `Status updated via ${action}: employee status to ${employeeStatus.employee_status_code}`;
+        }
+
+        if (content) {
+            await TicketActivity.create({
+                ticket_id: ticketId,
+                ticket_activity_type_id: 2, // STATUS_CHANGE
+                sender_type_id: 2, // Employee
+                sender_id: user.id,
+                content: content
+            }, { transaction });
+        }
+    }
+
+    getNextId(tableName) {
+        // This method is not needed in Sequelize as it handles auto-increment automatically
+        // Keeping for compatibility but returning null
+        return null;
     }
 
     async updateTicket(req, res, next) {
+        const transaction = await db.sequelize.transaction();
+        
         try {
             const { id } = req.params;
             const {
-                description,
-                customer_status,
-                employee_status,
-                priority,
-                responsible_employee_id,
-                division_notes,
-                transaction_date,
-                amount,
+                action,
+                priority_id,
                 record,
-                related_account_id,
-                related_card_id,
-                terminal_id
+                issue_channel_id,
+                intake_source_id,
+                amount,
+                complaint_id,
+                transaction_date,
+                terminal_id,
+                description,
+                division_notes,
+                reason,
+                solution,
             } = req.body;
 
-            const ticket = await Ticket.findByPk(parseInt(id));
+            const ticket = await Ticket.findOne({
+                where: { 
+                    ticket_id: parseInt(id),
+                    delete_at: null
+                }
+            });
 
             if (!ticket) {
-                return res.status(404).json({
+                return res.status(HTTP_STATUS.NOT_FOUND).json({
                     success: false,
                     message: 'Ticket not found'
                 });
             }
 
-            // Role-based access control - Only employees can update tickets
+            // Role-based access control
             if (req.user.role === 'customer') {
-                return res.status(403).json({
+                return res.status(HTTP_STATUS.FORBIDDEN).json({
                     success: false,
                     message: 'Customers cannot update tickets'
                 });
-            } else if (req.user.role === 'employee') {
-                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
-                    if (ticket.responsible_employee_id !== req.user.id) {
-                        return res.status(403).json({
-                            success: false,
-                            message: 'Access denied - you can only update tickets assigned to you'
-                        });
-                    }
-                    
-                    // Non-CXC employees can only update limited fields
-                    const allowedFields = ['customer_status', 'employee_status', 'division_notes'];
-                    const providedFields = Object.keys(req.body);
-                    const invalidFields = providedFields.filter(field => !allowedFields.includes(field));
-                    
-                    if (invalidFields.length > 0) {
-                        return res.status(403).json({
-                            success: false,
-                            message: `Non-CXC employees can only update: ${allowedFields.join(', ')}`
-                        });
-                    }
-                }
             }
 
-            // Validate status codes if provided
-            let updateData = {};
-            const isCXCAgent = req.user.role_id === 1 && req.user.division_id === 1;
+            let customerStatus, employeeStatus;
+            const updateData = {};
 
-            if (customer_status) {
-                const customerStatusData = await CustomerStatus.findOne({
-                    where: { customer_status_code: customer_status.toUpperCase() }
+            // Handle different actions
+            await this.handleTicketAction(action, req.user, updateData, req.body);
+
+            // Get status objects if needed
+            if (updateData.customer_status_id) {
+                customerStatus = await CustomerStatus.findByPk(updateData.customer_status_id);
+            }
+            if (updateData.employee_status_id) {
+                employeeStatus = await EmployeeStatus.findByPk(updateData.employee_status_id);
+            }
+
+            if (Object.keys(updateData).length === 0) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                    success: false,
+                    message: 'No valid update data provided'
                 });
-                if (!customerStatusData) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Invalid customer_status code'
-                    });
-                }
-                updateData.customer_status_id = customerStatusData.customer_status_id;
-            }
-
-            if (employee_status) {
-                const employeeStatusData = await EmployeeStatus.findOne({
-                    where: { employee_status_code: employee_status.toUpperCase() }
-                });
-                if (!employeeStatusData) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Invalid employee_status code'
-                    });
-                }
-                updateData.employee_status_id = employeeStatusData.employee_status_id;
-                
-                // Auto-close ticket if status is resolved
-                if (['RESOLVED', 'CLOSED'].includes(employee_status.toUpperCase())) {
-                    updateData.closed_time = new Date().toISOString();
-                }
-            }
-
-            if (priority && isCXCAgent) {
-                const priorityData = await Priority.findOne({
-                    where: { priority_code: priority.toUpperCase() }
-                });
-                if (!priorityData) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Invalid priority code'
-                    });
-                }
-                updateData.priority_id = priorityData.priority_id;
-            }
-
-            // Validate responsible employee if provided
-            if (responsible_employee_id && isCXCAgent) {
-                const employee = await Employee.findByPk(parseInt(responsible_employee_id));
-                if (!employee) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Invalid responsible_employee_id'
-                    });
-                }
-                updateData.responsible_employee_id = parseInt(responsible_employee_id);
-            }
-
-            // Fields available for all employees
-            if (division_notes !== undefined) updateData.division_notes = division_notes;
-            
-            // Fields only available for CXC agents
-            if (isCXCAgent) {
-                if (description !== undefined) updateData.description = description;
-                if (record !== undefined) updateData.record = record;
-                if (transaction_date !== undefined) updateData.transaction_date = transaction_date;
-                if (amount !== undefined) updateData.amount = amount;
-                if (related_account_id !== undefined) updateData.related_account_id = related_account_id ? parseInt(related_account_id) : null;
-                if (related_card_id !== undefined) updateData.related_card_id = related_card_id ? parseInt(related_card_id) : null;
-                if (terminal_id !== undefined) updateData.terminal_id = terminal_id ? parseInt(terminal_id) : null;
             }
 
             // Update ticket
-            await ticket.update(updateData);
+            await ticket.update(updateData, { transaction });
 
-            // Create activity log
-            const activityContent = this.generateUpdateActivityContent(req.body, req.user.role);
-            await TicketActivity.create({
-                ticket_id: parseInt(id),
-                ticket_activity_type_id: 2,
-                sender_type_id: req.user.role === 'customer' ? 1 : 2,
-                sender_id: req.user.id,
-                content: activityContent,
-                ticket_activity_time: new Date().toISOString()
-            });
+            // Create activity logs
+            await this.createUpdateActivity(parseInt(id), action, req.user, customerStatus, employeeStatus, transaction);
 
-            // Get updated ticket with associations
+            if (customerStatus || employeeStatus) {
+                await this.createUpdateStatusHistory(parseInt(id), action, req.user, customerStatus, employeeStatus, transaction);
+            }
+
+            await transaction.commit();
+
+            // Get updated ticket with relations
             const updatedTicket = await Ticket.findByPk(parseInt(id), {
-                include: [
-                    { model: Customer, as: 'customer' },
-                    { model: CustomerStatus, as: 'customer_status' },
-                    { model: EmployeeStatus, as: 'employee_status' },
-                    { model: Channel, as: 'issue_channel' },
-                    { model: ComplaintCategory, as: 'complaint_category' },
-                    { model: Account, as: 'related_account', required: false },
-                    { model: Card, as: 'related_card', required: false },
-                    { model: Employee, as: 'responsible_employee', required: false },
-                    { model: Priority, as: 'priority' },
-                    { model: Terminal, as: 'terminal', required: false },
-                    { model: Source, as: 'intake_source', required: false },
-                    { model: ComplaintPolicy, as: 'policy', required: false }
-                ]
+                include: this.getDetailedIncludes()
             });
 
-            const enrichedTicket = this.enrichTicketData(updatedTicket.toJSON(), req.user.role);
+            const enrichedTicket = await this.enrichTicketData(updatedTicket, req.user.role);
 
             res.status(200).json({
                 success: true,
@@ -954,7 +1003,138 @@ class TicketController {
             });
 
         } catch (error) {
+            await transaction.rollback();
             next(error);
+        }
+    }
+
+    async handleTicketAction(action, user, updateData, body) {
+        const {
+            priority_id, record, issue_channel_id, intake_source_id,
+            complaint_id, amount, transaction_date, terminal_id,
+            description, division_notes, reason, solution
+        } = body;
+
+        if (!action) {
+            if (division_notes) {
+                updateData.division_notes = JSON.stringify(division_notes);
+            }
+            return;
+        }
+
+        const actionHandlers = {
+            'HANDLEDCXC': async () => {
+                if (user.division_id === 1) {
+                    const customerStatus = await CustomerStatus.findOne({
+                        where: { customer_status_code: "VERIF" }
+                    });
+                    const employeeStatus = await EmployeeStatus.findOne({
+                        where: { employee_status_code: "HANDLEDCXC" }
+                    });
+
+                    updateData.customer_status_id = customerStatus.customer_status_id;
+                    updateData.employee_status_id = employeeStatus.employee_status_id;
+                    updateData.responsible_employee_id = user.id;
+                }
+            },
+            'ESCALATED': async () => {
+                if (user.division_id === 1) {
+                    const customerStatus = await CustomerStatus.findOne({
+                        where: { customer_status_code: "PROCESS" }
+                    });
+                    const employeeStatus = await EmployeeStatus.findOne({
+                        where: { employee_status_code: "ESCALATED" }
+                    });
+
+                    updateData.customer_status_id = customerStatus.customer_status_id;
+                    updateData.employee_status_id = employeeStatus.employee_status_id;
+
+                    // Update other fields for escalation
+                    if (priority_id) updateData.priority_id = priority_id;
+                    if (record) updateData.record = record;
+                    if (issue_channel_id) updateData.issue_channel_id = issue_channel_id;
+                    if (intake_source_id) updateData.intake_source_id = intake_source_id;
+                    if (complaint_id) updateData.complaint_id = complaint_id;
+                    if (amount) updateData.amount = amount;
+                    if (transaction_date) updateData.transaction_date = transaction_date;
+                    if (terminal_id) updateData.terminal_id = terminal_id;
+                    if (description) updateData.description = description;
+                    if (division_notes) updateData.division_notes = JSON.stringify(division_notes);
+                }
+            },
+            'CLOSED': async () => {
+                if (user.division_id === 1) {
+                    const customerStatus = await CustomerStatus.findOne({
+                        where: { customer_status_code: "CLOSED" }
+                    });
+                    const employeeStatus = await EmployeeStatus.findOne({
+                        where: { employee_status_code: "CLOSED" }
+                    });
+
+                    updateData.customer_status_id = customerStatus.customer_status_id;
+                    updateData.employee_status_id = employeeStatus.employee_status_id;
+                    updateData.closed_time = new Date();
+
+                    // Update other fields for closure
+                    if (priority_id) updateData.priority_id = priority_id;
+                    if (record) updateData.record = record;
+                    if (issue_channel_id) updateData.issue_channel_id = issue_channel_id;
+                    if (intake_source_id) updateData.intake_source_id = intake_source_id;
+                    if (complaint_id) updateData.complaint_id = complaint_id;
+                    if (amount) updateData.amount = amount;
+                    if (transaction_date) updateData.transaction_date = transaction_date;
+                    if (terminal_id) updateData.terminal_id = terminal_id;
+                    if (description) updateData.description = description;
+                    if (solution) updateData.solution = solution;
+                    if (division_notes) updateData.division_notes = JSON.stringify(division_notes);
+                }
+            },
+            'DECLINED': async () => {
+                if (user.division_id === 1) {
+                    const customerStatus = await CustomerStatus.findOne({
+                        where: { customer_status_code: "DECLINED" }
+                    });
+                    const employeeStatus = await EmployeeStatus.findOne({
+                        where: { employee_status_code: "DECLINED" }
+                    });
+
+                    updateData.customer_status_id = customerStatus.customer_status_id;
+                    updateData.employee_status_id = employeeStatus.employee_status_id;
+                    updateData.closed_time = new Date();
+
+                    // Update other fields for decline
+                    if (priority_id) updateData.priority_id = priority_id;
+                    if (record) updateData.record = record;
+                    if (issue_channel_id) updateData.issue_channel_id = issue_channel_id;
+                    if (intake_source_id) updateData.intake_source_id = intake_source_id;
+                    if (complaint_id) updateData.complaint_id = complaint_id;
+                    if (amount) updateData.amount = amount;
+                    if (transaction_date) updateData.transaction_date = transaction_date;
+                    if (terminal_id) updateData.terminal_id = terminal_id;
+                    if (description) updateData.description = description;
+                    if (reason) updateData.reason = reason;
+                    if (division_notes) updateData.division_notes = JSON.stringify(division_notes);
+                }
+            },
+            'DONE_BY_UIC': async () => {
+                if (user.division_id !== 1) {
+                    const customerStatus = await CustomerStatus.findOne({
+                        where: { customer_status_code: "PROCESS" }
+                    });
+                    const employeeStatus = await EmployeeStatus.findOne({
+                        where: { employee_status_code: "DONE_BY_UIC" }
+                    });
+
+                    updateData.customer_status_id = customerStatus.customer_status_id;
+                    updateData.employee_status_id = employeeStatus.employee_status_id;
+
+                    if (division_notes) updateData.division_notes = JSON.stringify(division_notes);
+                }
+            }
+        };
+
+        if (actionHandlers[action]) {
+            await actionHandlers[action]();
         }
     }
 
@@ -962,14 +1142,14 @@ class TicketController {
         const changes = [];
         
         if (updateData.description) changes.push('description');
-        if (updateData.customer_status) changes.push(`customer status to ${updateData.customer_status}`);
-        if (updateData.employee_status) changes.push(`employee status to ${updateData.employee_status}`);
-        if (updateData.priority) changes.push(`priority to ${updateData.priority}`);
+        if (updateData.record) changes.push('record');
+        if (updateData.customer_status_id) changes.push('customer status');
+        if (updateData.employee_status_id) changes.push('employee status');
+        if (updateData.priority_id) changes.push('priority');
         if (updateData.responsible_employee_id) changes.push('responsible employee');
         if (updateData.division_notes) changes.push('division notes');
         if (updateData.transaction_date) changes.push('transaction date');
         if (updateData.amount) changes.push('amount');
-        if (updateData.record) changes.push('record');
         if (updateData.related_account_id) changes.push('related account');
         if (updateData.related_card_id) changes.push('related card');
         if (updateData.terminal_id) changes.push('terminal');
@@ -978,59 +1158,63 @@ class TicketController {
     }
 
     async deleteTicket(req, res, next) {
+        const transaction = await db.sequelize.transaction();
+        
         try {
             const { id } = req.params;
 
-            const ticket = await Ticket.findByPk(parseInt(id));
+            const ticket = await Ticket.findOne({
+                where: { 
+                    ticket_id: parseInt(id),
+                    delete_at: null
+                },
+                include: [{
+                    model: EmployeeStatus,
+                    as: 'employee_status'
+                }]
+            });
 
             if (!ticket) {
                 throw new NotFoundError('Ticket');
             }
 
-            // Check if already delete
-            if (ticket.delete_at) {
-                throw new ConflictError('Ticket already delete');
-            }
-
-            // Role-based access control - Only CXC employees can delete tickets
+            // Role-based access control
             if (req.user.role !== 'employee') {
                 throw new ForbiddenError('Only employees can delete tickets');
             }
 
-            // Check if user is CXC employee (role_id=1 AND division_id=1)
             if (req.user.role_id !== 1 || req.user.division_id !== 1) {
                 throw new ForbiddenError('Only CXC employees can delete tickets');
             }
 
             // Business rule: Cannot delete closed tickets
-            const employeeStatus = await EmployeeStatus.findByPk(ticket.employee_status_id);
-
-            if (employeeStatus && ['CLOSED', 'RESOLVED'].includes(employeeStatus.employee_status_code)) {
+            if (ticket.employee_status && ['CLOSED', 'RESOLVED'].includes(ticket.employee_status.employee_status_code)) {
                 return res.status(400).json({
                     success: false,
                     message: 'Cannot delete closed or resolved tickets'
                 });
             }
 
-            // Soft delete - add delete_at timestamp and delete_by
+            // Soft delete
             await ticket.update({
-                delete_at: new Date().toISOString(),
+                delete_at: new Date(),
                 delete_by: req.user.id
-            });
+            }, { transaction });
 
-            // Create activity log for deletion
+            // Create activity log
             await TicketActivity.create({
                 ticket_id: parseInt(id),
-                ticket_activity_type_id: 4, // Assuming 4 = delete activity
+                ticket_activity_type_id: 4, // DELETE activity
                 sender_type_id: 2, // Employee
                 sender_id: req.user.id,
-                content: `Ticket delete by ${req.user.full_name || req.user.npp}`,
-                ticket_activity_time: new Date().toISOString()
-            });
+                content: `Ticket deleted by ${req.user.full_name || req.user.npp}`
+            }, { transaction });
+
+            await transaction.commit();
 
             res.status(200).json({
                 success: true,
-                message: 'Ticket delete successfully',
+                message: 'Ticket deleted successfully',
                 data: {
                     ticket_id: ticket.ticket_id,
                     ticket_number: ticket.ticket_number,
@@ -1040,6 +1224,7 @@ class TicketController {
             });
 
         } catch (error) {
+            await transaction.rollback();
             next(error);
         }
     }
@@ -1049,7 +1234,12 @@ class TicketController {
             const { id } = req.params;
             const { limit = 50, offset = 0, activity_type } = req.query;
 
-            const ticket = await Ticket.findByPk(parseInt(id));
+            const ticket = await Ticket.findOne({
+                where: { 
+                    ticket_id: parseInt(id),
+                    delete_at: null
+                }
+            });
 
             if (!ticket) {
                 throw new NotFoundError('Ticket');
@@ -1066,23 +1256,22 @@ class TicketController {
                 }
             }
 
-            // Build where clause
-            let whereClause = { ticket_id: parseInt(id) };
+            // Build where clause for activities
+            let activityWhere = { ticket_id: parseInt(id) };
 
-            // Filter by activity type if provided
             if (activity_type) {
                 const activityTypeData = await TicketActivityType.findOne({
                     where: { ticket_activity_code: activity_type.toUpperCase() }
                 });
                 
                 if (activityTypeData) {
-                    whereClause.ticket_activity_type_id = activityTypeData.ticket_activity_type_id;
+                    activityWhere.ticket_activity_type_id = activityTypeData.ticket_activity_type_id;
                 }
             }
 
-            // Get activities
+            // Get activities with pagination
             const { count, rows: activities } = await TicketActivity.findAndCountAll({
-                where: whereClause,
+                where: activityWhere,
                 include: [
                     {
                         model: TicketActivityType,
@@ -1091,21 +1280,24 @@ class TicketController {
                     {
                         model: SenderType,
                         as: 'sender_type'
+                    },
+                    {
+                        model: Attachment,
+                        as: 'attachments',
+                        required: false
                     }
                 ],
-                order: [['ticket_activity_time', 'DESC']],
                 limit: parseInt(limit),
-                offset: parseInt(offset)
+                offset: parseInt(offset),
+                order: [['ticket_activity_time', 'DESC']]
             });
 
-            // Enrich activities with related data
+            // Enrich activities with sender details
             const enrichedActivities = await Promise.all(activities.map(async (activity) => {
-                const activityData = activity.toJSON();
-                
-                // Get sender details based on sender type
                 let sender = null;
-                if (activityData.sender_type?.sender_type_code === 'CUSTOMER') {
-                    const customer = await Customer.findByPk(activityData.sender_id, {
+                
+                if (activity.sender_type?.sender_type_code === 'CUSTOMER') {
+                    const customer = await Customer.findByPk(activity.sender_id, {
                         attributes: ['customer_id', 'full_name', 'email']
                     });
                     if (customer) {
@@ -1116,9 +1308,9 @@ class TicketController {
                             type: 'customer'
                         };
                     }
-                } else if (activityData.sender_type?.sender_type_code === 'EMPLOYEE') {
-                    const employee = await Employee.findByPk(activityData.sender_id, {
-                        attributes: ['employee_id', 'full_name', 'npp', 'email', 'division_id'],
+                } else if (activity.sender_type?.sender_type_code === 'EMPLOYEE') {
+                    const employee = await Employee.findByPk(activity.sender_id, {
+                        attributes: ['employee_id', 'full_name', 'npp', 'email'],
                         include: [{
                             model: Division,
                             as: 'division',
@@ -1126,32 +1318,25 @@ class TicketController {
                         }]
                     });
                     if (employee) {
-                        const empData = employee.toJSON();
                         sender = {
-                            sender_id: empData.employee_id,
-                            full_name: empData.full_name,
-                            npp: empData.npp,
-                            email: empData.email,
-                            division: empData.division,
+                            sender_id: employee.employee_id,
+                            full_name: employee.full_name,
+                            npp: employee.npp,
+                            email: employee.email,
+                            division: employee.division,
                             type: 'employee'
                         };
                     }
                 }
 
-                // Get attachments for this activity
-                const attachments = await Attachment.findAll({
-                    where: { ticket_activity_id: activityData.ticket_activity_id },
-                    attributes: ['attachment_id', 'file_name', 'file_path', 'file_size', 'file_type', 'upload_time']
-                });
-
                 return {
-                    ticket_activity_id: activityData.ticket_activity_id,
-                    activity_type: activityData.activity_type,
-                    sender_type: activityData.sender_type,
+                    ticket_activity_id: activity.ticket_activity_id,
+                    activity_type: activity.activity_type,
+                    sender_type: activity.sender_type,
                     sender: sender,
-                    content: activityData.content,
-                    ticket_activity_time: activityData.ticket_activity_time,
-                    attachments: attachments.map(a => a.toJSON())
+                    content: activity.content,
+                    ticket_activity_time: activity.ticket_activity_time,
+                    attachments: activity.attachments || []
                 };
             }));
 
@@ -1181,7 +1366,12 @@ class TicketController {
             const { id } = req.params;
             const { limit = 20, offset = 0, file_type } = req.query;
 
-            const ticket = await Ticket.findByPk(parseInt(id));
+            const ticket = await Ticket.findOne({
+                where: { 
+                    ticket_id: parseInt(id),
+                    delete_at: null
+                }
+            });
 
             if (!ticket) {
                 throw new NotFoundError('Ticket');
@@ -1198,7 +1388,7 @@ class TicketController {
                 }
             }
 
-            // Get all activities for this ticket
+            // Get activities for this ticket
             const activities = await TicketActivity.findAll({
                 where: { ticket_id: parseInt(id) },
                 attributes: ['ticket_activity_id']
@@ -1207,22 +1397,17 @@ class TicketController {
             const activityIds = activities.map(activity => activity.ticket_activity_id);
 
             // Build where clause for attachments
-            let whereClause = {
-                ticket_activity_id: {
-                    [Op.in]: activityIds
-                }
+            let attachmentWhere = {
+                ticket_activity_id: { [Op.in]: activityIds }
             };
 
-            // Filter by file type if provided
             if (file_type) {
-                whereClause.file_type = {
-                    [Op.iLike]: `%${file_type}%`
-                };
+                attachmentWhere.file_type = { [Op.iLike]: `%${file_type}%` };
             }
 
-            // Get attachments
+            // Get attachments with pagination
             const { count, rows: attachments } = await Attachment.findAndCountAll({
-                where: whereClause,
+                where: attachmentWhere,
                 include: [{
                     model: TicketActivity,
                     as: 'ticket_activity',
@@ -1237,18 +1422,16 @@ class TicketController {
                         }
                     ]
                 }],
-                order: [['upload_time', 'DESC']],
                 limit: parseInt(limit),
-                offset: parseInt(offset)
+                offset: parseInt(offset),
+                order: [['upload_time', 'DESC']]
             });
 
-            // Enrich attachments with activity and sender info
+            // Enrich attachments with sender info
             const enrichedAttachments = await Promise.all(attachments.map(async (attachment) => {
-                const attachmentData = attachment.toJSON();
-                const activity = attachmentData.ticket_activity;
-
-                // Get sender details
+                const activity = attachment.ticket_activity;
                 let sender = null;
+
                 if (activity && activity.sender_type?.sender_type_code === 'CUSTOMER') {
                     const customer = await Customer.findByPk(activity.sender_id, {
                         attributes: ['customer_id', 'full_name']
@@ -1275,15 +1458,18 @@ class TicketController {
                 }
 
                 return {
-                    attachment_id: attachmentData.attachment_id,
-                    file_name: attachmentData.file_name,
-                    file_path: attachmentData.file_path,
-                    file_size: attachmentData.file_size,
-                    file_type: attachmentData.file_type,
-                    upload_time: attachmentData.upload_time,
+                    attachment_id: attachment.attachment_id,
+                    file_name: attachment.file_name,
+                    file_path: attachment.file_path,
+                    file_size: attachment.file_size,
+                    file_type: attachment.file_type,
+                    upload_time: attachment.upload_time,
                     activity: activity ? {
                         ticket_activity_id: activity.ticket_activity_id,
-                        activity_type: activity.activity_type,
+                        activity_type: activity.activity_type ? {
+                            ticket_activity_code: activity.activity_type.ticket_activity_code,
+                            ticket_activity_name: activity.activity_type.ticket_activity_name
+                        } : null,
                         content: activity.content,
                         ticket_activity_time: activity.ticket_activity_time
                     } : null,
@@ -1316,7 +1502,12 @@ class TicketController {
         try {
             const { id } = req.params;
 
-            const ticket = await Ticket.findByPk(parseInt(id));
+            const ticket = await Ticket.findOne({
+                where: { 
+                    ticket_id: parseInt(id),
+                    delete_at: null
+                }
+            });
 
             if (!ticket) {
                 throw new NotFoundError('Ticket');
@@ -1384,21 +1575,21 @@ class TicketController {
 
     async getStatusHistory(ticketId) {
         const activities = await TicketActivity.findAll({
-            where: { 
+            where: {
                 ticket_id: ticketId,
                 content: {
                     [Op.or]: [
-                        { [Op.iLike]: '%status to%' },
-                        { [Op.iLike]: '%Ticket created%' }
+                        { [Op.like]: '%status to%' },
+                        { [Op.like]: '%Initial status set%' },
+                        { [Op.like]: '%created and escalated%' },
+                        { [Op.like]: '%created and closed%' }
                     ]
                 }
             },
-            include: [
-                {
-                    model: SenderType,
-                    as: 'sender_type'
-                }
-            ],
+            include: [{
+                model: SenderType,
+                as: 'sender_type'
+            }],
             order: [['ticket_activity_time', 'ASC']]
         });
 
@@ -1434,12 +1625,18 @@ class TicketController {
                         where: { customer_status_code: newStatus }
                     });
                     
+                    let action_type = 'updated';
+                    if (content.includes('Initial status set')) action_type = 'created';
+                    else if (content.includes('created and escalated')) action_type = 'escalated';
+                    else if (content.includes('created and closed')) action_type = 'closed';
+                    
                     history.customer_status_history.push({
                         status_code: newStatus,
                         status_name: statusData?.customer_status_name || newStatus,
                         changed_by: changedBy,
                         changed_at: timestamp,
-                        activity_id: activity.ticket_activity_id
+                        activity_id: activity.ticket_activity_id,
+                        action_type: action_type
                     });
                 }
             }
@@ -1453,51 +1650,58 @@ class TicketController {
                         where: { employee_status_code: newStatus }
                     });
                     
+                    let action_type = 'updated';
+                    if (content.includes('Initial status set')) action_type = 'created';
+                    else if (content.includes('created and escalated')) action_type = 'escalated';
+                    else if (content.includes('created and closed')) action_type = 'closed';
+                    
                     history.employee_status_history.push({
                         status_code: newStatus,
                         status_name: statusData?.employee_status_name || newStatus,
                         changed_by: changedBy,
                         changed_at: timestamp,
-                        activity_id: activity.ticket_activity_id
-                    });
-                }
-            }
-
-            // Handle initial ticket creation
-            if (content.includes('Ticket created')) {
-                // Add initial statuses
-                const ticket = await Ticket.findByPk(ticketId, {
-                    include: [
-                        { model: CustomerStatus, as: 'customer_status' },
-                        { model: EmployeeStatus, as: 'employee_status' }
-                    ]
-                });
-                
-                if (ticket && history.customer_status_history.length === 0) {
-                    history.customer_status_history.push({
-                        status_code: ticket.customer_status.customer_status_code,
-                        status_name: ticket.customer_status.customer_status_name,
-                        changed_by: changedBy,
-                        changed_at: timestamp,
                         activity_id: activity.ticket_activity_id,
-                        is_initial: true
-                    });
-                }
-                
-                if (ticket && history.employee_status_history.length === 0) {
-                    history.employee_status_history.push({
-                        status_code: ticket.employee_status.employee_status_code,
-                        status_name: ticket.employee_status.employee_status_name,
-                        changed_by: changedBy,
-                        changed_at: timestamp,
-                        activity_id: activity.ticket_activity_id,
-                        is_initial: true
+                        action_type: action_type
                     });
                 }
             }
         }
 
         return history;
+    }
+
+    parseDivisionNotes(divisionNotes) {
+        if (!divisionNotes || divisionNotes === 'null' || divisionNotes === null || divisionNotes === undefined) {
+            return null;
+        }
+        
+        if (typeof divisionNotes !== 'string') {
+            return divisionNotes; // Already parsed or is an object
+        }
+        
+        try {
+            const parsed = JSON.parse(divisionNotes);
+            return parsed;
+        } catch (error) {
+            // If parsing fails, return the raw string as a single note
+            return [{ note: divisionNotes, timestamp: new Date().toISOString() }];
+        }
+    }
+
+    stringifyDivisionNotes(divisionNotes) {
+        if (!divisionNotes || divisionNotes === null || divisionNotes === undefined) {
+            return null;
+        }
+        
+        if (typeof divisionNotes === 'string') {
+            return divisionNotes; // Already stringified
+        }
+        
+        try {
+            return JSON.stringify(divisionNotes);
+        } catch (error) {
+            return null;
+        }
     }
 
     calculateSLAInfo(ticket) {
@@ -1526,7 +1730,12 @@ class TicketController {
                 throw new ValidationError('Required fields: activity_type, content');
             }
 
-            const ticket = await Ticket.findByPk(parseInt(id));
+            const ticket = await Ticket.findOne({
+                where: { 
+                    ticket_id: parseInt(id),
+                    delete_at: null
+                }
+            });
 
             if (!ticket) {
                 throw new NotFoundError('Ticket');
@@ -1561,8 +1770,7 @@ class TicketController {
                 ticket_activity_type_id: activityType.ticket_activity_type_id,
                 sender_type_id: req.user.role === 'customer' ? 1 : 2,
                 sender_id: req.user.id,
-                content: content,
-                ticket_activity_time: new Date().toISOString()
+                content: content
             });
 
             // Get sender details for response
@@ -1581,7 +1789,7 @@ class TicketController {
                 }
             } else {
                 const employee = await Employee.findByPk(req.user.id, {
-                    attributes: ['employee_id', 'full_name', 'npp', 'email', 'division_id'],
+                    attributes: ['employee_id', 'full_name', 'npp', 'email'],
                     include: [{
                         model: Division,
                         as: 'division',
@@ -1589,13 +1797,12 @@ class TicketController {
                     }]
                 });
                 if (employee) {
-                    const empData = employee.toJSON();
                     sender = {
-                        sender_id: empData.employee_id,
-                        full_name: empData.full_name,
-                        npp: empData.npp,
-                        email: empData.email,
-                        division: empData.division,
+                        sender_id: employee.employee_id,
+                        full_name: employee.full_name,
+                        npp: employee.npp,
+                        email: employee.email,
+                        division: employee.division,
                         type: 'employee'
                     };
                 }
@@ -1629,6 +1836,139 @@ class TicketController {
             next(error);
         }
     }
+
+    async getActivityById(req, res, next) {
+        try {
+            const { id } = req.params;
+
+            const activity = await TicketActivity.findByPk(parseInt(id), {
+                include: [
+                    {
+                        model: TicketActivityType,
+                        as: 'activity_type'
+                    },
+                    {
+                        model: SenderType,
+                        as: 'sender_type'
+                    },
+                    {
+                        model: Attachment,
+                        as: 'attachments',
+                        required: false
+                    }
+                ]
+            });
+
+            if (!activity) {
+                throw new NotFoundError('Activity');
+            }
+
+            // Get the ticket to check access permissions
+            const ticket = await Ticket.findByPk(activity.ticket_id);
+
+            if (!ticket) {
+                throw new NotFoundError('Associated ticket');
+            }
+
+            // Role-based access control
+            if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
+                throw new ForbiddenError('Access denied');
+            } else if (req.user.role === 'employee') {
+                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
+                    if (ticket.responsible_employee_id !== req.user.id) {
+                        throw new ForbiddenError('Access denied - you can only view activities for tickets assigned to you');
+                    }
+                }
+            }
+
+            // Get sender details based on sender type
+            let sender = null;
+            if (activity.sender_type?.sender_type_code === 'CUSTOMER') {
+                const customer = await Customer.findByPk(activity.sender_id, {
+                    attributes: ['customer_id', 'full_name', 'email', 'phone_number']
+                });
+                if (customer) {
+                    sender = {
+                        sender_id: customer.customer_id,
+                        full_name: customer.full_name,
+                        email: customer.email,
+                        phone_number: customer.phone_number,
+                        type: 'customer'
+                    };
+                }
+            } else if (activity.sender_type?.sender_type_code === 'EMPLOYEE') {
+                const employee = await Employee.findByPk(activity.sender_id, {
+                    attributes: ['employee_id', 'full_name', 'npp', 'email'],
+                    include: [
+                        {
+                            model: Division,
+                            as: 'division',
+                            attributes: ['division_id', 'division_name', 'division_code']
+                        },
+                        {
+                            model: Role,
+                            as: 'role',
+                            attributes: ['role_id', 'role_name', 'role_code']
+                        }
+                    ]
+                });
+                if (employee) {
+                    sender = {
+                        sender_id: employee.employee_id,
+                        full_name: employee.full_name,
+                        npp: employee.npp,
+                        email: employee.email,
+                        division: employee.division,
+                        role: employee.role,
+                        type: 'employee'
+                    };
+                }
+            }
+
+            const enrichedActivity = {
+                ticket_activity_id: activity.ticket_activity_id,
+                ticket: {
+                    ticket_id: ticket.ticket_id,
+                    ticket_number: ticket.ticket_number,
+                    description: ticket.description
+                },
+                activity_type: activity.activity_type,
+                sender_type: activity.sender_type,
+                sender: sender,
+                content: activity.content,
+                ticket_activity_time: activity.ticket_activity_time,
+                attachments: activity.attachments || []
+            };
+
+            res.status(200).json({
+                success: true,
+                message: 'Activity retrieved successfully',
+                data: enrichedActivity
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async calculateDivision(ticket) {
+        let targetDivisionId;
+        
+        if (ticket.employee_status?.employee_status_code === 'ESCALATED') {
+            targetDivisionId = ticket.policy?.uic_id;
+        } else {
+            targetDivisionId = 1;
+        }
+
+        if (targetDivisionId) {
+            const division = await Division.findByPk(targetDivisionId, {
+                attributes: ['division_id', 'division_name', 'division_code']
+            });
+            return division;
+        }
+        return null;
+    }
 }
 
 module.exports = TicketController;
+
