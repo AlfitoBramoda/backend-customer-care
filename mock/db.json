@@ -2249,6 +2249,12 @@
       "ticket_activity_code": "ATTACHMENT",
       "ticket_activity_name": "Attachment",
       "id": 3
+    },
+    {
+      "ticket_activity_type_id": 4,
+      "ticket_activity_code": "EMAIL_SENT",
+      "ticket_activity_name": "Email Sent",
+      "id": 4
     }
   ],
   "ticket": [
@@ -4946,6 +4952,33 @@
       "division_notes": null,
       "delete_at": null,
       "delete_by": null
+    },
+    {
+      "ticket_id": 98,
+      "ticket_number": "BNI-202508230001",
+      "description": "Testing Email",
+      "record": "",
+      "reason": "",
+      "solution": "",
+      "customer_id": 2,
+      "customer_status_id": 3,
+      "employee_status_id": 3,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": 1,
+      "related_card_id": null,
+      "complaint_id": 31,
+      "responsible_employee_id": null,
+      "policy_id": 22,
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 500000,
+      "terminal_id": 1,
+      "created_time": "2025-08-23T01:37:09.686Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
     }
   ],
   "ticket_activity": [
@@ -6689,6 +6722,78 @@
       "sender_id": 1,
       "content": "Ticket created by employee for customer Andi Saputra: Gagal top up kartu Tapcash, rekening terdebet",
       "ticket_activity_time": "2025-08-22T09:50:09.145Z"
+    },
+    {
+      "ticket_activity_id": 194,
+      "ticket_id": 98,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Ticket created: Testing Email",
+      "ticket_activity_time": "2025-08-23T01:37:09.691Z"
+    },
+    {
+      "ticket_activity_id": 195,
+      "ticket_id": 98,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Initial status set: customer status to ACC, employee status to OPEN",
+      "ticket_activity_time": "2025-08-23T01:37:09.695Z"
+    },
+    {
+      "ticket_activity_id": 196,
+      "ticket_id": 98,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket escalated to specialist division",
+      "ticket_activity_time": "2025-08-23T02:12:25.315Z"
+    },
+    {
+      "ticket_activity_id": 197,
+      "ticket_id": 98,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via ESCALATED: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-23T02:12:25.321Z"
+    },
+    {
+      "ticket_activity_id": 198,
+      "ticket_id": 98,
+      "ticket_activity_type_id": 4,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Escalation email sent to 1 employees in Divisi TBS",
+      "ticket_activity_time": "2025-08-23T02:12:29.040Z"
+    },
+    {
+      "ticket_activity_id": 199,
+      "ticket_id": 98,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket escalated to specialist division",
+      "ticket_activity_time": "2025-08-23T02:12:33.874Z"
+    },
+    {
+      "ticket_activity_id": 200,
+      "ticket_id": 98,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via ESCALATED: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-23T02:12:33.879Z"
+    },
+    {
+      "ticket_activity_id": 201,
+      "ticket_id": 98,
+      "ticket_activity_type_id": 4,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Escalation email sent to 1 employees in Divisi TBS",
+      "ticket_activity_time": "2025-08-23T02:12:37.396Z"
     }
   ],
   "attachment": [

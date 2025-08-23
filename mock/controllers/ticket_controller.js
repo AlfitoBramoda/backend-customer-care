@@ -1,9 +1,11 @@
 const { NotFoundError, ForbiddenError, ValidationError, ConflictError } = require('../middlewares/error_handler');
 const { HTTP_STATUS } = require('../constants/statusCodes');
+const EmailEscalationService = require('../services/emailEscalationService');
 
 class TicketController {
     constructor(db) {
         this.db = db;
+        this.emailEscalationService = new EmailEscalationService(db);
     }
 
     static createInstance(db) {
@@ -527,6 +529,9 @@ class TicketController {
 
         // Get status history from activities
         const statusHistory = this.getStatusHistory(ticket.ticket_id);
+        
+        // Get email history from activities
+        const emailHistory = this.getEmailHistory(ticket.ticket_id);
 
         // Get related data
         const customer = this.db.get('customer')
@@ -645,6 +650,7 @@ class TicketController {
             activities: activities,
             attachments: attachments,
             status_history: statusHistory,
+            email_history: emailHistory,
             
             feedback: feedback ? {
                 feedback_id: feedback.feedback_id,
@@ -913,6 +919,16 @@ class TicketController {
 
             // Create status history activities based on action
             this.createStatusHistoryActivities(newTicket, action, req.user, customerStatus, employeeStatus);
+
+            // Send escalation email if ticket was created with escalation
+            if (action === 'ESCALATED') {
+                try {
+                    await this.emailEscalationService.sendEscalationEmail(newTicket.ticket_id, req.user.id);
+                } catch (emailError) {
+                    console.error('Failed to send escalation email:', emailError);
+                    // Don't fail the entire request if email fails
+                }
+            }
 
             // Return created ticket with enriched data
             const enrichedTicket = this.enrichTicketData(newTicket, 'customer');
@@ -1373,6 +1389,16 @@ class TicketController {
             // Create status history if status changed
             if (customerStatus || employeeStatus) {
                 this.createUpdateStatusHistory(parseInt(id), action, req.user, customerStatus, employeeStatus);
+            }
+
+            // Send escalation email if ticket was escalated
+            if (action === 'ESCALATED') {
+                try {
+                    await this.emailEscalationService.sendEscalationEmail(parseInt(id), req.user.id);
+                } catch (emailError) {
+                    console.error('Failed to send escalation email:', emailError);
+                    // Don't fail the entire request if email fails
+                }
             }
                 
             // Get updated ticket
@@ -1984,6 +2010,36 @@ class TicketController {
             is_overdue: diffHours < 0,
             status: diffHours < 0 ? 'overdue' : diffHours <= 24 ? 'urgent' : 'normal'
         };
+    }
+
+    getEmailHistory(ticketId) {
+        const emailActivities = this.db.get('ticket_activity')
+            .filter({ ticket_id: ticketId, ticket_activity_type_id: 4 }) // EMAIL_SENT type
+            .value()
+            .sort((a, b) => new Date(a.ticket_activity_time) - new Date(b.ticket_activity_time));
+
+        return emailActivities.map(activity => {
+            // Get sender info
+            const senderType = this.db.get('sender_type')
+                .find({ sender_type_id: activity.sender_type_id })
+                .value();
+            
+            let sentBy = 'System';
+            if (senderType?.sender_type_code === 'EMPLOYEE') {
+                const employee = this.db.get('employee')
+                    .find({ employee_id: activity.sender_id })
+                    .value();
+                sentBy = employee?.full_name || employee?.npp || 'Employee';
+            }
+
+            return {
+                email_id: activity.ticket_activity_id,
+                content: activity.content,
+                sent_by: sentBy,
+                sent_at: activity.ticket_activity_time,
+                activity_id: activity.ticket_activity_id
+            };
+        });
     }
 
     async createTicketActivity(req, res, next) {
