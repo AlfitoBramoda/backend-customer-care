@@ -39,7 +39,7 @@ function createSocketRoutes(db, io) {
       room,
       message,
       fromUserId: fromUserId || 'system',
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z',
       type: 'text'
     };
 

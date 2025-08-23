@@ -522,8 +522,8 @@ class AuthController {
                 role: user.role,
                 email: user.email,
                 token_info: {
-                    issued_at: new Date(user.iat * 1000).toISOString(),
-                    expires_at: new Date(user.exp * 1000).toISOString()
+                    issued_at: new Date(user.iat * 1000).toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z',
+                    expires_at: new Date(user.exp * 1000).toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
                 }
             };
 

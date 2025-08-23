@@ -92,7 +92,7 @@ server.get('/health', (req, res) => {
   res.json({
     success: true,
     status: 'healthy',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
   });
 });
 
@@ -135,7 +135,7 @@ server.use('/v1', (req, res, next) => {
   if (isWrite) {
     const b = req.body;
     if (b && typeof b === 'object' && !Array.isArray(b)) {
-      const now = new Date().toISOString();
+      const now = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z';
       if (req.method === 'POST' && b.created_at == null) b.created_at = now;
       b.updated_at = now;
     }
@@ -153,7 +153,7 @@ server.get('/socket/status', (req, res) => {
     success: true,
     socketIO: 'active',
     connectedClients: io.engine.clientsCount,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
   });
 });
 
