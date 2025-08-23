@@ -3,8 +3,6 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const { HTTP_STATUS } = require('./constants/statusCodes');
 
-// const EnvValidator = require('./config/env_validator');
-// EnvValidator.validateAndSetDefaults();
 console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 console.log(`📁 Config file: .env`);
 
