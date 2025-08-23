@@ -8,7 +8,7 @@ class ResponseHelper {
             success: true,
             message,
             data,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
         });
     }
 
@@ -22,7 +22,7 @@ class ResponseHelper {
             message,
             error_code: statusCode,
             ...(details && { details }),
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
         });
     }
 
@@ -56,7 +56,7 @@ class ResponseHelper {
             message,
             data,
             pagination,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
         });
     }
 }

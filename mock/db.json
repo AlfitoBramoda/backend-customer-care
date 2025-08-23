@@ -572,7 +572,7 @@
     {
       "employee_id": 3,
       "full_name": "Agus Salim",
-      "email": "agus.salim@example.com",
+      "email": "havisaprinaldi25@gmail.com",
       "npp": "EMP00003",
       "password_hash": "$2b$10$v7amBqkRcs7ovsKkjDRD.OoevgaDi0U76Co61owFxMYXeckjpSrJy",
       "role_id": 3,
@@ -2151,7 +2151,7 @@
       "terminal_code": "CRM101",
       "terminal_type_id": 2,
       "location": "Surabaya Darmo",
-      "channel_id": 2,
+      "channel_id": 3,
       "id": 2
     }
   ],
@@ -2249,6 +2249,12 @@
       "ticket_activity_code": "ATTACHMENT",
       "ticket_activity_name": "Attachment",
       "id": 3
+    },
+    {
+      "ticket_activity_type_id": 4,
+      "ticket_activity_code": "EMAIL_SENT",
+      "ticket_activity_name": "Email Sent",
+      "id": 4
     }
   ],
   "ticket": [

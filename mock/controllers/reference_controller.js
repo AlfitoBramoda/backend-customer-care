@@ -297,6 +297,87 @@ class ReferenceController {
         }
     }
 
+    // GET /v1/terminals - List all terminals
+    async getTerminals(req, res, next) {
+        try {
+            const { channel_id, terminal_type_id, location } = req.query;
+
+            let terminals = this.db.get('terminal').value();
+
+            // Apply filters
+            if (channel_id) {
+                terminals = terminals.filter(t => t.channel_id == channel_id);
+            }
+
+            if (terminal_type_id) {
+                terminals = terminals.filter(t => t.terminal_type_id == terminal_type_id);
+            }
+
+            if (location) {
+                terminals = terminals.filter(t => 
+                    t.location && t.location.toLowerCase().includes(location.toLowerCase())
+                );
+            }
+
+            const enrichedTerminals = terminals.map(terminal => {
+                // Get related data
+                const terminalType = this.db.get('terminal_type')
+                    .find({ terminal_type_id: terminal.terminal_type_id })
+                    .value();
+
+                const channel = this.db.get('channel')
+                    .find({ channel_id: terminal.channel_id })
+                    .value();
+
+                // Count tickets using this terminal
+                const ticketsCount = this.db.get('ticket')
+                    .filter({ terminal_id: terminal.terminal_id })
+                    .size()
+                    .value();
+
+                return {
+                    terminal_id: terminal.terminal_id,
+                    terminal_code: terminal.terminal_code,
+                    location: terminal.location,
+                    tickets_count: ticketsCount,
+                    terminal_type: terminalType ? {
+                        terminal_type_id: terminalType.terminal_type_id,
+                        terminal_type_code: terminalType.terminal_type_code,
+                        terminal_type_name: terminalType.terminal_type_name
+                    } : null,
+                    channel: channel ? {
+                        channel_id: channel.channel_id,
+                        channel_code: channel.channel_code,
+                        channel_name: channel.channel_name,
+                        supports_terminal: channel.supports_terminal
+                    } : null
+                };
+            });
+
+            res.status(HTTP_STATUS.OK).json({
+                success: true,
+                message: "Terminals retrieved successfully",
+                summary: {
+                    total_terminals: enrichedTerminals.length,
+                    by_type: this.db.get('terminal_type').value().map(type => ({
+                        terminal_type_code: type.terminal_type_code,
+                        terminal_type_name: type.terminal_type_name,
+                        count: enrichedTerminals.filter(t => t.terminal_type?.terminal_type_id === type.terminal_type_id).length
+                    })),
+                    by_channel: this.db.get('channel').value().filter(ch => ch.supports_terminal).map(channel => ({
+                        channel_code: channel.channel_code,
+                        channel_name: channel.channel_name,
+                        count: enrichedTerminals.filter(t => t.channel?.channel_id === channel.channel_id).length
+                    }))
+                },
+                data: enrichedTerminals
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
     // GET /v1/policies - List policies with comprehensive filtering
     async getPolicies(req, res, next) {
         try {

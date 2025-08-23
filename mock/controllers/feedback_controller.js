@@ -74,7 +74,7 @@ class FeedbackController {
         customer_id: ticket.customer_id,
         score,
         comment: comment || null,
-        submit_time: new Date().toISOString(),
+        submit_time: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z',
         id: newId
       };
 

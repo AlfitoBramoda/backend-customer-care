@@ -87,7 +87,7 @@ const errorHandler = (err, req, res, next) => {
     }
     
     // Log error for debugging
-    console.error(`[${new Date().toISOString()}] ${statusCode} - ${message}`);
+    console.error(`[${new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'}] ${statusCode} - ${message}`);
     if (process.env.NODE_ENV === 'development') {
         console.error(err.stack);
     }
