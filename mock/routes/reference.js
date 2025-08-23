@@ -24,6 +24,9 @@ const createReferenceRoutes = (db) => {
     // GET /v1/sources - List all intake sources (authenticated users only)
     router.get('/sources', authenticateToken, referenceController.getSources.bind(referenceController));
     
+    // GET /v1/terminals - List all terminals (authenticated users only)
+    router.get('/terminals', authenticateToken, referenceController.getTerminals.bind(referenceController));
+    
     // GET /v1/policies - List policies with comprehensive filtering (authenticated users only)
     router.get('/policies', authenticateToken, referenceController.getPolicies.bind(referenceController));
     

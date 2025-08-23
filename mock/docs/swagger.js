@@ -10,7 +10,7 @@ const swaggerDefinition = {
     contact: { name: 'Tim Backend B-Care', email: 'alfitobramoda@gmail.com' }
   },
   servers: [
-    { url: 'https://8fc9f60f4dbd.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
+    { url: 'https://b5ed5674f211.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
     { url: 'https://bcare.my.id/v1', description: 'GCP Server' },
     { url: 'http://localhost:3001/v1', description: 'Development server' },
   ],
@@ -1951,6 +1951,92 @@ const swaggerPaths = {
                     source_id: { type: 'integer', example: 1 },
                     source_code: { type: 'string', example: 'EMPLOYEE' },
                     source_name: { type: 'string', example: 'Employee Created' },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+      },
+    },
+  },
+
+  '/terminals': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get all terminals',
+      description: 'List all terminals with filtering options and related information. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'channel_id', schema: { type: 'integer' }, description: 'Filter by channel ID' },
+        { in: 'query', name: 'terminal_type_id', schema: { type: 'integer' }, description: 'Filter by terminal type ID' },
+        { in: 'query', name: 'location', schema: { type: 'string' }, description: 'Filter by location (partial match)' },
+      ],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'Terminals retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Terminals retrieved successfully' },
+              summary: {
+                type: 'object',
+                properties: {
+                  total_terminals: { type: 'integer', example: 3 },
+                  by_type: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        terminal_type_code: { type: 'string', example: 'ATM' },
+                        terminal_type_name: { type: 'string', example: 'ATM' },
+                        count: { type: 'integer', example: 2 },
+                      },
+                    },
+                  },
+                  by_channel: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        channel_code: { type: 'string', example: 'ATM' },
+                        channel_name: { type: 'string', example: 'Automated Teller Machine' },
+                        count: { type: 'integer', example: 2 },
+                      },
+                    },
+                  },
+                },
+              },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    terminal_id: { type: 'integer', example: 1 },
+                    terminal_code: { type: 'string', example: 'ATM001' },
+                    location: { type: 'string', example: 'Jakarta Pusat' },
+                    tickets_count: { type: 'integer', example: 5 },
+                    terminal_type: {
+                      type: 'object',
+                      nullable: true,
+                      properties: {
+                        terminal_type_id: { type: 'integer', example: 1 },
+                        terminal_type_code: { type: 'string', example: 'ATM' },
+                        terminal_type_name: { type: 'string', example: 'ATM' },
+                      },
+                    },
+                    channel: {
+                      type: 'object',
+                      nullable: true,
+                      properties: {
+                        channel_id: { type: 'integer', example: 1 },
+                        channel_code: { type: 'string', example: 'ATM' },
+                        channel_name: { type: 'string', example: 'Automated Teller Machine' },
+                        supports_terminal: { type: 'boolean', example: true },
+                      },
+                    },
                   },
                 },
               },
