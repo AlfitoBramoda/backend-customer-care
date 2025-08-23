@@ -4,11 +4,11 @@ class EmailEscalationService {
     constructor(db) {
         this.db = db;
         this.transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
+            host: process.env.SMTP_HOST_DEV,
+            port: process.env.SMTP_PORT_DEV,
             auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
+                user: process.env.SMTP_USER_DEV,
+                pass: process.env.SMTP_PASS_DEV
             }
         });
     }
@@ -107,7 +107,7 @@ class EmailEscalationService {
 
     async sendEmailToEmployee(employee, subject, htmlContent) {
         const mailOptions = {
-            from: process.env.SMTP_FROM || 'noreply@bcare.my.id',
+            from: process.env.SMTP_FROM_DEV || 'noreply@bcare.my.id',
             to: employee.email,
             subject: subject,
             html: htmlContent
