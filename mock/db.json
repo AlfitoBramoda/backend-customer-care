@@ -37,7 +37,8 @@
       "gender_type": "Female",
       "place_of_birth": "Bandung",
       "created_at": "2025-08-14T08:02:00Z",
-      "id": 2
+      "id": 2,
+      "fcm_token": "fake-fcm-token-customer-2"
     },
     {
       "customer_id": 3,
@@ -56,7 +57,8 @@
       "gender_type": "Male",
       "place_of_birth": "Surabaya",
       "created_at": "2025-08-14T08:04:00Z",
-      "id": 3
+      "id": 3,
+      "fcm_token": ""
     },
     {
       "customer_id": 4,
@@ -75,7 +77,8 @@
       "gender_type": "Male",
       "place_of_birth": "Jakarta",
       "created_at": "2025-08-14T08:06:00Z",
-      "id": 4
+      "id": 4,
+      "fcm_token": ""
     },
     {
       "customer_id": 5,
@@ -94,7 +97,8 @@
       "gender_type": "Male",
       "place_of_birth": "Medan",
       "created_at": "2025-08-14T08:08:00Z",
-      "id": 5
+      "id": 5,
+      "fcm_token": ""
     },
     {
       "customer_id": 6,
@@ -113,7 +117,8 @@
       "gender_type": "Female",
       "place_of_birth": "Yogyakarta",
       "created_at": "2025-08-14T08:10:00Z",
-      "id": 6
+      "id": 6,
+      "fcm_token": ""
     },
     {
       "customer_id": 7,
@@ -132,7 +137,8 @@
       "gender_type": "Male",
       "place_of_birth": "Makassar",
       "created_at": "2025-08-14T08:12:00Z",
-      "id": 7
+      "id": 7,
+      "fcm_token": ""
     },
     {
       "customer_id": 8,
@@ -151,7 +157,8 @@
       "gender_type": "Female",
       "place_of_birth": "Padang",
       "created_at": "2025-08-14T08:14:00Z",
-      "id": 8
+      "id": 8,
+      "fcm_token": ""
     },
     {
       "customer_id": 9,
@@ -170,7 +177,8 @@
       "gender_type": "Male",
       "place_of_birth": "Semarang",
       "created_at": "2025-08-14T08:16:00Z",
-      "id": 9
+      "id": 9,
+      "fcm_token": ""
     },
     {
       "customer_id": 10,
@@ -189,7 +197,8 @@
       "gender_type": "Female",
       "place_of_birth": "Depok",
       "created_at": "2025-08-14T08:18:00Z",
-      "id": 10
+      "id": 10,
+      "fcm_token": ""
     }
   ],
   "account_type": [
@@ -556,7 +565,8 @@
       "division_id": 1,
       "is_active": true,
       "created_at": "2025-08-14T08:05:00Z",
-      "id": 1
+      "id": 1,
+      "fcm_token": "fake-fcm-token-employee-1"
     },
     {
       "employee_id": 2,
@@ -568,7 +578,8 @@
       "division_id": 10,
       "is_active": true,
       "created_at": "2025-08-14T08:06:00Z",
-      "id": 2
+      "id": 2,
+      "fcm_token": ""
     },
     {
       "employee_id": 3,
@@ -580,7 +591,8 @@
       "division_id": 4,
       "is_active": true,
       "created_at": "2025-08-14T08:07:00Z",
-      "id": 3
+      "id": 3,
+      "fcm_token": ""
     }
   ],
   "channel": [
@@ -2256,6 +2268,12 @@
       "ticket_activity_code": "EMAIL_SENT",
       "ticket_activity_name": "Email Sent",
       "id": 4
+    },
+    {
+      "ticket_activity_type_id": 5,
+      "ticket_activity_code": "FCM_NOTIFICATION",
+      "ticket_activity_name": "FCM Notification",
+      "id": 5
     }
   ],
   "ticket": [
@@ -6099,6 +6117,342 @@
       "division_notes": "[{\"division\":\"CX Communication Agent\",\"timestamp\":\"25/08/2025\",\"msg\":\"ccc\",\"author\":\"Budi Hartono\"}]",
       "delete_at": null,
       "delete_by": null
+    },
+    {
+      "ticket_id": 139,
+      "ticket_number": "BNI-202508250017",
+      "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+      "record": "new",
+      "reason": "",
+      "solution": "",
+      "customer_id": 1,
+      "customer_status_id": 3,
+      "employee_status_id": 3,
+      "priority_id": 2,
+      "issue_channel_id": 5,
+      "intake_source_id": 1,
+      "related_account_id": 1,
+      "related_card_id": 1,
+      "complaint_id": 31,
+      "responsible_employee_id": 1,
+      "policy_id": 23,
+      "committed_due_at": "2025-09-01T07:21:00.000Z",
+      "transaction_date": "2025-08-26T00:00:00.000Z",
+      "amount": 100000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T14:22:14.000Z",
+      "closed_time": null,
+      "division_notes": "[{\"division\":\"CX Communication Agent\",\"timestamp\":\"25/08/2025\",\"msg\":\"Tolong ya diperbaiki top up nya gagal\",\"author\":\"Budi Hartono\"}]",
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 140,
+      "ticket_number": "BNI-202508250018",
+      "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+      "record": "bvv",
+      "reason": "",
+      "solution": "",
+      "customer_id": 1,
+      "customer_status_id": 3,
+      "employee_status_id": 3,
+      "priority_id": 2,
+      "issue_channel_id": 5,
+      "intake_source_id": 3,
+      "related_account_id": 1,
+      "related_card_id": 1,
+      "complaint_id": 31,
+      "responsible_employee_id": 1,
+      "policy_id": 23,
+      "committed_due_at": "2025-09-01T07:24:00.000Z",
+      "transaction_date": "2025-08-24T00:00:00.000Z",
+      "amount": 100000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T14:25:02.000Z",
+      "closed_time": null,
+      "division_notes": "[{\"division\":\"CX Communication Agent\",\"timestamp\":\"25/08/2025\",\"msg\":\"fff\",\"author\":\"Budi Hartono\"}]",
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 141,
+      "ticket_number": "BNI-202508250019",
+      "description": "Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+      "record": "new",
+      "reason": "",
+      "solution": "",
+      "customer_id": 1,
+      "customer_status_id": 3,
+      "employee_status_id": 3,
+      "priority_id": 2,
+      "issue_channel_id": 5,
+      "intake_source_id": 1,
+      "related_account_id": 1,
+      "related_card_id": 1,
+      "complaint_id": 31,
+      "responsible_employee_id": 1,
+      "policy_id": 23,
+      "committed_due_at": "2025-09-01T07:26:00.000Z",
+      "transaction_date": "2025-08-25T00:00:00.000Z",
+      "amount": 900000,
+      "terminal_id": 2,
+      "created_time": "2025-08-25T14:27:05.000Z",
+      "closed_time": null,
+      "division_notes": "[{\"division\":\"CX Communication Agent\",\"timestamp\":\"25/08/2025\",\"msg\":\"coba\",\"author\":\"Budi Hartono\"}]",
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 142,
+      "ticket_number": "BNI-202508250020",
+      "description": "Gagal top up kartu Tapcash, rekening terdebet",
+      "record": "erty",
+      "reason": "",
+      "solution": "",
+      "customer_id": 1,
+      "customer_status_id": 3,
+      "employee_status_id": 3,
+      "priority_id": 2,
+      "issue_channel_id": 2,
+      "intake_source_id": 1,
+      "related_account_id": 1,
+      "related_card_id": 1,
+      "complaint_id": 36,
+      "responsible_employee_id": 1,
+      "policy_id": 55,
+      "committed_due_at": "2025-09-03T07:31:00.000Z",
+      "transaction_date": "2025-08-25T00:00:00.000Z",
+      "amount": 200000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T14:31:43.000Z",
+      "closed_time": null,
+      "division_notes": "[{\"division\":\"CX Communication Agent\",\"timestamp\":\"25/08/2025\",\"msg\":\"cek\",\"author\":\"Budi Hartono\"}]",
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 143,
+      "ticket_number": "BNI-202508250021",
+      "description": "Testing Email senin",
+      "record": "",
+      "reason": "",
+      "solution": "",
+      "customer_id": 2,
+      "customer_status_id": 2,
+      "employee_status_id": 2,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": 1,
+      "related_card_id": null,
+      "complaint_id": 31,
+      "responsible_employee_id": 1,
+      "policy_id": 22,
+      "committed_due_at": "2025-08-30 16:21:44",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 500000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T16:21:44.000Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 144,
+      "ticket_number": "BNI-202508250022",
+      "description": "Testing Notification",
+      "record": "",
+      "reason": "",
+      "solution": "",
+      "customer_id": 2,
+      "customer_status_id": 2,
+      "employee_status_id": 2,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": 1,
+      "related_card_id": null,
+      "complaint_id": 31,
+      "responsible_employee_id": 1,
+      "policy_id": 22,
+      "committed_due_at": "2025-08-30 16:34:17",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 500000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T16:34:17.000Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 145,
+      "ticket_number": "BNI-202508250023",
+      "description": "Testing Notification 2",
+      "record": "",
+      "reason": "",
+      "solution": "",
+      "customer_id": 2,
+      "customer_status_id": 1,
+      "employee_status_id": 1,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": 1,
+      "related_card_id": null,
+      "complaint_id": 31,
+      "responsible_employee_id": null,
+      "policy_id": 22,
+      "committed_due_at": "2025-08-30 16:46:06",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 500000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T16:46:06.000Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 146,
+      "ticket_number": "BNI-202508250024",
+      "description": "Testing Notification 3",
+      "record": "",
+      "reason": "",
+      "solution": "",
+      "customer_id": 2,
+      "customer_status_id": 1,
+      "employee_status_id": 1,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": 1,
+      "related_card_id": null,
+      "complaint_id": 31,
+      "responsible_employee_id": null,
+      "policy_id": 22,
+      "committed_due_at": "2025-08-30 16:50:41",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 500000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T16:50:41.000Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 147,
+      "ticket_number": "BNI-202508250025",
+      "description": "Testing Notification 3",
+      "record": "",
+      "reason": "",
+      "solution": "",
+      "customer_id": 2,
+      "customer_status_id": 2,
+      "employee_status_id": 2,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": 1,
+      "related_card_id": null,
+      "complaint_id": 31,
+      "responsible_employee_id": 1,
+      "policy_id": 22,
+      "committed_due_at": "2025-08-30 17:00:04",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 500000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T17:00:04.000Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 148,
+      "ticket_number": "BNI-202508250025",
+      "description": "Testing Notification 4",
+      "record": "",
+      "reason": "",
+      "solution": "",
+      "customer_id": 2,
+      "customer_status_id": 3,
+      "employee_status_id": 3,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": 1,
+      "related_card_id": null,
+      "complaint_id": 31,
+      "responsible_employee_id": 1,
+      "policy_id": 22,
+      "committed_due_at": "2025-08-30 17:06:35",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 500000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T17:06:35.000Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 149,
+      "ticket_number": "BNI-202508250025",
+      "description": "Testing Notification 5",
+      "record": "",
+      "reason": "",
+      "solution": "",
+      "customer_id": 2,
+      "customer_status_id": 1,
+      "employee_status_id": 1,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": 1,
+      "related_card_id": null,
+      "complaint_id": 31,
+      "responsible_employee_id": null,
+      "policy_id": 22,
+      "committed_due_at": "2025-08-30 17:26:08",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 500000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T17:26:08.000Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
+    },
+    {
+      "ticket_id": 150,
+      "ticket_number": "BNI-202508250025",
+      "description": "Testing Notification 6",
+      "record": "",
+      "reason": "",
+      "solution": "",
+      "customer_id": 2,
+      "customer_status_id": 3,
+      "employee_status_id": 3,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": 1,
+      "related_card_id": null,
+      "complaint_id": 31,
+      "responsible_employee_id": 1,
+      "policy_id": 22,
+      "committed_due_at": "2025-08-30 17:59:18",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 500000,
+      "terminal_id": 1,
+      "created_time": "2025-08-25T17:59:18.000Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
     }
   ],
   "ticket_activity": [
@@ -6888,6 +7242,33 @@
       "sender_id": 1,
       "content": "Ticket created by employee for customer Andi Saputra: Gagal top up kartu Tapcash, rekening terdebet",
       "ticket_activity_time": "2025-08-22T01:41:48.930Z"
+    },
+    {
+      "ticket_activity_id": 200,
+      "ticket_id": 1,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to customer Andi Saputra: Ticket Diperbarui - Ticket #BNI-00001 telah diperbarui [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-22T02:00:00.000Z"
+    },
+    {
+      "ticket_activity_id": 201,
+      "ticket_id": 2,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to customer Siti Nurhaliza: Ticket Dibuat - Ticket baru #BNI-00002 telah dibuat [status:sent,read:true]",
+      "ticket_activity_time": "2025-08-22T02:05:00.000Z"
+    },
+    {
+      "ticket_activity_id": 202,
+      "ticket_id": 1,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to employee Budi Hartono: Ticket Ditugaskan - Ticket #BNI-00001 telah ditugaskan kepada Anda [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-22T02:10:00.000Z"
     },
     {
       "ticket_activity_id": 88,
@@ -9534,6 +9915,663 @@
       "sender_id": 1,
       "content": "Escalation email sent to 1 employees in Divisi TBS",
       "ticket_activity_time": "2025-08-25T13:37:57.000Z"
+    },
+    {
+      "ticket_activity_id": 382,
+      "ticket_id": 139,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created by employee for customer Andi Saputra: Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+      "ticket_activity_time": "2025-08-25T14:22:14.000Z"
+    },
+    {
+      "ticket_activity_id": 383,
+      "ticket_id": 139,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created and escalated: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-25T14:22:14.000Z"
+    },
+    {
+      "ticket_activity_id": 384,
+      "ticket_id": 139,
+      "ticket_activity_type_id": 4,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Escalation email sent to 1 employees in Divisi TBS",
+      "ticket_activity_time": "2025-08-25T14:22:18.000Z"
+    },
+    {
+      "ticket_activity_id": 385,
+      "ticket_id": 140,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created by employee for customer Andi Saputra: Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+      "ticket_activity_time": "2025-08-25T14:25:02.000Z"
+    },
+    {
+      "ticket_activity_id": 386,
+      "ticket_id": 140,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created and escalated: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-25T14:25:02.000Z"
+    },
+    {
+      "ticket_activity_id": 387,
+      "ticket_id": 140,
+      "ticket_activity_type_id": 4,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Escalation email sent to 1 employees in Divisi TBS",
+      "ticket_activity_time": "2025-08-25T14:25:06.000Z"
+    },
+    {
+      "ticket_activity_id": 388,
+      "ticket_id": 141,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created by employee for customer Andi Saputra: Nasabah melakukan top up Dana, transaksi gagal rekening terdebet\n",
+      "ticket_activity_time": "2025-08-25T14:27:05.000Z"
+    },
+    {
+      "ticket_activity_id": 389,
+      "ticket_id": 141,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created and escalated: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-25T14:27:05.000Z"
+    },
+    {
+      "ticket_activity_id": 390,
+      "ticket_id": 141,
+      "ticket_activity_type_id": 4,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Escalation email sent to 1 employees in Divisi TBS",
+      "ticket_activity_time": "2025-08-25T14:27:09.000Z"
+    },
+    {
+      "ticket_activity_id": 391,
+      "ticket_id": 142,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created by employee for customer Andi Saputra: Gagal top up kartu Tapcash, rekening terdebet",
+      "ticket_activity_time": "2025-08-25T14:31:43.000Z"
+    },
+    {
+      "ticket_activity_id": 392,
+      "ticket_id": 142,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket created and escalated: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-25T14:31:43.000Z"
+    },
+    {
+      "ticket_activity_id": 393,
+      "ticket_id": 142,
+      "ticket_activity_type_id": 4,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Escalation email sent to 1 employees in DGO USER 10",
+      "ticket_activity_time": "2025-08-25T14:31:46.000Z"
+    },
+    {
+      "ticket_activity_id": 397,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to customer Siti Nurhaliza: Ticket Berhasil Dibuat - Ticket #BNI-202508250021 telah dibuat. Kami akan segera menindaklanjuti keluhan Anda. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T09:21:44.598Z"
+    },
+    {
+      "ticket_activity_id": 398,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Ticket created: Testing Email senin",
+      "ticket_activity_time": "2025-08-25T16:21:44.000Z"
+    },
+    {
+      "ticket_activity_id": 399,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Initial status set: customer status to ACC, employee status to OPEN",
+      "ticket_activity_time": "2025-08-25T16:21:44.000Z"
+    },
+    {
+      "ticket_activity_id": 400,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket escalated to specialist division",
+      "ticket_activity_time": "2025-08-25T16:23:56.000Z"
+    },
+    {
+      "ticket_activity_id": 401,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via ESCALATED: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-25T16:23:56.000Z"
+    },
+    {
+      "ticket_activity_id": 402,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 4,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Escalation email sent to 1 employees in Divisi TBS",
+      "ticket_activity_time": "2025-08-25T16:24:00.000Z"
+    },
+    {
+      "ticket_activity_id": 403,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to customer Siti Nurhaliza: Ticket Dieskalasi - Ticket #BNI-202508250021 telah dieskalasi ke tim yang lebih spesialis untuk penanganan lebih lanjut. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T09:24:00.475Z"
+    },
+    {
+      "ticket_activity_id": 404,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to customer Siti Nurhaliza: Update Status Ticket - Ticket #BNI-202508250021 telah dieskalasi. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T09:24:00.484Z"
+    },
+    {
+      "ticket_activity_id": 405,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket handled by CXC agent",
+      "ticket_activity_time": "2025-08-25T16:24:09.000Z"
+    },
+    {
+      "ticket_activity_id": 406,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via HANDLEDCXC: customer status to VERIF, employee status to HANDLEDCXC",
+      "ticket_activity_time": "2025-08-25T16:24:09.000Z"
+    },
+    {
+      "ticket_activity_id": 407,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to customer Siti Nurhaliza: Update Status Ticket - Ticket #BNI-202508250021 telah diperbarui. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T09:24:09.781Z"
+    },
+    {
+      "ticket_activity_id": 408,
+      "ticket_id": 143,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to employee Budi Hartono: Ticket Diperbarui - Ticket #BNI-202508250021 telah diperbarui. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T09:24:09.801Z"
+    },
+    {
+      "ticket_activity_id": 409,
+      "ticket_id": 144,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Ticket Berhasil Dibuat [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T09:34:17.934Z"
+    },
+    {
+      "ticket_activity_id": 410,
+      "ticket_id": 144,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Ticket created: Testing Notification",
+      "ticket_activity_time": "2025-08-25T16:34:17.000Z"
+    },
+    {
+      "ticket_activity_id": 411,
+      "ticket_id": 144,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Initial status set: customer status to ACC, employee status to OPEN",
+      "ticket_activity_time": "2025-08-25T16:34:17.000Z"
+    },
+    {
+      "ticket_activity_id": 412,
+      "ticket_id": 144,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket handled by CXC agent",
+      "ticket_activity_time": "2025-08-25T16:41:52.000Z"
+    },
+    {
+      "ticket_activity_id": 413,
+      "ticket_id": 144,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via HANDLEDCXC: customer status to VERIF, employee status to HANDLEDCXC",
+      "ticket_activity_time": "2025-08-25T16:41:53.000Z"
+    },
+    {
+      "ticket_activity_id": 414,
+      "ticket_id": 144,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Update Status Ticket [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T09:41:53.010Z"
+    },
+    {
+      "ticket_activity_id": 415,
+      "ticket_id": 144,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to employee Budi Hartono: Ticket Diperbarui - Ticket #BNI-202508250022 telah diperbarui. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T09:41:53.018Z"
+    },
+    {
+      "ticket_activity_id": 416,
+      "ticket_id": 145,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Ticket Berhasil Dibuat [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T09:46:06.886Z"
+    },
+    {
+      "ticket_activity_id": 417,
+      "ticket_id": 145,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Ticket created: Testing Notification 2",
+      "ticket_activity_time": "2025-08-25T16:46:06.000Z"
+    },
+    {
+      "ticket_activity_id": 418,
+      "ticket_id": 145,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Initial status set: customer status to ACC, employee status to OPEN",
+      "ticket_activity_time": "2025-08-25T16:46:06.000Z"
+    },
+    {
+      "ticket_activity_id": 419,
+      "ticket_id": 146,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Ticket Berhasil Dibuat [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T09:50:41.574Z"
+    },
+    {
+      "ticket_activity_id": 420,
+      "ticket_id": 146,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Ticket created: Testing Notification 3",
+      "ticket_activity_time": "2025-08-25T16:50:41.000Z"
+    },
+    {
+      "ticket_activity_id": 421,
+      "ticket_id": 146,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Initial status set: customer status to ACC, employee status to OPEN",
+      "ticket_activity_time": "2025-08-25T16:50:41.000Z"
+    },
+    {
+      "ticket_activity_id": 422,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Ticket Berhasil Dibuat [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:00:04.720Z"
+    },
+    {
+      "ticket_activity_id": 423,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Ticket created: Testing Notification 3",
+      "ticket_activity_time": "2025-08-25T17:00:04.000Z"
+    },
+    {
+      "ticket_activity_id": 424,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Initial status set: customer status to ACC, employee status to OPEN",
+      "ticket_activity_time": "2025-08-25T17:00:04.000Z"
+    },
+    {
+      "ticket_activity_id": 425,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket handled by CXC agent",
+      "ticket_activity_time": "2025-08-25T17:02:29.000Z"
+    },
+    {
+      "ticket_activity_id": 426,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via HANDLEDCXC: customer status to VERIF, employee status to HANDLEDCXC",
+      "ticket_activity_time": "2025-08-25T17:02:29.000Z"
+    },
+    {
+      "ticket_activity_id": 427,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Update Status Ticket [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:02:29.038Z"
+    },
+    {
+      "ticket_activity_id": 428,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to employee Budi Hartono: Ticket Diperbarui - Ticket #BNI-202508250025 telah diperbarui. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:02:29.046Z"
+    },
+    {
+      "ticket_activity_id": 429,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Ticket Berhasil Dibuat - Ticket #BNI-202508250025 telah diterima. Kami akan segera menindaklanjuti keluhan Anda. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:06:35.738Z"
+    },
+    {
+      "ticket_activity_id": 430,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Ticket created: Testing Notification 4",
+      "ticket_activity_time": "2025-08-25T17:06:35.000Z"
+    },
+    {
+      "ticket_activity_id": 431,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Initial status set: customer status to ACC, employee status to OPEN",
+      "ticket_activity_time": "2025-08-25T17:06:35.000Z"
+    },
+    {
+      "ticket_activity_id": 432,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket handled by CXC agent",
+      "ticket_activity_time": "2025-08-25T17:08:45.000Z"
+    },
+    {
+      "ticket_activity_id": 433,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via HANDLEDCXC: customer status to VERIF, employee status to HANDLEDCXC",
+      "ticket_activity_time": "2025-08-25T17:08:45.000Z"
+    },
+    {
+      "ticket_activity_id": 434,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Update Status Ticket - Ticket Anda sedang diverifikasi. Ticket #BNI-202508250025 [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:08:45.979Z"
+    },
+    {
+      "ticket_activity_id": 435,
+      "ticket_id": 147,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to employee Budi Hartono: Ticket Diperbarui - Ticket #BNI-202508250025 telah diperbarui. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:08:45.987Z"
+    },
+    {
+      "ticket_activity_id": 436,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket handled by CXC agent",
+      "ticket_activity_time": "2025-08-25T17:09:12.000Z"
+    },
+    {
+      "ticket_activity_id": 437,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via HANDLEDCXC: customer status to VERIF, employee status to HANDLEDCXC",
+      "ticket_activity_time": "2025-08-25T17:09:12.000Z"
+    },
+    {
+      "ticket_activity_id": 438,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Update Status Ticket - Ticket Anda sedang diverifikasi. Ticket #BNI-202508250025 [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:09:12.704Z"
+    },
+    {
+      "ticket_activity_id": 439,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to employee Budi Hartono: Ticket Diperbarui - Ticket #BNI-202508250025 telah diperbarui. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:09:12.713Z"
+    },
+    {
+      "ticket_activity_id": 440,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket escalated to specialist division",
+      "ticket_activity_time": "2025-08-25T17:09:57.000Z"
+    },
+    {
+      "ticket_activity_id": 441,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via ESCALATED: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-25T17:09:57.000Z"
+    },
+    {
+      "ticket_activity_id": 442,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Update Status Ticket - Ticket Anda sedang diproses. Ticket #BNI-202508250025 [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:10:00.009Z"
+    },
+    {
+      "ticket_activity_id": 443,
+      "ticket_id": 148,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to employee Budi Hartono: Ticket Diperbarui - Ticket #BNI-202508250025 telah dieskalasi. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:10:00.019Z"
+    },
+    {
+      "ticket_activity_id": 444,
+      "ticket_id": 149,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Ticket Berhasil Dibuat - Ticket #BNI-202508250025 telah diterima. Kami akan segera menindaklanjuti keluhan Anda. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:26:08.807Z"
+    },
+    {
+      "ticket_activity_id": 445,
+      "ticket_id": 149,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Ticket created: Testing Notification 5",
+      "ticket_activity_time": "2025-08-25T17:26:08.000Z"
+    },
+    {
+      "ticket_activity_id": 446,
+      "ticket_id": 149,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Initial status set: customer status to ACC, employee status to OPEN",
+      "ticket_activity_time": "2025-08-25T17:26:08.000Z"
+    },
+    {
+      "ticket_activity_id": 447,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Ticket Berhasil Dibuat - Ticket #BNI-202508250025 telah diterima. Kami akan segera menindaklanjuti keluhan Anda. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:59:18.102Z"
+    },
+    {
+      "ticket_activity_id": 448,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Ticket created: Testing Notification 6",
+      "ticket_activity_time": "2025-08-25T17:59:18.000Z"
+    },
+    {
+      "ticket_activity_id": 449,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Initial status set: customer status to ACC, employee status to OPEN",
+      "ticket_activity_time": "2025-08-25T17:59:18.000Z"
+    },
+    {
+      "ticket_activity_id": 450,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket handled by CXC agent",
+      "ticket_activity_time": "2025-08-25T17:59:36.000Z"
+    },
+    {
+      "ticket_activity_id": 451,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via HANDLEDCXC: customer status to VERIF, employee status to HANDLEDCXC",
+      "ticket_activity_time": "2025-08-25T17:59:36.000Z"
+    },
+    {
+      "ticket_activity_id": 452,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Update Status Ticket - Ticket Anda sedang diverifikasi. Ticket #BNI-202508250025 [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:59:36.730Z"
+    },
+    {
+      "ticket_activity_id": 453,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to employee Budi Hartono: Ticket Diperbarui - Ticket #BNI-202508250025 telah diperbarui. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:59:36.738Z"
+    },
+    {
+      "ticket_activity_id": 454,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Ticket escalated to specialist division",
+      "ticket_activity_time": "2025-08-25T17:59:55.000Z"
+    },
+    {
+      "ticket_activity_id": 455,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 2,
+      "sender_id": 1,
+      "content": "Status updated via ESCALATED: customer status to PROCESS, employee status to ESCALATED",
+      "ticket_activity_time": "2025-08-25T17:59:55.000Z"
+    },
+    {
+      "ticket_activity_id": 456,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Update Status Ticket - Ticket Anda sedang diproses. Ticket #BNI-202508250025 [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:59:58.138Z"
+    },
+    {
+      "ticket_activity_id": 457,
+      "ticket_id": 150,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "FCM notification sent to employee Budi Hartono: Ticket Diperbarui - Ticket #BNI-202508250025 telah dieskalasi. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-25T10:59:58.146Z"
     }
   ],
   "attachment": [
