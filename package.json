@@ -11,8 +11,8 @@
     "staging": "cross-env NODE_ENV=staging node -r dotenv/config mock/server-clean.js dotenv_config_path=.env.staging",
     "production": "cross-env NODE_ENV=production node -r dotenv/config mock/server-clean.js dotenv_config_path=.env.production",
     "db:create": "npx sequelize-cli db:create",
-    "db:migrate": "npx sequelize-cli db:migrate",
-    "db:seed": "npx sequelize-cli db:seed:all",
+    "db:migrate": "cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/sequelize-cli db:migrate",
+    "db:seed": "cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/sequelize-cli db:seed:all",
     "db:reset": "npx sequelize-cli db:migrate:undo:all && npm run db:migrate && npm run db:seed",
     "db:status": "npx sequelize-cli db:migrate:status"
   },
@@ -32,6 +32,7 @@
     "json-server": "^0.17.4",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
+    "nodemailer": "^7.0.5",
     "pg": "^8.16.3",
     "sequelize": "^6.37.7",
     "socket.io": "^4.8.1",

@@ -59,7 +59,7 @@ class AttachmentController {
                 sender_type_id: req.user.role === 'customer' ? 1 : 2,
                 sender_id: req.user.id,
                 content: `Uploaded ${files.length} file(s)`,
-                ticket_activity_time: new Date().toISOString()
+                ticket_activity_time: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
             };
 
             this.db.get('ticket_activity').push(activity).write();
@@ -89,7 +89,7 @@ class AttachmentController {
                         file_path: gcsPath, // Store GCS path
                         file_type: file.mimetype,
                         file_size: file.size,
-                        upload_time: new Date().toISOString()
+                        upload_time: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
                     };
 
                     this.db.get('attachment').push(attachment).write();
@@ -273,7 +273,7 @@ class AttachmentController {
                 sender_type_id: 2, // Employee
                 sender_id: req.user.id,
                 content: `Deleted attachment: ${attachment.file_name}`,
-                ticket_activity_time: new Date().toISOString()
+                ticket_activity_time: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
             };
 
             this.db.get('ticket_activity').push(deleteActivity).write();
@@ -284,7 +284,7 @@ class AttachmentController {
                 data: {
                     attachment_id: attachment.attachment_id,
                     file_name: attachment.file_name,
-                    deleted_at: new Date().toISOString()
+                    deleted_at: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
                 }
             });
 

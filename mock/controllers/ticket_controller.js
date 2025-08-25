@@ -1,9 +1,11 @@
 const { NotFoundError, ForbiddenError, ValidationError, ConflictError } = require('../middlewares/error_handler');
 const { HTTP_STATUS } = require('../constants/statusCodes');
+const EmailEscalationService = require('../services/email_escalation_service');
 
 class TicketController {
     constructor(db) {
         this.db = db;
+        this.emailEscalationService = new EmailEscalationService(db);
     }
 
     static createInstance(db) {
@@ -25,9 +27,6 @@ class TicketController {
                 date_to,
                 search
             } = req.query;
-            
-            console.log(req.user);
-            
 
             // Get all tickets from database
             let tickets = this.db.get('ticket').value();
@@ -59,8 +58,6 @@ class TicketController {
                         
                         return policy?.uic_id == req.user.division_id;
                     });
-
-                    console.log(tickets);
                     
                 }
             }
@@ -532,6 +529,9 @@ class TicketController {
 
         // Get status history from activities
         const statusHistory = this.getStatusHistory(ticket.ticket_id);
+        
+        // Get email history from activities
+        const emailHistory = this.getEmailHistory(ticket.ticket_id);
 
         // Get related data
         const customer = this.db.get('customer')
@@ -650,6 +650,7 @@ class TicketController {
             activities: activities,
             attachments: attachments,
             status_history: statusHistory,
+            email_history: emailHistory,
             
             feedback: feedback ? {
                 feedback_id: feedback.feedback_id,
@@ -774,6 +775,8 @@ class TicketController {
                 division_notes,
                 reason,
                 solution,
+                committed_due_at,
+                policy_id
             } = req.body;
 
             // Validation
@@ -832,7 +835,7 @@ class TicketController {
             
             // Generate ticket number
             const ticketNumber = this.generateTicketNumber();
-            
+
             // Calculate SLA due date
             const committedDueAt = this.calculateSLADueDate(policy?.sla || 1);
             
@@ -887,17 +890,20 @@ class TicketController {
                 related_card_id: related_card_id ? parseInt(related_card_id) : null,
                 complaint_id: parseInt(complaint_id),
                 responsible_employee_id: !action ? null : req.user.id, // Will be assigned later
-                policy_id: policy?.policy_id || null,
-                committed_due_at: committedDueAt,
+                policy_id: policy_id ? policy_id : policy?.policy_id,
+                committed_due_at: committed_due_at ? committed_due_at : committedDueAt,
                 transaction_date: transaction_date || null,
                 amount: amount || null,
                 terminal_id: terminal_id ? parseInt(terminal_id) : null,
-                created_time: new Date().toISOString(),
-                closed_time: employeeStatus?.employee_status_id === 4 ? new Date().toISOString() : null,
+                created_time: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z',
+                closed_time: employeeStatus?.employee_status_id === 4 ? new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z' : null,
                 division_notes: division_notes ? JSON.stringify(division_notes) : null,
                 delete_at: null,
                 delete_by: null
             };
+
+            console.log('Policies', policy_id);
+            
 
             // Save ticket
             this.db.get('ticket').push(newTicket).write();
@@ -912,13 +918,23 @@ class TicketController {
                 content: req.user.role === 'customer' 
                     ? `Ticket created: ${description}`
                     : `Ticket created by employee for customer ${customer.full_name}: ${description}`,
-                ticket_activity_time: new Date().toISOString()
+                ticket_activity_time: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
             };
 
             this.db.get('ticket_activity').push(initialActivity).write();
 
             // Create status history activities based on action
             this.createStatusHistoryActivities(newTicket, action, req.user, customerStatus, employeeStatus);
+
+            // Send escalation email if ticket was created with escalation
+            if (action === 'ESCALATED') {
+                try {
+                    await this.emailEscalationService.sendEscalationEmail(newTicket.ticket_id, req.user.id);
+                } catch (emailError) {
+                    console.error('Failed to send escalation email:', emailError);
+                    // Don't fail the entire request if email fails
+                }
+            }
 
             // Return created ticket with enriched data
             const enrichedTicket = this.enrichTicketData(newTicket, 'customer');
@@ -931,7 +947,7 @@ class TicketController {
                     ticket_id: newTicket.ticket_id,
                     record: newTicket.record,
                     sla_info: {
-                        committed_due_at: committedDueAt,
+                        committed_due_at: committed_due_at,
                         sla_days: policy?.sla || 1,
                         sla_hours: (policy?.sla || 1) * 24
                     }
@@ -1009,12 +1025,12 @@ class TicketController {
 
     calculateSLADueDate(slaDays) {
         const now = new Date();
-        const dueDate = new Date(now.getTime() + (slaDays * 24 * 60 * 60 * 1000));
-        return dueDate.toISOString();
+        const dueDate = new Date(now.getTime() + (slaDays * 24 * 60 * 60 * 1000)).toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' });
+        return dueDate;
     }
 
     createStatusHistoryActivities(ticket, action, user, customerStatus, employeeStatus) {
-        const timestamp = new Date().toISOString();
+        const timestamp = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z';
         const activities = [];
 
         if (!action) {
@@ -1059,7 +1075,7 @@ class TicketController {
     }
 
     createUpdateActivity(ticketId, action, user, customerStatus, employeeStatus) {
-        const timestamp = new Date().toISOString();
+        const timestamp = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z';
         let content = '';
 
         switch(action) {
@@ -1096,7 +1112,7 @@ class TicketController {
     }
 
     createUpdateStatusHistory(ticketId, action, user, customerStatus, employeeStatus) {
-        const timestamp = new Date().toISOString();
+        const timestamp = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z';
         let content = '';
 
         if (customerStatus && employeeStatus) {
@@ -1289,7 +1305,7 @@ class TicketController {
                     updateData.division_notes = JSON.stringify(division_notes)
                 }
 
-                updateData.closed_time = new Date().toISOString()
+                updateData.closed_time = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
             }
 
             if(action === 'DECLINED' && req.user.division_id === 1) {
@@ -1338,19 +1354,14 @@ class TicketController {
                     updateData.division_notes = JSON.stringify(division_notes)
                 }
 
-                updateData.closed_time = new Date().toISOString()
+                updateData.closed_time = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
             }
 
             if(action === 'DONE_BY_UIC' && req.user.division_id !== 1) {
-                customerStatus = this.db.get('customer_status')
-                    .find({ customer_status_code: "PROCESS" })
-                    .value();
-
                 employeeStatus = this.db.get('employee_status')
                     .find({ employee_status_code: "DONE_BY_UIC" })
                     .value();
 
-                updateData.customer_status_id = customerStatus.customer_status_id
                 updateData.employee_status_id = employeeStatus.employee_status_id
 
                 if(division_notes) {
@@ -1379,6 +1390,26 @@ class TicketController {
             // Create status history if status changed
             if (customerStatus || employeeStatus) {
                 this.createUpdateStatusHistory(parseInt(id), action, req.user, customerStatus, employeeStatus);
+            }
+
+            // Send escalation email if ticket was escalated
+            if (action === 'ESCALATED') {
+                try {
+                    await this.emailEscalationService.sendEscalationEmail(parseInt(id), req.user.id);
+                } catch (emailError) {
+                    console.error('Failed to send escalation email:', emailError);
+                    // Don't fail the entire request if email fails
+                }
+            }
+
+            // Send notification email to CXC agent when UIC completes ticket
+            if (action === 'DONE_BY_UIC') {
+                try {
+                    await this.emailEscalationService.sendDoneByUICEmail(parseInt(id), req.user.id);
+                } catch (emailError) {
+                    console.error('Failed to send DONE_BY_UIC email:', emailError);
+                    // Don't fail the entire request if email fails
+                }
             }
                 
             // Get updated ticket
@@ -1459,7 +1490,7 @@ class TicketController {
 
             // Soft delete - add deleted_at timestamp and deleted_by
             const deleteData = {
-                deleted_at: new Date().toISOString(),
+                deleted_at: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z',
                 deleted_by: req.user.id
             };
 
@@ -1476,7 +1507,7 @@ class TicketController {
                 sender_type_id: 2, // Employee
                 sender_id: req.user.id,
                 content: `Ticket deleted by ${req.user.full_name || req.user.npp}`,
-                ticket_activity_time: new Date().toISOString()
+                ticket_activity_time: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
             };
 
             this.db.get('ticket_activity').push(deleteActivity).write();
@@ -1956,7 +1987,7 @@ class TicketController {
             return parsed;
         } catch (error) {
             // If parsing fails, return the raw string as a single note
-            return [{ note: divisionNotes, timestamp: new Date().toISOString() }];
+            return [{ note: divisionNotes, timestamp: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z' }];
         }
     }
 
@@ -1990,6 +2021,36 @@ class TicketController {
             is_overdue: diffHours < 0,
             status: diffHours < 0 ? 'overdue' : diffHours <= 24 ? 'urgent' : 'normal'
         };
+    }
+
+    getEmailHistory(ticketId) {
+        const emailActivities = this.db.get('ticket_activity')
+            .filter({ ticket_id: ticketId, ticket_activity_type_id: 4 }) // EMAIL_SENT type
+            .value()
+            .sort((a, b) => new Date(a.ticket_activity_time) - new Date(b.ticket_activity_time));
+
+        return emailActivities.map(activity => {
+            // Get sender info
+            const senderType = this.db.get('sender_type')
+                .find({ sender_type_id: activity.sender_type_id })
+                .value();
+            
+            let sentBy = 'System';
+            if (senderType?.sender_type_code === 'EMPLOYEE') {
+                const employee = this.db.get('employee')
+                    .find({ employee_id: activity.sender_id })
+                    .value();
+                sentBy = employee?.full_name || employee?.npp || 'Employee';
+            }
+
+            return {
+                email_id: activity.ticket_activity_id,
+                content: activity.content,
+                sent_by: sentBy,
+                sent_at: activity.ticket_activity_time,
+                activity_id: activity.ticket_activity_id
+            };
+        });
     }
 
     async createTicketActivity(req, res, next) {
@@ -2041,7 +2102,7 @@ class TicketController {
                 sender_type_id: req.user.role === 'customer' ? 1 : 2,
                 sender_id: req.user.id,
                 content: content,
-                ticket_activity_time: new Date().toISOString()
+                ticket_activity_time: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
             };
 
             this.db.get('ticket_activity').push(newActivity).write();

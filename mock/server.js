@@ -3,8 +3,6 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const { HTTP_STATUS } = require('./constants/statusCodes');
 
-const EnvValidator = require('./config/env_validator');
-EnvValidator.validateAndSetDefaults();
 console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 console.log(`📁 Config file: .env`);
 
@@ -62,14 +60,20 @@ server.use(cors({
   credentials: process.env.CORS_CREDENTIALS === 'true'
 }));
 
-// Rate limit (original)
+// Rate limit (increased limits)
 server.use(rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000,
-  message: 'Too many requests from this IP',
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 30 * 60 * 1000, // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 10000, // Increased from 1000 to 5000
+  message: {
+    error: 'Too many requests from this IP',
+    retryAfter: '15 minutes'
+  },
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: false, // Count all requests
+  skipFailedRequests: false,     // Count failed requests too
 }));
+
 
 // ===== json-server router & DB =====
 const router = jsonServer.router(path.join(__dirname, 'db.json'));
@@ -92,7 +96,7 @@ server.get('/health', (req, res) => {
   res.json({
     success: true,
     status: 'healthy',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
   });
 });
 
@@ -135,7 +139,7 @@ server.use('/v1', (req, res, next) => {
   if (isWrite) {
     const b = req.body;
     if (b && typeof b === 'object' && !Array.isArray(b)) {
-      const now = new Date().toISOString();
+      const now = new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z';
       if (req.method === 'POST' && b.created_at == null) b.created_at = now;
       b.updated_at = now;
     }
@@ -153,7 +157,7 @@ server.get('/socket/status', (req, res) => {
     success: true,
     socketIO: 'active',
     connectedClients: io.engine.clientsCount,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).replace(' ', 'T') + '.000Z'
   });
 });
 
