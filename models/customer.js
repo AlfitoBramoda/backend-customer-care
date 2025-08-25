@@ -70,6 +70,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     place_of_birth: DataTypes.STRING(255),
+    fcm_token: {
+      type: DataTypes.STRING(225),
+      allowNull: true
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
