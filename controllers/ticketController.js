@@ -1,6 +1,7 @@
 const { NotFoundError, ForbiddenError, ValidationError, ConflictError } = require('../middlewares/error_handler');
 const { HTTP_STATUS } = require('../constants/statusCodes');
-const EmailEscalationService = require('../services/email_escalation_service');
+const EmailEscalationService = require('../services/emailEscalationService');
+const NotificationService = require('../services/notificationService');
 const { Op } = require('sequelize');
 
 const db = require('../models');
@@ -31,6 +32,7 @@ const {
 class TicketController {
     constructor() {
         this.emailEscalationService = new EmailEscalationService();
+        this.notificationService = new NotificationService();
     }
 
     static createInstance() {
@@ -775,9 +777,23 @@ class TicketController {
 
             await transaction.commit();
 
+            // Send FCM notifications
+            try {
+                let assignedEmployee = null;
+                if (newTicket.responsible_employee_id) {
+                    assignedEmployee = await Employee.findByPk(newTicket.responsible_employee_id);
+                }
+                await this.notificationService.notifyTicketCreated(newTicket, customer, assignedEmployee);
+            } catch (notifError) {
+                console.error('FCM notification failed:', notifError.message);
+            }
+
             if (action === 'ESCALATED') {
                 try {
                     await this.emailEscalationService.sendEscalationEmail(newTicket.ticket_id, req.user.id);
+                    // Send escalation FCM notification
+                    const assignedEmployee = await Employee.findByPk(newTicket.responsible_employee_id);
+                    await this.notificationService.notifyTicketEscalated(newTicket, customer, null, assignedEmployee);
                 } catch (emailError) {
                     console.error('Failed to send escalation email:', emailError);
                     // Don't fail the entire request if email fails
@@ -1054,6 +1070,10 @@ class TicketController {
             if (action === 'ESCALATED') {
                 try {
                     await this.emailEscalationService.sendEscalationEmail(parseInt(id), req.user.id);
+                    // Send escalation FCM notification
+                    const customer = await Customer.findByPk(ticket.customer_id);
+                    const assignedEmployee = await Employee.findByPk(ticket.responsible_employee_id);
+                    await this.notificationService.notifyTicketEscalated(updatedTicket, customer, null, assignedEmployee);
                 } catch (emailError) {
                     console.error('Failed to send escalation email:', emailError);
                 }
@@ -1065,6 +1085,20 @@ class TicketController {
                 } catch (emailError) {
                     console.error('Failed to send DONE_BY_UIC email:', emailError);
                 }
+            }
+
+            // Send FCM notifications for ticket updates
+            try {
+                const customer = await Customer.findByPk(ticket.customer_id);
+                const assignedEmployee = await Employee.findByPk(ticket.responsible_employee_id);
+                
+                if (action === 'CLOSED') {
+                    await this.notificationService.notifyTicketClosed(updatedTicket, customer, assignedEmployee);
+                } else if (action && action !== 'ESCALATED') {
+                    await this.notificationService.notifyTicketUpdated(updatedTicket, customer, assignedEmployee, action.toLowerCase());
+                }
+            } catch (notifError) {
+                console.error('FCM notification failed:', notifError.message);
             }
 
             // Get updated ticket with relations
