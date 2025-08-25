@@ -1115,14 +1115,10 @@ class TicketController {
             },
             'DONE_BY_UIC': async () => {
                 if (user.division_id !== 1) {
-                    const customerStatus = await CustomerStatus.findOne({
-                        where: { customer_status_code: "PROCESS" }
-                    });
                     const employeeStatus = await EmployeeStatus.findOne({
                         where: { employee_status_code: "DONE_BY_UIC" }
                     });
 
-                    updateData.customer_status_id = customerStatus.customer_status_id;
                     updateData.employee_status_id = employeeStatus.employee_status_id;
 
                     if (division_notes) updateData.division_notes = JSON.stringify(division_notes);
