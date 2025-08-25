@@ -10,7 +10,7 @@ const swaggerDefinition = {
     contact: { name: 'Tim Backend B-Care', email: 'alfitobramoda@gmail.com' }
   },
   servers: [
-    { url: 'https://b5ed5674f211.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
+    { url: 'https://3e11c4290718.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
     { url: 'https://bcare.my.id/v1', description: 'GCP Server' },
     { url: 'http://localhost:3001/v1', description: 'Development server' },
   ],
@@ -829,6 +829,62 @@ const swaggerDefinition = {
         }
       },
 
+      // FCM Notification Schemas
+      RegisterFCMTokenRequest: {
+        type: 'object',
+        required: ['fcm_token'],
+        properties: {
+          fcm_token: {
+            type: 'string',
+            example: 'dGhpcyBpcyBhIGZha2UgRkNNIHRva2Vu...',
+            description: 'Firebase Cloud Messaging token from client device'
+          }
+        }
+      },
+      RegisterFCMTokenResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'FCM token registered successfully' }
+        }
+      },
+      RemoveFCMTokenResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'FCM token removed successfully' }
+        }
+      },
+      TestNotificationRequest: {
+        type: 'object',
+        properties: {
+          title: {
+            type: 'string',
+            example: 'Test Notification',
+            description: 'Notification title (optional)'
+          },
+          body: {
+            type: 'string',
+            example: 'This is a test notification from B-Care backend',
+            description: 'Notification body (optional)'
+          }
+        }
+      },
+      TestNotificationResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Test notification sent' },
+          data: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              messageId: { type: 'string', example: 'projects/myproject/messages/0:1234567890123456%31bd1c9631bd1c96' }
+            }
+          }
+        }
+      },
+
       // Attachment Schemas
       UploadAttachmentResponse: {
         type: 'object',
@@ -908,6 +964,7 @@ const swaggerDefinition = {
     { name: 'Feedback', description: 'Feedback management endpoints' },
     { name: 'Attachments', description: 'File attachment management endpoints' },
     { name: 'FAQ', description: 'Frequently Asked Questions management endpoints' },
+    { name: 'Notifications', description: 'FCM notification management endpoints' },
   ],
 };
 
@@ -2443,6 +2500,83 @@ const swaggerPaths = {
         },
         '404': {
           description: 'Customer not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/notifications/register-token': {
+    post: {
+      tags: ['Notifications'],
+      summary: 'Register/Update FCM Token',
+      description: 'Register or update Firebase Cloud Messaging token for push notifications. Token is stored based on user role (customer/employee).',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterFCMTokenRequest' } } }
+      },
+      responses: {
+        '200': {
+          description: 'FCM token registered successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterFCMTokenResponse' } } }
+        },
+        '400': {
+          description: 'Bad request - FCM token is required',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/notifications/remove-token': {
+    delete: {
+      tags: ['Notifications'],
+      summary: 'Remove FCM Token',
+      description: 'Remove Firebase Cloud Messaging token (typically called during logout). Token is removed based on user role.',
+      security: [{ bearerAuth: [] }],
+      responses: {
+        '200': {
+          description: 'FCM token removed successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/RemoveFCMTokenResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/notifications/test': {
+    post: {
+      tags: ['Notifications'],
+      summary: 'Send Test Notification (Development Only)',
+      description: 'Send a test push notification to the authenticated user. Only available in development environment.',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: false,
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/TestNotificationRequest' } } }
+      },
+      responses: {
+        '200': {
+          description: 'Test notification sent successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/TestNotificationResponse' } } }
+        },
+        '400': {
+          description: 'Bad request - No FCM token found for user',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Not found - Only available in development',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
         }
       }

@@ -1,11 +1,13 @@
 const { NotFoundError, ForbiddenError, ValidationError, ConflictError } = require('../middlewares/error_handler');
 const { HTTP_STATUS } = require('../constants/statusCodes');
 const EmailEscalationService = require('../services/email_escalation_service');
+const NotificationService = require('../services/notification_service');
 
 class TicketController {
     constructor(db) {
         this.db = db;
         this.emailEscalationService = new EmailEscalationService(db);
+        this.notificationService = new NotificationService(db);
     }
 
     static createInstance(db) {
@@ -908,6 +910,19 @@ class TicketController {
             // Save ticket
             this.db.get('ticket').push(newTicket).write();
 
+            // Send FCM notifications
+            try {
+                let assignedEmployee = null;
+                if (newTicket.responsible_employee_id) {
+                    assignedEmployee = this.db.get('employee')
+                        .find({ employee_id: newTicket.responsible_employee_id })
+                        .value();
+                }
+                await this.notificationService.notifyTicketCreated(newTicket, customer, assignedEmployee);
+            } catch (notifError) {
+                console.error('FCM notification failed:', notifError.message);
+            }
+
             // Create initial activity
             const initialActivity = {
                 ticket_activity_id: this.getNextId('ticket_activity'),
@@ -930,6 +945,11 @@ class TicketController {
             if (action === 'ESCALATED') {
                 try {
                     await this.emailEscalationService.sendEscalationEmail(newTicket.ticket_id, req.user.id);
+                    // Send escalation FCM notification
+                    const assignedEmployee = this.db.get('employee')
+                        .find({ employee_id: newTicket.responsible_employee_id })
+                        .value();
+                    await this.notificationService.notifyTicketEscalated(newTicket, customer, null, assignedEmployee);
                 } catch (emailError) {
                     console.error('Failed to send escalation email:', emailError);
                     // Don't fail the entire request if email fails
@@ -1396,6 +1416,14 @@ class TicketController {
             if (action === 'ESCALATED') {
                 try {
                     await this.emailEscalationService.sendEscalationEmail(parseInt(id), req.user.id);
+                    // Send escalation FCM notification
+                    const customer = this.db.get('customer')
+                        .find({ customer_id: ticket.customer_id })
+                        .value();
+                    const assignedEmployee = this.db.get('employee')
+                        .find({ employee_id: ticket.responsible_employee_id })
+                        .value();
+                    await this.notificationService.notifyTicketEscalated(updatedTicket, customer, null, assignedEmployee);
                 } catch (emailError) {
                     console.error('Failed to send escalation email:', emailError);
                     // Don't fail the entire request if email fails
@@ -1410,6 +1438,24 @@ class TicketController {
                     console.error('Failed to send DONE_BY_UIC email:', emailError);
                     // Don't fail the entire request if email fails
                 }
+            }
+
+            // Send FCM notifications for ticket updates
+            try {
+                const customer = this.db.get('customer')
+                    .find({ customer_id: ticket.customer_id })
+                    .value();
+                const assignedEmployee = this.db.get('employee')
+                    .find({ employee_id: ticket.responsible_employee_id })
+                    .value();
+                
+                if (action === 'CLOSED') {
+                    await this.notificationService.notifyTicketClosed(updatedTicket, customer, assignedEmployee);
+                } else {
+                    await this.notificationService.notifyTicketUpdated(updatedTicket, customer, assignedEmployee, action?.toLowerCase());
+                }
+            } catch (notifError) {
+                console.error('FCM notification failed:', notifError.message);
             }
                 
             // Get updated ticket

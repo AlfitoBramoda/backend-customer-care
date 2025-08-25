@@ -111,6 +111,7 @@ const createReferenceRoutes = require('./routes/reference');
 const createSocketRoutes    = require('./routes/socket');
 const createAttachmentRoutes = require('./routes/attachment');
 const createFAQRoutes       = require('./routes/faq');
+const createNotificationRoutes = require('./routes/notification');
 server.use('/v1/auth', createAuthRoutes(db));
 server.use('/v1/tickets', createTicketRoutes(db));
 server.use('/v1/activities', createActivityRoutes(db));
@@ -120,6 +121,7 @@ server.use('/v1', createReferenceRoutes(db));
 server.use('/v1/socket', createSocketRoutes(db, io));
 server.use('/v1', createAttachmentRoutes(db));
 server.use('/v1/faqs', createFAQRoutes(db));
+server.use('/v1/notifications', createNotificationRoutes(db));
 
 // Static files middleware
 server.use(express.static('public'));
@@ -169,6 +171,18 @@ server.get('/client-example.html', (req, res) => {
 // Global error handler (LAST)
 const { errorHandler } = require('./middlewares/error_handler');
 server.use(errorHandler);
+
+// Initialize FCM and SLA Monitor
+const SLAMonitorService = require('./services/sla_monitor_service');
+const slaMonitor = new SLAMonitorService(db);
+
+// Start SLA monitoring in production
+if (process.env.FCM_ENABLED === 'true') {
+  slaMonitor.start();
+  console.log('🔔 FCM and SLA monitoring enabled');
+} else {
+  console.log('🔕 FCM disabled via environment variable');
+}
 
 // Start server
 const PORT = process.env.PORT || 5000;
