@@ -1,11 +1,13 @@
 const { NotFoundError, ForbiddenError, ValidationError, ConflictError } = require('../middlewares/error_handler');
 const { HTTP_STATUS } = require('../constants/statusCodes');
 const EmailEscalationService = require('../services/email_escalation_service');
+const NotificationService = require('../services/notification_service');
 
 class TicketController {
     constructor(db) {
         this.db = db;
         this.emailEscalationService = new EmailEscalationService(db);
+        this.notificationService = new NotificationService(db);
     }
 
     static createInstance(db) {
@@ -490,12 +492,29 @@ class TicketController {
             if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
                 throw new ForbiddenError('Access denied');
             } else if (req.user.role === 'employee') {
-                // Check role_id and division_id from JWT token
-                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
-                    if (ticket.responsible_employee_id !== req.user.id) {
+                if (req.user.role_id === 1 && req.user.division_id === 1) {
+                    // CXC Agent can see all tickets
+                } else {
+                    // Other employees: only ESCALATED tickets to their division
+                    const employeeStatus = this.db.get('employee_status')
+                        .find({ employee_status_id: ticket.employee_status_id })
+                        .value();
+                    
+                    if (employeeStatus?.employee_status_code !== 'ESCALATED') {
                         return res.status(HTTP_STATUS.FORBIDDEN).json({
                             success: false,
-                            message: 'Access denied - you can only view tickets assigned to you'
+                            message: 'Access denied'
+                        });
+                    }
+                    
+                    const policy = this.db.get('complaint_policy')
+                        .find({ policy_id: ticket.policy_id })
+                        .value();
+                    
+                    if (policy?.uic_id != req.user.division_id) {
+                        return res.status(HTTP_STATUS.FORBIDDEN).json({
+                            success: false,
+                            message: 'Access denied'
                         });
                     }
                 }
@@ -908,6 +927,19 @@ class TicketController {
             // Save ticket
             this.db.get('ticket').push(newTicket).write();
 
+            // Send FCM notifications
+            try {
+                let assignedEmployee = null;
+                if (newTicket.responsible_employee_id) {
+                    assignedEmployee = this.db.get('employee')
+                        .find({ employee_id: newTicket.responsible_employee_id })
+                        .value();
+                }
+                await this.notificationService.notifyTicketCreated(newTicket, customer, assignedEmployee);
+            } catch (notifError) {
+                console.error('FCM notification failed:', notifError.message);
+            }
+
             // Create initial activity
             const initialActivity = {
                 ticket_activity_id: this.getNextId('ticket_activity'),
@@ -930,6 +962,11 @@ class TicketController {
             if (action === 'ESCALATED') {
                 try {
                     await this.emailEscalationService.sendEscalationEmail(newTicket.ticket_id, req.user.id);
+                    // Send escalation FCM notification
+                    const assignedEmployee = this.db.get('employee')
+                        .find({ employee_id: newTicket.responsible_employee_id })
+                        .value();
+                    await this.notificationService.notifyTicketEscalated(newTicket, customer, null, assignedEmployee);
                 } catch (emailError) {
                     console.error('Failed to send escalation email:', emailError);
                     // Don't fail the entire request if email fails
@@ -1391,11 +1428,24 @@ class TicketController {
             if (customerStatus || employeeStatus) {
                 this.createUpdateStatusHistory(parseInt(id), action, req.user, customerStatus, employeeStatus);
             }
+            
+            // Get updated ticket
+            const updatedTicket = this.db.get('ticket')
+                .find({ ticket_id: parseInt(id) })
+                .value();
 
             // Send escalation email if ticket was escalated
             if (action === 'ESCALATED') {
                 try {
                     await this.emailEscalationService.sendEscalationEmail(parseInt(id), req.user.id);
+                    // Send escalation FCM notification
+                    const customer = this.db.get('customer')
+                        .find({ customer_id: ticket.customer_id })
+                        .value();
+                    const assignedEmployee = this.db.get('employee')
+                        .find({ employee_id: ticket.responsible_employee_id })
+                        .value();
+                    await this.notificationService.notifyTicketEscalated(updatedTicket, customer, null, assignedEmployee);
                 } catch (emailError) {
                     console.error('Failed to send escalation email:', emailError);
                     // Don't fail the entire request if email fails
@@ -1411,11 +1461,25 @@ class TicketController {
                     // Don't fail the entire request if email fails
                 }
             }
+
+            // Send FCM notifications for ticket updates
+            try {
+                const customer = this.db.get('customer')
+                    .find({ customer_id: ticket.customer_id })
+                    .value();
+                const assignedEmployee = this.db.get('employee')
+                    .find({ employee_id: ticket.responsible_employee_id })
+                    .value();
                 
-            // Get updated ticket
-            const updatedTicket = this.db.get('ticket')
-                .find({ ticket_id: parseInt(id) })
-                .value();
+                if (action === 'CLOSED') {
+                    await this.notificationService.notifyTicketClosed(updatedTicket, customer, assignedEmployee);
+                } else {
+                    await this.notificationService.notifyTicketUpdated(updatedTicket, customer, assignedEmployee, action?.toLowerCase());
+                }
+            } catch (notifError) {
+                console.error('FCM notification failed:', notifError.message);
+            }
+                
 
             const enrichedTicket = this.enrichTicketData(updatedTicket, req.user.role);
 
