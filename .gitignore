@@ -39,7 +39,11 @@ node_modules/
 # Google Cloud Service Account Keys - NEVER COMMIT
 config/gcs-service-account.json
 mock/config/gcs-service-account.json
+config/config.json
 
+
+.env.development
+postman/B‑Care Mock API new ERD.postman_collection.json
 # Optional npm cache directory
 .npm
 
@@ -98,3 +102,4 @@ backup/
 Server_socket/
 reference/
 postman/
+

@@ -10,7 +10,7 @@ const swaggerDefinition = {
     contact: { name: 'Tim Backend B-Care', email: 'alfitobramoda@gmail.com' }
   },
   servers: [
-    { url: 'https://275232686ea9.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
+    { url: 'https://b5ed5674f211.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
     { url: 'https://bcare.my.id/v1', description: 'GCP Server' },
     { url: 'http://localhost:3001/v1', description: 'Development server' },
   ],
@@ -328,11 +328,161 @@ const swaggerDefinition = {
         }
       },
 
+      // Update Ticket Schemas
+      UpdateTicketRequest: {
+        type: 'object',
+        description: 'Update ticket request with action-based workflow',
+        properties: {
+          action: {
+            type: 'string',
+            enum: ['HANDLEDCXC', 'ESCALATED', 'CLOSED', 'DECLINED', 'DONE_BY_UIC'],
+            description: 'Action to perform on ticket. Determines status changes and field updates.',
+            example: 'HANDLEDCXC'
+          },
+          priority_id: {
+            type: 'integer',
+            example: 2,
+            description: 'Priority ID (1=Critical, 2=High, 3=Regular)'
+          },
+          record: {
+            type: 'string',
+            example: 'REC-2025-001234',
+            description: 'Record information'
+          },
+          issue_channel_id: {
+            type: 'integer',
+            example: 1,
+            description: 'Issue channel ID'
+          },
+          intake_source_id: {
+            type: 'integer',
+            example: 1,
+            description: 'Intake source ID'
+          },
+          amount: {
+            type: 'number',
+            format: 'float',
+            example: 500000,
+            description: 'Transaction amount'
+          },
+          complaint_id: {
+            type: 'integer',
+            example: 1,
+            description: 'Complaint category ID'
+          },
+          transaction_date: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-08-20T10:30:00.000Z',
+            description: 'Transaction date'
+          },
+          terminal_id: {
+            type: 'integer',
+            example: 98765,
+            description: 'Terminal ID'
+          },
+          description: {
+            type: 'string',
+            example: 'Updated ticket description',
+            description: 'Ticket description'
+          },
+          division_notes: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                division: { type: 'string', example: 'CXC' },
+                timestamp: { type: 'string', example: '21/08/2025' },
+                msg: { type: 'string', example: 'Ticket update notes' },
+                author: { type: 'string', example: 'Agent Name' }
+              }
+            },
+            description: 'Division notes array'
+          },
+          reason: {
+            type: 'string',
+            example: 'Root cause of the issue',
+            description: 'Reason for the issue'
+          },
+          solution: {
+            type: 'string',
+            example: 'Solution provided to resolve the issue',
+            description: 'Solution provided'
+          }
+        }
+      },
+      UpdateTicketResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Ticket updated successfully' },
+          data: {
+            type: 'object',
+            properties: {
+              ticket_id: { type: 'integer', example: 42 },
+              ticket_number: { type: 'string', example: 'BNI-202508200008' },
+              description: { type: 'string', example: 'Nasabah mengalami masalah kartu tertelan di ATM BNI Cabang Jakarta Pusat' },
+              record: { type: 'string', example: 'REC-2025-001234' },
+              customer_status: {
+                type: 'object',
+                properties: {
+                  customer_status_id: { type: 'integer', example: 3 },
+                  customer_status_name: { type: 'string', example: 'Process' },
+                  customer_status_code: { type: 'string', example: 'PROCESS' }
+                }
+              },
+              employee_status: {
+                type: 'object',
+                properties: {
+                  employee_status_id: { type: 'integer', example: 2 },
+                  employee_status_name: { type: 'string', example: 'Handled by CXC' },
+                  employee_status_code: { type: 'string', example: 'HANDLEDCXC' }
+                }
+              },
+              priority: {
+                type: 'object',
+                properties: {
+                  priority_id: { type: 'integer', example: 2 },
+                  priority_name: { type: 'string', example: 'High Priority' },
+                  priority_code: { type: 'string', example: 'HIGH' }
+                }
+              },
+              responsible_employee: {
+                type: 'object',
+                nullable: true,
+                properties: {
+                  employee_id: { type: 'integer', example: 5 },
+                  full_name: { type: 'string', example: 'Ahmad Supervisor' },
+                  npp: { type: 'string', example: 'EMP00005' }
+                }
+              },
+              division_notes: { type: 'string', example: '[{"division":"CXC","timestamp":"21/08/2025","msg":"Ticket sudah diverifikasi dan sedang dalam proses penanganan","author":"Agent CXC"}]' },
+              transaction_date: { type: 'string', format: 'date-time', example: '2025-08-20T10:30:00.000Z' },
+              amount: { type: 'number', example: 500000 },
+              related_account_id: { type: 'integer', example: 12345 },
+              related_card_id: { type: 'integer', example: 67890 },
+              terminal_id: { type: 'integer', example: 98765 },
+              reason: { type: 'string', example: 'Kartu tertelan karena kesalahan sistem ATM' },
+              solution: { type: 'string', example: 'Kartu akan dikembalikan dalam 3 hari kerja, sementara nasabah dapat menggunakan mobile banking' },
+              created_time: { type: 'string', format: 'date-time', example: '2025-08-20T12:34:49.081Z' },
+              closed_time: { type: 'string', format: 'date-time', nullable: true, example: null },
+              committed_due_at: { type: 'string', format: 'date-time', example: '2025-08-25T12:34:49.081Z' }
+            }
+          }
+        }
+      },
+
       // Ticket Schemas
       CreateTicketRequest: {
         type: 'object',
         required: ['description', 'issue_channel_id', 'complaint_id'],
         properties: {
+          action: {
+            type: 'string',
+            enum: ['ESCALATED', 'CLOSED'],
+            description: 'Action to take when creating ticket. If not provided, creates with default status (ACC/OPEN). ESCALATED sets PROCESS/ESCALATED status, CLOSED sets CLOSED/CLOSED status.',
+            example: 'ESCALATED'
+          },
           description: {
             type: 'string',
             example: 'Kartu ATM saya tertelan di mesin ATM BNI Sudirman',
@@ -362,6 +512,30 @@ const swaggerDefinition = {
           terminal_id: { type: 'integer', example: 1, description: 'Terminal ID (optional)' },
           intake_source_id: { type: 'integer', example: 1, description: 'Source of ticket intake (optional)' },
           customer_id: { type: 'integer', example: 1, description: 'Customer ID (for employee flows)' },
+          priority_id: { type: 'integer', example: 2, description: 'Priority ID (1=Critical, 2=High, 3=Regular, defaults to 3)' },
+          division_notes: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                division: { type: 'string', example: 'CXC' },
+                timestamp: { type: 'string', example: '21/08/2025' },
+                msg: { type: 'string', example: 'Initial ticket creation notes' },
+                author: { type: 'string', example: 'Agent Name' }
+              }
+            },
+            description: 'Division notes array (optional)'
+          },
+          reason: {
+            type: 'string',
+            example: 'System error during transaction processing',
+            description: 'Root cause or reason for the issue (optional)'
+          },
+          solution: {
+            type: 'string',
+            example: 'Refund processed and system updated',
+            description: 'Solution or resolution provided (optional)'
+          },
         },
       },
       CreateTicketResponse: {
@@ -376,12 +550,30 @@ const swaggerDefinition = {
               ticket_number: { type: 'string', example: 'BNI-20250115001' },
               description: { type: 'string', example: 'Kartu ATM saya tertelan di mesin ATM BNI Sudirman' },
               record: { type: 'string', example: '' },
+              reason: { type: 'string', example: 'System error during transaction' },
+              solution: { type: 'string', example: 'Manual intervention required' },
               customer_status: {
                 type: 'object',
                 properties: {
                   customer_status_id: { type: 'integer', example: 1 },
-                  customer_status_name: { type: 'string', example: 'Open' },
-                  customer_status_code: { type: 'string', example: 'OPEN' },
+                  customer_status_name: { type: 'string', example: 'Accepted' },
+                  customer_status_code: { type: 'string', example: 'ACC' },
+                },
+              },
+              employee_status: {
+                type: 'object',
+                properties: {
+                  employee_status_id: { type: 'integer', example: 1 },
+                  employee_status_name: { type: 'string', example: 'Open' },
+                  employee_status_code: { type: 'string', example: 'OPEN' },
+                },
+              },
+              priority: {
+                type: 'object',
+                properties: {
+                  priority_id: { type: 'integer', example: 3 },
+                  priority_name: { type: 'string', example: 'Regular Priority' },
+                  priority_code: { type: 'string', example: 'REGULAR' },
                 },
               },
               issue_channel: {
@@ -400,11 +592,29 @@ const swaggerDefinition = {
                   complaint_code: { type: 'string', example: 'CARD_SWALLOWED' },
                 },
               },
+              responsible_employee: {
+                type: 'object',
+                nullable: true,
+                properties: {
+                  employee_id: { type: 'integer', example: 5 },
+                  full_name: { type: 'string', example: 'Ahmad Supervisor' },
+                  npp: { type: 'string', example: 'EMP00005' }
+                },
+                description: 'Only set when action is ESCALATED or CLOSED'
+              },
               created_time: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
+              closed_time: { 
+                type: 'string', 
+                format: 'date-time', 
+                nullable: true,
+                example: null,
+                description: 'Auto-set if action is CLOSED'
+              },
               sla_info: {
                 type: 'object',
                 properties: {
                   committed_due_at: { type: 'string', format: 'date-time', example: '2025-01-16T10:30:00.000Z' },
+                  sla_days: { type: 'integer', example: 1 },
                   sla_hours: { type: 'integer', example: 24 },
                 },
               },
@@ -856,11 +1066,112 @@ const swaggerPaths = {
     post: {
       tags: ['Tickets'],
       summary: 'Create new ticket',
-      description: 'Role-based constraints applied.',
+      description: 'Create new ticket with optional action parameter. No action = default status (ACC/OPEN). Action ESCALATED = PROCESS/ESCALATED status with assignment. Action CLOSED = CLOSED/CLOSED status with closed_time.',
       security: [{ bearerAuth: [] }],
-      requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketRequest' } } } },
+      requestBody: { 
+        required: true, 
+        content: { 
+          'application/json': { 
+            schema: { $ref: '#/components/schemas/CreateTicketRequest' },
+            examples: {
+              customer_default: {
+                summary: 'Customer creates ticket (default status: ACC/OPEN)',
+                description: 'Customer creates ticket without action parameter - gets default ACC/OPEN status',
+                value: {
+                  description: 'Kartu ATM saya tertelan di mesin ATM BNI Sudirman',
+                  issue_channel_id: 1,
+                  complaint_id: 1,
+                  transaction_date: '2025-01-15T14:30:00Z',
+                  amount: 500000,
+                  related_account_id: 1,
+                  terminal_id: 1
+                }
+              },
+              employee_default: {
+                summary: 'Employee creates ticket (default status: ACC/OPEN)',
+                description: 'Employee creates ticket without action parameter - gets default ACC/OPEN status',
+                value: {
+                  description: 'Customer complaint via phone call',
+                  issue_channel_id: 2,
+                  complaint_id: 3,
+                  customer_id: 5,
+                  intake_source_id: 1,
+                  priority_id: 2
+                }
+              },
+              employee_escalated: {
+                summary: 'Employee creates ticket (action: ESCALATED)',
+                description: 'Employee creates ticket with ESCALATED action - sets PROCESS/ESCALATED status and assigns to creator',
+                value: {
+                  action: 'ESCALATED',
+                  description: 'Complex technical issue requiring specialist attention',
+                  issue_channel_id: 1,
+                  complaint_id: 2,
+                  customer_id: 5,
+                  priority_id: 1,
+                  committed_due_at: null,
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Ticket escalated due to complexity',
+                    author: 'Agent CXC'
+                  }]
+                }
+              },
+              employee_closed: {
+                summary: 'Employee creates ticket (action: CLOSED)',
+                description: 'Employee creates ticket with CLOSED action - sets CLOSED/CLOSED status and closed_time',
+                value: {
+                  action: 'CLOSED',
+                  description: 'Issue resolved during phone call',
+                  issue_channel_id: 2,
+                  complaint_id: 1,
+                  customer_id: 5,
+                  priority_id: 3,
+                  solution: 'PIN reset completed, customer can now access account',
+                  committed_due_at: null,
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Issue resolved immediately during call',
+                    author: 'Agent CXC'
+                  }]
+                }
+              },
+              comprehensive_example: {
+                summary: 'Complete ticket with all optional fields',
+                description: 'Example showing all possible fields that can be included',
+                value: {
+                  action: 'ESCALATED',
+                  description: 'ATM transaction failed but amount was debited from account',
+                  issue_channel_id: 1,
+                  complaint_id: 4,
+                  customer_id: 10,
+                  transaction_date: '2025-01-15T14:30:00Z',
+                  amount: 1000000,
+                  record: 'TXN-REF-123456789',
+                  related_account_id: 15,
+                  related_card_id: 8,
+                  terminal_id: 25,
+                  intake_source_id: 1,
+                  priority_id: 1,
+                  reason: 'System timeout during transaction processing',
+                  solution: 'Manual reversal initiated, funds will be credited within 24 hours',
+                  committed_due_at: null,
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'High priority case - customer VIP status',
+                    author: 'Senior Agent'
+                  }]
+                }
+              }
+            }
+          } 
+        } 
+      },
       responses: {
-        '201': { description: 'Ticket created successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketResponse' } } } },
+        '201': { description: 'Ticket created successfully (status depends on action parameter: no action=ACC/OPEN, ESCALATED=PROCESS/ESCALATED, CLOSED=CLOSED/CLOSED)', content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateTicketResponse' } } } },
         '400': { description: 'Bad request - Missing required fields or invalid data', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
         '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
         '403': { description: 'Forbidden - Access denied or insufficient permissions', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
@@ -897,47 +1208,184 @@ const swaggerPaths = {
     patch: {
       tags: ['Tickets'],
       summary: 'Update ticket (Employee only)',
-      description: 'Role-based updatability.',
+      description: 'Update ticket using action-based workflow. Different actions trigger different status changes and field updates. CXC agents can use all actions, non-CXC employees can only use DONE_BY_UIC action.',
       security: [{ bearerAuth: [] }],
       parameters: [{ in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Ticket ID' }],
       requestBody: {
         required: true,
-        content: { 'application/json': { schema: {
-          type: 'object',
-          description: 'Fields vary by employee role',
-          properties: {
-            description: { type: 'string', example: 'Updated ticket description' },
-            record: { type: 'string', example: 'Additional record information' },
-            customer_status: { type: 'string', enum: ['ACC', 'VERIF', 'PROCESS', 'CLOSED', 'DECLINED'], example: 'PROCESS' },
-            employee_status: { type: 'string', enum: ['OPEN', 'HANDLEDCXC', 'ESCALATED', 'CLOSED', 'DECLINED'], example: 'HANDLEDCXC' },
-            priority: { type: 'string', enum: ['CRITICAL', 'HIGH', 'REGULAR'], example: 'HIGH' },
-            responsible_employee_id: { type: 'integer', example: 2 },
-            division_notes: { type: 'string', example: 'Escalated to technical team for further investigation' },
-            transaction_date: { type: 'string', format: 'date-time', example: '2025-01-15T14:30:00Z' },
-            amount: { type: 'number', format: 'float', example: 750000 },
-            related_account_id: { type: 'integer', example: 2 },
-            related_card_id: { type: 'integer', example: 2 },
-            terminal_id: { type: 'integer', example: 2 },
-          },
-        } } },
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/UpdateTicketRequest' },
+            examples: {
+              notes_only: {
+                summary: 'Update Division Notes Only',
+                description: 'Update without action - only adds division notes',
+                value: {
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Additional information gathered from customer',
+                    author: 'Agent CXC'
+                  }]
+                }
+              },
+              handledcxc: {
+                summary: 'CXC Agent Handles Ticket (HANDLEDCXC)',
+                description: 'CXC agent takes ownership - sets VERIF/HANDLEDCXC status and assigns to agent',
+                value: {
+                  action: 'HANDLEDCXC'
+                }
+              },
+              escalated: {
+                summary: 'CXC Agent Escalates Ticket (ESCALATED)',
+                description: 'CXC agent escalates ticket - sets PROCESS/ESCALATED status with full field updates',
+                value: {
+                  action: 'ESCALATED',
+                  priority_id: 3,
+                  record: 'REC-2025-001234',
+                  issue_channel_id: 1,
+                  intake_source_id: 1,
+                  complaint_id: 31,
+                  amount: 50000,
+                  transaction_date: '2025-01-15T14:30:00Z',
+                  terminal_id: 1,
+                  description: 'Complex technical issue requiring specialist attention',
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Escalated to technical team due to complexity',
+                    author: 'Agent CXC'
+                  }]
+                }
+              },
+              closed: {
+                summary: 'CXC Agent Closes Ticket (CLOSED)',
+                description: 'CXC agent closes ticket - sets CLOSED/CLOSED status with solution and auto-sets closed_time',
+                value: {
+                  action: 'CLOSED',
+                  priority_id: 3,
+                  record: 'REC-2025-001234',
+                  issue_channel_id: 1,
+                  intake_source_id: 1,
+                  complaint_id: 31,
+                  amount: 50000,
+                  transaction_date: '2025-01-15T14:30:00Z',
+                  terminal_id: 1,
+                  description: 'Complex technical issue requiring specialist attention',
+                  solution: 'Technical issue resolved, customer notified',
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Escalated to technical team due to complexity',
+                    author: 'Agent CXC'
+                  }]
+                }
+              },
+              declined: {
+                summary: 'CXC Agent Declines Ticket (DECLINED)',
+                description: 'CXC agent declines ticket - sets DECLINED/DECLINED status with reason',
+                value: {
+                  action: 'DECLINED',
+                  priority_id: 3,
+                  record: 'REC-2025-001234',
+                  issue_channel_id: 1,
+                  intake_source_id: 1,
+                  complaint_id: 31,
+                  amount: 50000,
+                  transaction_date: '2025-01-15T14:30:00Z',
+                  terminal_id: 1,
+                  description: 'Complex technical issue requiring specialist attention',
+                  reason: 'Tidak Masuk Akal',
+                  division_notes: [{
+                    division: 'CXC',
+                    timestamp: '21/08/2025',
+                    msg: 'Escalated to technical team due to complexity',
+                    author: 'Agent CXC'
+                  }]
+                }
+              },
+              done_by_uic: {
+                summary: 'UIC Division Completes Work (DONE_BY_UIC)',
+                description: 'Non-CXC division completes their part - sets PROCESS/DONE_BY_UIC status',
+                value: {
+                  action: 'DONE_BY_UIC',
+                  division_notes: [{
+                    division: 'OPR',
+                    timestamp: '21/08/2025',
+                    msg: 'Technical work completed, returning to CXC',
+                    author: 'Technical Team'
+                  }]
+                }
+              }
+            }
+          }
+        }
       },
       responses: {
         '200': {
-          description: 'Updated',
-          content: { 'application/json': { schema: {
-            type: 'object',
-            properties: {
-              success: { type: 'boolean', example: true },
-              message: { type: 'string', example: 'Ticket updated successfully' },
-              data: { type: 'object', description: 'Updated ticket data' },
-            },
-          } } },
+          description: 'Ticket updated successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateTicketResponse' } } }
         },
-        '400': { description: 'Bad request', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-        '403': { description: 'Forbidden', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-        '404': { description: 'Not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
-      },
+        '400': {
+          description: 'Bad request - No valid update data provided or validation errors',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          examples: {
+            no_update_data: {
+              summary: 'No Update Data',
+              value: {
+                success: false,
+                message: 'No valid update data provided'
+              }
+            },
+            invalid_action: {
+              summary: 'Invalid Action',
+              value: {
+                success: false,
+                message: 'Invalid action parameter'
+              }
+            }
+          }
+        },
+        '401': {
+          description: 'Unauthorized - No token provided or invalid token',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } }
+        },
+        '403': {
+          description: 'Forbidden - Access denied based on role or division restrictions',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          examples: {
+            customer_access: {
+              summary: 'Customer Cannot Update',
+              value: {
+                success: false,
+                message: 'Customers cannot update tickets'
+              }
+            },
+            non_cxc_action: {
+              summary: 'Non-CXC Action Restriction',
+              value: {
+                success: false,
+                message: 'Only CXC agents can use this action'
+              }
+            },
+            division_restriction: {
+              summary: 'Division Access Restriction',
+              value: {
+                success: false,
+                message: 'Access denied - insufficient division permissions'
+              }
+            }
+          }
+        },
+        '404': {
+          description: 'Ticket not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '419': {
+          description: 'Token expired - Please refresh session',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } }
+        }
+      }
     },
     delete: {
       tags: ['Tickets'],
@@ -1503,6 +1951,92 @@ const swaggerPaths = {
                     source_id: { type: 'integer', example: 1 },
                     source_code: { type: 'string', example: 'EMPLOYEE' },
                     source_name: { type: 'string', example: 'Employee Created' },
+                  },
+                },
+              },
+            },
+          } } },
+        },
+      },
+    },
+  },
+
+  '/terminals': {
+    get: {
+      tags: ['Reference Data'],
+      summary: 'Get all terminals',
+      description: 'List all terminals with filtering options and related information. Requires authentication.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'channel_id', schema: { type: 'integer' }, description: 'Filter by channel ID' },
+        { in: 'query', name: 'terminal_type_id', schema: { type: 'integer' }, description: 'Filter by terminal type ID' },
+        { in: 'query', name: 'location', schema: { type: 'string' }, description: 'Filter by location (partial match)' },
+      ],
+      responses: {
+        '401': { description: 'Unauthorized', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '200': {
+          description: 'Terminals retrieved successfully',
+          content: { 'application/json': { schema: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              message: { type: 'string', example: 'Terminals retrieved successfully' },
+              summary: {
+                type: 'object',
+                properties: {
+                  total_terminals: { type: 'integer', example: 3 },
+                  by_type: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        terminal_type_code: { type: 'string', example: 'ATM' },
+                        terminal_type_name: { type: 'string', example: 'ATM' },
+                        count: { type: 'integer', example: 2 },
+                      },
+                    },
+                  },
+                  by_channel: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        channel_code: { type: 'string', example: 'ATM' },
+                        channel_name: { type: 'string', example: 'Automated Teller Machine' },
+                        count: { type: 'integer', example: 2 },
+                      },
+                    },
+                  },
+                },
+              },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    terminal_id: { type: 'integer', example: 1 },
+                    terminal_code: { type: 'string', example: 'ATM001' },
+                    location: { type: 'string', example: 'Jakarta Pusat' },
+                    tickets_count: { type: 'integer', example: 5 },
+                    terminal_type: {
+                      type: 'object',
+                      nullable: true,
+                      properties: {
+                        terminal_type_id: { type: 'integer', example: 1 },
+                        terminal_type_code: { type: 'string', example: 'ATM' },
+                        terminal_type_name: { type: 'string', example: 'ATM' },
+                      },
+                    },
+                    channel: {
+                      type: 'object',
+                      nullable: true,
+                      properties: {
+                        channel_id: { type: 'integer', example: 1 },
+                        channel_code: { type: 'string', example: 'ATM' },
+                        channel_name: { type: 'string', example: 'Automated Teller Machine' },
+                        supports_terminal: { type: 'boolean', example: true },
+                      },
+                    },
                   },
                 },
               },
