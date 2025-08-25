@@ -1,11 +1,12 @@
 {
   "development": {
-    "use_env_variable": "DATABASE_URL",
+    "username": "postgres",
+    "password": "bcare",
+    "database": "bni_customer_support_dev",
+    "host": "127.0.0.1",
+    "port": 5432,
     "dialect": "postgres",
-    "logging": false,
-    "dialectOptions": {
-      "ssl": false
-    }
+    "logging": false
   },
   "test": {
     "username": "postgres",

@@ -1,5 +1,6 @@
 const { NotFoundError, ForbiddenError, ValidationError, ConflictError } = require('../middlewares/error_handler');
 const { HTTP_STATUS } = require('../constants/statusCodes');
+const EmailEscalationService = require('../services/email_escalation_service');
 const { Op } = require('sequelize');
 
 const db = require('../models');
@@ -29,7 +30,7 @@ const {
 
 class TicketController {
     constructor() {
-        // No longer need db instance
+        this.emailEscalationService = new EmailEscalationService();
     }
 
     static createInstance() {
@@ -366,11 +367,25 @@ class TicketController {
             if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
                 throw new ForbiddenError('Access denied');
             } else if (req.user.role === 'employee') {
-                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
-                    if (ticket.responsible_employee_id !== req.user.id) {
+                if (req.user.role_id === 1 && req.user.division_id === 1) {
+                    // CXC Agent can see all tickets
+                } else {
+                    // Other employees: only ESCALATED tickets to their division
+                    const employeeStatus = await EmployeeStatus.findByPk(ticket.employee_status_id);
+                    
+                    if (employeeStatus?.employee_status_code !== 'ESCALATED') {
                         return res.status(HTTP_STATUS.FORBIDDEN).json({
                             success: false,
-                            message: 'Access denied - you can only view tickets assigned to you'
+                            message: 'Access denied'
+                        });
+                    }
+                    
+                    const policy = await ComplaintPolicy.findByPk(ticket.policy_id);
+                    
+                    if (policy?.uic_id != req.user.division_id) {
+                        return res.status(HTTP_STATUS.FORBIDDEN).json({
+                            success: false,
+                            message: 'Access denied'
                         });
                     }
                 }
@@ -676,6 +691,43 @@ class TicketController {
                     where: { employee_status_code: "CLOSED" }
                 });
             }
+            // Tambah setelah baris 509 (setelah if action === 'CLOSED')
+            console.log('=== DEBUG TICKET CREATION ===');
+            console.log('customerStatus:', customerStatus);
+            console.log('employeeStatus:', employeeStatus);
+            console.log('policy:', policy);
+            console.log('targetCustomerId:', targetCustomerId);
+            console.log('issue_channel_id:', issue_channel_id);
+            console.log('complaint_id:', complaint_id);
+            console.log('priority_id:', priority_id);
+            
+            const createData = {
+                ticket_number: ticketNumber,
+                description: description,
+                record: record || "",
+                reason: reason || "",
+                solution: solution || "",
+                customer_id: targetCustomerId,
+                customer_status_id: customerStatus?.customer_status_id,
+                employee_status_id: employeeStatus?.employee_status_id,
+                priority_id: priority_id || 3,
+                issue_channel_id: parseInt(issue_channel_id),
+                intake_source_id: req.user.role === 'customer' ? 2 : intake_source_id,
+                related_account_id: related_account_id ? parseInt(related_account_id) : null,
+                related_card_id: related_card_id ? parseInt(related_card_id) : null,
+                complaint_id: parseInt(complaint_id),
+                responsible_employee_id: !action ? null : req.user.id,
+                policy_id: policy?.policy_id || null,
+                committed_due_at: committedDueAt,
+                transaction_date: transaction_date || null,
+                amount: amount || null,
+                terminal_id: terminal_id ? parseInt(terminal_id) : null,
+                closed_time: employeeStatus?.employee_status_id === 4 ? new Date() : null,
+                division_notes: division_notes ? JSON.stringify(division_notes) : null
+            };
+
+            console.log('createData:', JSON.stringify(createData, null, 2));
+            console.log('=== END DEBUG ===');
 
             // Create ticket
             const newTicket = await Ticket.create({
@@ -714,13 +766,23 @@ class TicketController {
                 sender_id: req.user.id,
                 content: req.user.role === 'customer' 
                     ? `Ticket created: ${description}`
-                    : `Ticket created by employee for customer ${customer.full_name}: ${description}`
+                    : `Ticket created by employee for customer ${customer.full_name}: ${description}`,
+                ticket_activity_time: new Date()
             }, { transaction });
 
             // Create status history activities
             await this.createStatusHistoryActivities(newTicket, action, req.user, customerStatus, employeeStatus, transaction);
 
             await transaction.commit();
+
+            if (action === 'ESCALATED') {
+                try {
+                    await this.emailEscalationService.sendEscalationEmail(newTicket.ticket_id, req.user.id);
+                } catch (emailError) {
+                    console.error('Failed to send escalation email:', emailError);
+                    // Don't fail the entire request if email fails
+                }
+            }
 
             // Return enriched ticket data
             const enrichedTicket = await this.enrichTicketData(newTicket, 'customer');
@@ -856,6 +918,7 @@ class TicketController {
 
         // Save all activities
         for (const activity of activities) {
+            activity.ticket_activity_time = new Date();
             await TicketActivity.create(activity, { transaction });
         }
     }
@@ -878,7 +941,8 @@ class TicketController {
             ticket_activity_type_id: 1, // COMMENT
             sender_type_id: 2, // Employee
             sender_id: user.id,
-            content: content
+            content: content,
+            ticket_activity_time: new Date()
         }, { transaction });
     }
 
@@ -899,7 +963,8 @@ class TicketController {
                 ticket_activity_type_id: 2, // STATUS_CHANGE
                 sender_type_id: 2, // Employee
                 sender_id: user.id,
-                content: content
+                content: content,
+                ticket_activity_time: new Date()
             }, { transaction });
         }
     }
@@ -985,6 +1050,22 @@ class TicketController {
             }
 
             await transaction.commit();
+
+            if (action === 'ESCALATED') {
+                try {
+                    await this.emailEscalationService.sendEscalationEmail(parseInt(id), req.user.id);
+                } catch (emailError) {
+                    console.error('Failed to send escalation email:', emailError);
+                }
+            }
+
+            if (action === 'DONE_BY_UIC') {
+                try {
+                    await this.emailEscalationService.sendDoneByUICEmail(parseInt(id), req.user.id);
+                } catch (emailError) {
+                    console.error('Failed to send DONE_BY_UIC email:', emailError);
+                }
+            }
 
             // Get updated ticket with relations
             const updatedTicket = await Ticket.findByPk(parseInt(id), {
@@ -1200,7 +1281,8 @@ class TicketController {
                 ticket_activity_type_id: 4, // DELETE activity
                 sender_type_id: 2, // Employee
                 sender_id: req.user.id,
-                content: `Ticket deleted by ${req.user.full_name || req.user.npp}`
+                content: `Ticket deleted by ${req.user.full_name || req.user.npp}`,
+                ticket_activity_time: new Date()
             }, { transaction });
 
             await transaction.commit();
@@ -1763,7 +1845,8 @@ class TicketController {
                 ticket_activity_type_id: activityType.ticket_activity_type_id,
                 sender_type_id: req.user.role === 'customer' ? 1 : 2,
                 sender_id: req.user.id,
-                content: content
+                content: content,
+                ticket_activity_time: new Date()
             });
 
             // Get sender details for response
