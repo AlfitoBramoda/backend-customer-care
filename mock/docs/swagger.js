@@ -128,6 +128,14 @@ const swaggerDefinition = {
         properties: {
           success: { type: 'boolean', example: true },
           message: { type: 'string', example: 'Logout successful' },
+          data: {
+            type: 'object',
+            properties: {
+              logged_out_at: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
+              fcm_token_removed: { type: 'boolean', example: true },
+              user_role: { type: 'string', example: 'customer' }
+            }
+          }
         },
       },
 
@@ -1010,15 +1018,55 @@ const swaggerPaths = {
     post: {
       tags: ['Authentication'],
       summary: 'User logout',
-      description: 'Invalidate current session.',
+      description: 'Logout user and invalidate current session. Removes FCM token and blacklists JWT token.',
       security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: false,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                remove_fcm_token: {
+                  type: 'boolean',
+                  default: true,
+                  description: 'Whether to remove FCM token from database'
+                }
+              }
+            }
+          }
+        }
+      },
       responses: {
-        '200': { description: 'Logout successful', content: { 'application/json': { schema: { $ref: '#/components/schemas/LogoutResponse' } } } },
+        '200': {
+          description: 'Logout successful',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  message: { type: 'string', example: 'Logout successful' },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      logged_out_at: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
+                      fcm_token_removed: { type: 'boolean', example: true },
+                      user_role: { type: 'string', example: 'customer' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
         '419': { description: 'Token expired - Please refresh', content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } } },
       },
     },
   },
+
+
 
   '/auth/me': {
     get: {

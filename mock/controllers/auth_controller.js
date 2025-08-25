@@ -470,33 +470,88 @@ class AuthController {
         }
     }
 
-    // Logout Method - Handle both customer & employee
+    // Enhanced Logout Method - Handle FCM token removal and JWT invalidation
     async logout(req, res, next) {
         try {
-            // Security logging using middleware-provided user data
-            if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
-                const user = req.user;
-                let userIdentifier;
-                if (user.role === 'customer') {
-                    userIdentifier = user.email;
-                } else if (user.role === 'employee') {
-                    userIdentifier = `${user.npp} (${user.email})`;
-                } else {
-                    userIdentifier = user.email || user.id;
+            const user = req.user;
+            const { remove_fcm_token = true } = req.body; // Optional: allow client to control FCM removal
+            
+            let userIdentifier;
+            if (user.role === 'customer') {
+                userIdentifier = user.email;
+            } else if (user.role === 'employee') {
+                userIdentifier = `${user.npp} (${user.email})`;
+            } else {
+                userIdentifier = user.email || user.id;
+            }
+
+            // 1. Remove FCM token from database (for push notifications)
+            if (remove_fcm_token) {
+                try {
+                    if (user.role === 'customer') {
+                        this.db.get('customer')
+                            .find({ customer_id: user.id })
+                            .assign({ fcm_token: null })
+                            .write();
+                    } else if (user.role === 'employee') {
+                        this.db.get('employee')
+                            .find({ employee_id: user.id })
+                            .assign({ fcm_token: null })
+                            .write();
+                    }
+                } catch (fcmError) {
+                    // Don't fail logout if FCM removal fails
+                    console.warn(`⚠️ FCM token removal failed for ${userIdentifier}:`, fcmError.message);
                 }
-                
-                console.log(`🔐 User logout: ${userIdentifier} (${user.role})`);
+            }
+
+            // 2. Add token to blacklist (for JWT invalidation)
+            if (req.token) {
+                try {
+                    const decoded = jwt.decode(req.token);
+                    if (decoded && decoded.exp) {
+                        const { blacklistToken } = require('../middlewares/auth');
+                        blacklistToken(req.token, decoded.exp, user.id, user.role);
+                    }
+                } catch (tokenError) {
+                    // Don't fail logout if token blacklisting fails
+                    console.warn(`⚠️ Token blacklisting failed for ${userIdentifier}:`, tokenError.message);
+                }
+            }
+
+            // 3. Security logging
+            if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
+                console.log(`🔐 User logout successful: ${userIdentifier} (${user.role})`);
+                if (remove_fcm_token) {
+                    console.log(`📱 FCM token removed for: ${userIdentifier}`);
+                }
+            }
+
+            // 4. Clear any session data (if using sessions)
+            if (req.session) {
+                req.session.destroy();
             }
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
-                message: "Logout successful"
+                message: "Logout successful",
+                data: {
+                    logged_out_at: new Date().toISOString(),
+                    fcm_token_removed: remove_fcm_token,
+                    user_role: user.role
+                }
             });
 
         } catch (error) {
+            // Security logging for failed logout
+            if (process.env.ENABLE_SECURITY_LOGGING === 'true') {
+                console.error(`🚨 Logout failed for user ID ${req.user?.id}:`, error.message);
+            }
             next(error);
         }
     }
+
+
 
     // Get Current User Method - Handle both customer & employee
     async getCurrentUser(req, res, next) {
