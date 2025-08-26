@@ -72,10 +72,15 @@ Content-Type: application/json
 }
 ```
 
-### Remove FCM Token
+### Remove FCM Token (During Logout Only)
 ```http
-DELETE /v1/notifications/remove-token
+POST /v1/auth/logout
 Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "remove_fcm_token": true // Default: true
+}
 ```
 
 ### Test Notification (Development Only)
@@ -146,7 +151,7 @@ const messaging = getMessaging(app);
 // Get FCM token
 const token = await getToken(messaging, { vapidKey: 'your-vapid-key' });
 
-// Register token with backend
+// Register token with backend after login
 await fetch('/v1/notifications/register-token', {
   method: 'POST',
   headers: {
@@ -173,7 +178,7 @@ const authStatus = await messaging().requestPermission();
 // Get FCM token
 const token = await messaging().getToken();
 
-// Register token with backend
+// Register token with backend after login
 await fetch('/v1/notifications/register-token', {
   method: 'POST',
   headers: {

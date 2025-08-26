@@ -849,6 +849,43 @@ const swaggerDefinition = {
           }
         }
       },
+      NotificationHistoryResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                notification_id: { type: 'integer', example: 427 },
+                ticket_id: { type: 'integer', example: 147 },
+                title: { type: 'string', example: 'Update Status Ticket' },
+                body: { type: 'string', example: 'Ticket Anda sedang diverifikasi. Ticket #BNI-2024-001' },
+                status: { type: 'string', enum: ['sent', 'failed'], example: 'sent' },
+                is_read: { type: 'boolean', example: false },
+                created_at: { type: 'string', format: 'date-time', example: '2025-08-25T10:02:29.038Z' }
+              }
+            }
+          },
+          pagination: {
+            type: 'object',
+            properties: {
+              page: { type: 'integer', example: 1 },
+              limit: { type: 'integer', example: 20 },
+              total: { type: 'integer', example: 50 },
+              pages: { type: 'integer', example: 3 }
+            }
+          }
+        }
+      },
+      MarkNotificationReadResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Notification marked as read' }
+        }
+      },
       RegisterFCMTokenResponse: {
         type: 'object',
         properties: {
@@ -2581,19 +2618,53 @@ const swaggerPaths = {
     }
   },
 
-  '/notifications/remove-token': {
-    delete: {
+  '/notifications/history': {
+    get: {
       tags: ['Notifications'],
-      summary: 'Remove FCM Token',
-      description: 'Remove Firebase Cloud Messaging token (typically called during logout). Token is removed based on user role.',
+      summary: 'Get notification history',
+      description: 'Get paginated list of FCM notifications sent to the authenticated user. Shows notifications for ticket creation, status updates, escalations, and closures with separate title and body content.',
       security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'page', schema: { type: 'integer', minimum: 1, default: 1 }, description: 'Page number' },
+        { in: 'query', name: 'limit', schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 }, description: 'Items per page' }
+      ],
       responses: {
         '200': {
-          description: 'FCM token removed successfully',
-          content: { 'application/json': { schema: { $ref: '#/components/schemas/RemoveFCMTokenResponse' } } }
+          description: 'Notification history retrieved successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/NotificationHistoryResponse' } } }
         },
         '401': {
           description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'User not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/notifications/{id}/read': {
+    put: {
+      tags: ['Notifications'],
+      summary: 'Mark notification as read',
+      description: 'Mark a specific notification as read by notification ID. Only the notification owner can mark it as read.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Notification ID' }
+      ],
+      responses: {
+        '200': {
+          description: 'Notification marked as read successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/MarkNotificationReadResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Notification not found or user not found',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
         }
       }
