@@ -6,8 +6,6 @@ const createNotificationRoutes = (db) => {
     const router = express.Router();
     const notificationController = NotificationController.createInstance(db);
     
-
-    
     // POST /v1/notifications/register-token - Register/Update FCM Token
     router.post('/register-token', 
         authenticateToken, 
@@ -33,6 +31,6 @@ const createNotificationRoutes = (db) => {
     );
     
     return router;
-}
+};
 
 module.exports = createNotificationRoutes;

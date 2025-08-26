@@ -6453,6 +6453,34 @@
       "division_notes": null,
       "delete_at": null,
       "delete_by": null
+    },
+    {
+      "ticket_id": 151,
+      "ticket_number": "BNI-202508260005",
+      "description": "Testing Notification 6",
+      "record": "",
+      "reason": "",
+      "solution": "",
+      "customer_id": 2,
+      "customer_status_id": 1,
+      "employee_status_id": 1,
+      "priority_id": 3,
+      "issue_channel_id": 1,
+      "intake_source_id": 2,
+      "related_account_id": 1,
+      "related_card_id": null,
+      "complaint_id": 31,
+      "responsible_employee_id": null,
+      "policy_id": 22,
+      "committed_due_at": "2025-08-31 08:26:50",
+      "transaction_date": "2025-01-15T14:30:00Z",
+      "amount": 500000,
+      "terminal_id": 1,
+      "created_time": "2025-08-26T08:26:50.000Z",
+      "closed_time": null,
+      "division_notes": null,
+      "delete_at": null,
+      "delete_by": null
     }
   ],
   "ticket_activity": [
@@ -10572,6 +10600,33 @@
       "sender_id": null,
       "content": "FCM notification sent to employee Budi Hartono: Ticket Diperbarui - Ticket #BNI-202508250025 telah dieskalasi. [status:sent,read:false]",
       "ticket_activity_time": "2025-08-25T10:59:58.146Z"
+    },
+    {
+      "ticket_activity_id": 458,
+      "ticket_id": 151,
+      "ticket_activity_type_id": 5,
+      "sender_type_id": null,
+      "sender_id": null,
+      "content": "Notification sent to customer: Ticket Berhasil Dibuat - Ticket #BNI-202508260005 telah diterima. Kami akan segera menindaklanjuti keluhan Anda. [status:sent,read:false]",
+      "ticket_activity_time": "2025-08-26T01:26:50.386Z"
+    },
+    {
+      "ticket_activity_id": 459,
+      "ticket_id": 151,
+      "ticket_activity_type_id": 1,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Ticket created: Testing Notification 6",
+      "ticket_activity_time": "2025-08-26T08:26:50.000Z"
+    },
+    {
+      "ticket_activity_id": 460,
+      "ticket_id": 151,
+      "ticket_activity_type_id": 2,
+      "sender_type_id": 1,
+      "sender_id": 2,
+      "content": "Initial status set: customer status to ACC, employee status to OPEN",
+      "ticket_activity_time": "2025-08-26T08:26:50.000Z"
     }
   ],
   "attachment": [
