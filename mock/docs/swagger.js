@@ -660,6 +660,93 @@ const swaggerDefinition = {
           created_time: { type: 'string', format: 'date-time', example: '2025-08-14T08:15:00Z' },
         },
       },
+      
+      // Chat Schemas
+      ChatSessionRequest: {
+        type: 'object',
+        required: ['ticket_id'],
+        properties: {
+          ticket_id: { type: 'integer', example: 12345 },
+        },
+      },
+      ChatSessionResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Chat session created' },
+          data: {
+            type: 'object',
+            properties: {
+              session_id: { type: 'integer', example: 12345 },
+            },
+          },
+        },
+      },
+      SendMessageRequest: {
+        type: 'object',
+        required: ['sender_id', 'sender_type_id', 'message'],
+        properties: {
+          sender_id: { type: 'integer', example: 987 },
+          sender_type_id: { type: 'integer', example: 1 },
+          message: { type: 'string', example: 'Halo, ada yang bisa dibantu?' },
+        },
+      },
+      ChatMessage: {
+        type: 'object',
+        properties: {
+          chat_id: { type: 'integer', example: 1 },
+          ticket_id: { type: 'integer', example: 12345 },
+          sender_id: { type: 'integer', example: 987 },
+          sender_type_id: { type: 'integer', example: 1 },
+          message: { type: 'string', example: 'Halo, ada yang bisa dibantu?' },
+          sent_at: { type: 'string', format: 'date-time', example: '2025-08-14T08:05:00Z' },
+          id: { type: 'integer', example: 1 },
+          ticket: {
+            type: 'object',
+            properties: {
+              ticket_id: { type: 'integer', example: 12345 },
+            },
+          },
+          sender_type: {
+            type: 'object',
+            properties: {
+              sender_type_id: { type: 'integer', example: 1 },
+              name: { type: 'string', example: 'Customer' },
+            },
+          },
+        },
+      },
+      SendMessageResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Message sent' },
+          data: { $ref: '#/components/schemas/ChatMessage' },
+        },
+      },
+      ChatMessagesResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Messages retrieved successfully' },
+          pagination: {
+            type: 'object',
+            properties: {
+              current_page: { type: 'integer', example: 1 },
+              per_page: { type: 'integer', example: 50 },
+              total_items: { type: 'integer', example: 100 },
+              total_pages: { type: 'integer', example: 2 },
+              has_next: { type: 'boolean', example: true },
+              has_prev: { type: 'boolean', example: false },
+            },
+          },
+          data: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/ChatMessage' },
+          },
+        },
+      },
+      
       ErrorResponse: {
         type: 'object',
         properties: {
@@ -2765,6 +2852,87 @@ const swaggerPaths = {
         }
       }
     }
+  },
+
+  // Chat endpoints
+  '/chats/sessions': {
+    post: {
+      tags: ['Chat'],
+      summary: 'Create chat session (session_id = ticket_id)',
+      description: 'Create a new chat session for a ticket.',
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/ChatSessionRequest' } } },
+      },
+      responses: {
+        '201': { description: 'Session created', content: { 'application/json': { schema: { $ref: '#/components/schemas/ChatSessionResponse' } } } },
+        '400': { description: 'Bad request', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '404': { description: 'Ticket not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+      },
+    },
+  },
+
+  '/chats/{session_id}/messages': {
+    post: {
+      tags: ['Chat'],
+      summary: 'Send message to a chat session',
+      description: 'Send a message to an existing chat session.',
+      parameters: [
+        {
+          in: 'path',
+          name: 'session_id',
+          required: true,
+          schema: { type: 'integer' },
+          description: 'Session ID (same as ticket ID)',
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/SendMessageRequest' } } },
+      },
+      responses: {
+        '201': { description: 'Message sent', content: { 'application/json': { schema: { $ref: '#/components/schemas/SendMessageResponse' } } } },
+        '400': { description: 'Bad request', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '404': { description: 'Session/ticket not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+      },
+    },
+    get: {
+      tags: ['Chat'],
+      summary: 'Get chat history for a session',
+      description: 'Retrieve chat messages for a specific session with pagination and filtering.',
+      parameters: [
+        {
+          in: 'path',
+          name: 'session_id',
+          required: true,
+          schema: { type: 'integer' },
+          description: 'Session ID (same as ticket ID)',
+        },
+        {
+          in: 'query',
+          name: 'limit',
+          schema: { type: 'integer', default: 50, maximum: 200 },
+          description: 'Number of messages to retrieve',
+        },
+        {
+          in: 'query',
+          name: 'offset',
+          schema: { type: 'integer', default: 0 },
+          description: 'Number of messages to skip',
+        },
+        {
+          in: 'query',
+          name: 'since',
+          schema: { type: 'string', format: 'date-time', example: '2025-01-01T00:00:00Z' },
+          description: 'Only return messages sent after this timestamp',
+        },
+      ],
+      responses: {
+        '200': { description: 'Messages retrieved successfully', content: { 'application/json': { schema: { $ref: '#/components/schemas/ChatMessagesResponse' } } } },
+        '400': { description: 'Bad request', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+        '404': { description: 'Session/ticket not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+      },
+    },
   },
 };
 

@@ -10816,6 +10816,42 @@
       "message": "Transfer gagal di MBANK.",
       "sent_at": "2025-08-14T08:23:00Z",
       "id": 3
+    },
+    {
+      "chat_id": 4,
+      "ticket_id": 1,
+      "sender_id": 1,
+      "sender_type_id": 1,
+      "message": "Halo, saya butuh bantuan dengan kartu ATM saya",
+      "sent_at": "2025-08-26T06:52:53.894Z",
+      "id": 4
+    },
+    {
+      "chat_id": 5,
+      "ticket_id": 1,
+      "sender_id": 1,
+      "sender_type_id": 1,
+      "message": "Halo, saya butuh bantuan dengan kartu ATM saya",
+      "sent_at": "2025-08-26T06:53:40.821Z",
+      "id": 5
+    },
+    {
+      "chat_id": 6,
+      "ticket_id": 1,
+      "sender_id": 1,
+      "sender_type_id": 1,
+      "message": "Halo, saya butuh bantuan dengan kartu ATM saya",
+      "sent_at": "2025-08-26T06:53:41.683Z",
+      "id": 6
+    },
+    {
+      "chat_id": 7,
+      "ticket_id": 1,
+      "sender_id": 1,
+      "sender_type_id": 1,
+      "message": "Halo, saya butuh bantuan dengan kartu ATM saya",
+      "sent_at": "2025-08-26T06:53:42.624Z",
+      "id": 7
     }
   ],
   "call_status_type": [

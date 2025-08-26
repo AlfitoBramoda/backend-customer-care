@@ -112,6 +112,8 @@ const createSocketRoutes    = require('./routes/socket');
 const createAttachmentRoutes = require('./routes/attachment');
 const createFAQRoutes       = require('./routes/faq');
 const createNotificationRoutes = require('./routes/notification');
+const createChatRoutes = require('./routes/chat');
+server.use('/v1/chats/', createChatRoutes(db));
 server.use('/v1/auth', createAuthRoutes(db));
 server.use('/v1/tickets', createTicketRoutes(db));
 server.use('/v1/activities', createActivityRoutes(db));
@@ -129,7 +131,7 @@ server.use(express.static('public'));
 // JSON Server router for OTHER routes only (exclude custom routes)
 server.use('/v1', (req, res, next) => {
   const pathname = req.path || req.url || '';
-  const customRoutes = ['/auth', '/tickets', '/activities', '/feedback', '/customers', '/socket', '/channels', '/complaint-categories', '/slas', '/uics', '/policies', '/faqs'];
+  const customRoutes = ['/chats','/auth', '/tickets', '/activities', '/feedback', '/customers', '/socket', '/channels', '/complaint-categories', '/slas', '/uics', '/policies', '/faqs'];
   const isCustomRoute = customRoutes.some(route => pathname.startsWith(route));
   
   if (isCustomRoute) {
