@@ -1,2 +1,1 @@
-fcgfsdawdawdaw
-dawdaw
+arsitektur sistem

@@ -27,7 +27,7 @@ module.exports = {
         terminal_code: 'CRM101',
         terminal_type_id: 2,
         location: 'Surabaya Darmo',
-        channel_id: 2,
+        channel_id: 3,
         created_at: new Date(),
         updated_at: new Date()
       }
