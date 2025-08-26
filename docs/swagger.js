@@ -10,7 +10,7 @@ const swaggerDefinition = {
     contact: { name: 'Tim Backend B-Care', email: 'alfitobramoda@gmail.com' }
   },
   servers: [
-    { url: 'https://b5ed5674f211.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
+    { url: 'https://3e11c4290718.ngrok-free.app/v1', description: 'Ngrok tunnel (Primary)' },
     { url: 'https://bcare.my.id/v1', description: 'GCP Server' },
     { url: 'http://localhost:3001/v1', description: 'Development server' },
   ],
@@ -128,6 +128,14 @@ const swaggerDefinition = {
         properties: {
           success: { type: 'boolean', example: true },
           message: { type: 'string', example: 'Logout successful' },
+          data: {
+            type: 'object',
+            properties: {
+              logged_out_at: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
+              fcm_token_removed: { type: 'boolean', example: true },
+              user_role: { type: 'string', example: 'customer' }
+            }
+          }
         },
       },
 
@@ -829,6 +837,99 @@ const swaggerDefinition = {
         }
       },
 
+      // FCM Notification Schemas
+      RegisterFCMTokenRequest: {
+        type: 'object',
+        required: ['fcm_token'],
+        properties: {
+          fcm_token: {
+            type: 'string',
+            example: 'dGhpcyBpcyBhIGZha2UgRkNNIHRva2Vu...',
+            description: 'Firebase Cloud Messaging token from client device'
+          }
+        }
+      },
+      NotificationHistoryResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                notification_id: { type: 'integer', example: 427 },
+                ticket_id: { type: 'integer', example: 147 },
+                title: { type: 'string', example: 'Update Status Ticket' },
+                body: { type: 'string', example: 'Ticket Anda sedang diverifikasi. Ticket #BNI-2024-001' },
+                status: { type: 'string', enum: ['sent', 'failed'], example: 'sent' },
+                is_read: { type: 'boolean', example: false },
+                created_at: { type: 'string', format: 'date-time', example: '2025-08-25T10:02:29.038Z' }
+              }
+            }
+          },
+          pagination: {
+            type: 'object',
+            properties: {
+              page: { type: 'integer', example: 1 },
+              limit: { type: 'integer', example: 20 },
+              total: { type: 'integer', example: 50 },
+              pages: { type: 'integer', example: 3 }
+            }
+          }
+        }
+      },
+      MarkNotificationReadResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Notification marked as read' }
+        }
+      },
+      RegisterFCMTokenResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'FCM token registered successfully' }
+        }
+      },
+      RemoveFCMTokenResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'FCM token removed successfully' }
+        }
+      },
+      TestNotificationRequest: {
+        type: 'object',
+        properties: {
+          title: {
+            type: 'string',
+            example: 'Test Notification',
+            description: 'Notification title (optional)'
+          },
+          body: {
+            type: 'string',
+            example: 'This is a test notification from B-Care backend',
+            description: 'Notification body (optional)'
+          }
+        }
+      },
+      TestNotificationResponse: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean', example: true },
+          message: { type: 'string', example: 'Test notification sent' },
+          data: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean', example: true },
+              messageId: { type: 'string', example: 'projects/myproject/messages/0:1234567890123456%31bd1c9631bd1c96' }
+            }
+          }
+        }
+      },
+
       // Attachment Schemas
       UploadAttachmentResponse: {
         type: 'object',
@@ -908,6 +1009,7 @@ const swaggerDefinition = {
     { name: 'Feedback', description: 'Feedback management endpoints' },
     { name: 'Attachments', description: 'File attachment management endpoints' },
     { name: 'FAQ', description: 'Frequently Asked Questions management endpoints' },
+    { name: 'Notifications', description: 'FCM notification management endpoints' },
   ],
 };
 
@@ -953,15 +1055,55 @@ const swaggerPaths = {
     post: {
       tags: ['Authentication'],
       summary: 'User logout',
-      description: 'Invalidate current session.',
+      description: 'Logout user and invalidate current session. Removes FCM token and blacklists JWT token.',
       security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: false,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                remove_fcm_token: {
+                  type: 'boolean',
+                  default: true,
+                  description: 'Whether to remove FCM token from database'
+                }
+              }
+            }
+          }
+        }
+      },
       responses: {
-        '200': { description: 'Logout successful', content: { 'application/json': { schema: { $ref: '#/components/schemas/LogoutResponse' } } } },
+        '200': {
+          description: 'Logout successful',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  message: { type: 'string', example: 'Logout successful' },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      logged_out_at: { type: 'string', format: 'date-time', example: '2025-01-15T10:30:00.000Z' },
+                      fcm_token_removed: { type: 'boolean', example: true },
+                      user_role: { type: 'string', example: 'customer' }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         '401': { description: 'Login required - No token provided', content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequiredResponse' } } } },
         '419': { description: 'Token expired - Please refresh', content: { 'application/json': { schema: { $ref: '#/components/schemas/TokenExpiredResponse' } } } },
       },
     },
   },
+
+
 
   '/auth/me': {
     get: {
@@ -2443,6 +2585,117 @@ const swaggerPaths = {
         },
         '404': {
           description: 'Customer not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/notifications/register-token': {
+    post: {
+      tags: ['Notifications'],
+      summary: 'Register/Update FCM Token',
+      description: 'Register or update Firebase Cloud Messaging token for push notifications. Token is stored based on user role (customer/employee).',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterFCMTokenRequest' } } }
+      },
+      responses: {
+        '200': {
+          description: 'FCM token registered successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterFCMTokenResponse' } } }
+        },
+        '400': {
+          description: 'Bad request - FCM token is required',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/notifications/history': {
+    get: {
+      tags: ['Notifications'],
+      summary: 'Get notification history',
+      description: 'Get paginated list of FCM notifications sent to the authenticated user. Shows notifications for ticket creation, status updates, escalations, and closures with separate title and body content.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'query', name: 'page', schema: { type: 'integer', minimum: 1, default: 1 }, description: 'Page number' },
+        { in: 'query', name: 'limit', schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 }, description: 'Items per page' }
+      ],
+      responses: {
+        '200': {
+          description: 'Notification history retrieved successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/NotificationHistoryResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'User not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/notifications/{id}/read': {
+    put: {
+      tags: ['Notifications'],
+      summary: 'Mark notification as read',
+      description: 'Mark a specific notification as read by notification ID. Only the notification owner can mark it as read.',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'integer' }, description: 'Notification ID' }
+      ],
+      responses: {
+        '200': {
+          description: 'Notification marked as read successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/MarkNotificationReadResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Notification not found or user not found',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        }
+      }
+    }
+  },
+
+  '/notifications/test': {
+    post: {
+      tags: ['Notifications'],
+      summary: 'Send Test Notification (Development Only)',
+      description: 'Send a test push notification to the authenticated user. Only available in development environment.',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: false,
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/TestNotificationRequest' } } }
+      },
+      responses: {
+        '200': {
+          description: 'Test notification sent successfully',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/TestNotificationResponse' } } }
+        },
+        '400': {
+          description: 'Bad request - No FCM token found for user',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '401': {
+          description: 'Unauthorized',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        },
+        '404': {
+          description: 'Not found - Only available in development',
           content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
         }
       }

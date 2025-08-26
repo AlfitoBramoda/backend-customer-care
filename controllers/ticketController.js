@@ -32,7 +32,7 @@ const {
 class TicketController {
     constructor() {
         this.emailEscalationService = new EmailEscalationService();
-        this.notificationService = new NotificationService();
+        this.notificationService = NotificationService;
     }
 
     static createInstance() {
