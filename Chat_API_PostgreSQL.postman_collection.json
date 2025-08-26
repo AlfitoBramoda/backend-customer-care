@@ -1,0 +1,604 @@
+{
+	"info": {
+		"_postman_id": "chat-postgresql-api-collection-2025",
+		"name": "Chat API (PostgreSQL) Collection",
+		"description": "API collection for B-Care Chat endpoints using PostgreSQL with authentication",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login Customer",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has access token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.access_token).to.be.a('string');",
+									"    ",
+									"    // Save access token for authenticated requests",
+									"    pm.environment.set('access_token', jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"andi.saputra@example.com\",\n  \"password\": \"andi\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login/customer",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								"customer"
+							]
+						},
+						"description": "Login as customer to get access token for authenticated requests"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has access token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.access_token).to.be.a('string');",
+									"    ",
+									"    // Save access token for authenticated requests",
+									"    pm.environment.set('access_token', jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"npp\": \"EMP00001\",\n  \"password\": \"budi\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login/employee",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								"employee"
+							]
+						},
+						"description": "Login as employee to get access token for authenticated requests"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints to get access tokens"
+		},
+		{
+			"name": "Chat Sessions",
+			"item": [
+				{
+					"name": "Create Chat Session",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Response has session_id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('session_id');",
+									"    ",
+									"    // Save session_id for next requests",
+									"    pm.environment.set('session_id', jsonData.data.session_id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ticket_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chats/sessions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats",
+								"sessions"
+							]
+						},
+						"description": "Create a new chat session for a ticket. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Session Summary",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Response has summary data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('total_messages');",
+									"    pm.expect(jsonData.data).to.have.property('participants');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chats/{{session_id}}/summary",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats",
+								"{{session_id}}",
+								"summary"
+							]
+						},
+						"description": "Get summary information about a chat session including message count and participants"
+					},
+					"response": []
+				}
+			],
+			"description": "Chat session management endpoints"
+		},
+		{
+			"name": "Chat Messages",
+			"item": [
+				{
+					"name": "Send Customer Message",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Response has message data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('chat_id');",
+									"    pm.expect(jsonData.data).to.have.property('message');",
+									"    pm.expect(jsonData.data).to.have.property('sent_at');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sender_id\": 1,\n  \"sender_type_id\": 1,\n  \"message\": \"Halo, saya butuh bantuan dengan kartu ATM saya yang tertelan di mesin\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chats/{{session_id}}/messages",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats",
+								"{{session_id}}",
+								"messages"
+							]
+						},
+						"description": "Send a message from customer (sender_type_id: 1) to chat session"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Employee Response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sender_id\": 1,\n  \"sender_type_id\": 2,\n  \"message\": \"Halo! Saya akan membantu Anda dengan masalah kartu ATM. Untuk kartu yang tertelan, bisa dikonfirmasikan lokasi ATM dan waktu kejadian?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/chats/{{session_id}}/messages",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats",
+								"{{session_id}}",
+								"messages"
+							]
+						},
+						"description": "Send a response from employee (sender_type_id: 2) to chat session"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Chat Messages",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Response has pagination info\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('pagination');",
+									"    pm.expect(jsonData.pagination).to.have.property('total_items');",
+									"});",
+									"",
+									"pm.test(\"Response has data array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chats/{{session_id}}/messages?limit=50&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats",
+								"{{session_id}}",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50",
+									"description": "Number of messages to retrieve (max 200)"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Number of messages to skip for pagination"
+								},
+								{
+									"key": "since",
+									"value": "2025-08-26T00:00:00Z",
+									"description": "Only return messages sent after this timestamp",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Retrieve chat messages for a session with pagination and optional date filtering"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Recent Messages (since filter)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chats/{{session_id}}/messages?limit=10&since=2025-08-26T00:00:00Z",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats",
+								"{{session_id}}",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "since",
+									"value": "2025-08-26T00:00:00Z",
+									"description": "Only show messages from today"
+								}
+							]
+						},
+						"description": "Get only recent messages using the 'since' filter to show messages after a specific timestamp"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Message",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has success true\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/chats/{{session_id}}/messages/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats",
+								"{{session_id}}",
+								"messages",
+								"1"
+							]
+						},
+						"description": "Delete a specific message from the chat session (soft delete - message content is replaced with '[Message deleted]')"
+					},
+					"response": []
+				}
+			],
+			"description": "Chat message operations (send, retrieve, delete)"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set default values if environment variables don't exist",
+					"if (!pm.environment.get('base_url')) {",
+					"    pm.environment.set('base_url', 'http://localhost:3000/v1');",
+					"}",
+					"",
+					"if (!pm.environment.get('session_id')) {",
+					"    pm.environment.set('session_id', '1');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test to check response time",
+					"pm.test(\"Response time is less than 2000ms\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+					"});",
+					"",
+					"// Global test to check content type",
+					"pm.test(\"Content-Type is application/json\", function () {",
+					"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/v1",
+			"description": "Base URL for the API (PostgreSQL version)"
+		},
+		{
+			"key": "session_id",
+			"value": "1",
+			"description": "Chat session ID (same as ticket ID)"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"description": "JWT access token for authenticated requests"
+		}
+	]
+}
