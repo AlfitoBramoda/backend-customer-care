@@ -12,10 +12,16 @@ const createNotificationRoutes = (db) => {
         notificationController.registerToken.bind(notificationController)
     );
     
-    // DELETE /v1/notifications/remove-token - Remove FCM Token (logout)
-    router.delete('/remove-token', 
+    // GET /v1/notifications/history - Get notification history
+    router.get('/history', 
         authenticateToken, 
-        notificationController.removeToken.bind(notificationController)
+        notificationController.getNotificationHistory.bind(notificationController)
+    );
+    
+    // PUT /v1/notifications/:id/read - Mark notification as read
+    router.put('/:id/read', 
+        authenticateToken, 
+        notificationController.markAsRead.bind(notificationController)
     );
     
     // POST /v1/notifications/test - Test notification (development only)
