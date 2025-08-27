@@ -1286,6 +1286,11 @@ class TicketController {
 
             await transaction.commit();
 
+            // Get updated ticket with relations
+            const updatedTicket = await Ticket.findByPk(parseInt(id), {
+                include: this.getDetailedIncludes()
+            });
+
             if (action === 'ESCALATED') {
                 try {
                     await this.emailEscalationService.sendEscalationEmail(parseInt(id), req.user.id);
@@ -1319,11 +1324,6 @@ class TicketController {
             } catch (notifError) {
                 console.error('FCM notification failed:', notifError.message);
             }
-
-            // Get updated ticket with relations
-            const updatedTicket = await Ticket.findByPk(parseInt(id), {
-                include: this.getDetailedIncludes()
-            });
 
             const enrichedTicket = await this.enrichTicketData(updatedTicket, req.user.role);
 
