@@ -8,7 +8,8 @@ const {
     feedback: Feedback,
     ticket: Ticket,
     customer: Customer,
-    customer_status: CustomerStatus
+    customer_status: CustomerStatus,
+    employee: Employee
 } = db;
 
 class FeedbackController {
@@ -207,7 +208,7 @@ class FeedbackController {
                     {
                         model: Ticket,
                         as: 'ticket',
-                        attributes: ['ticket_id', 'ticket_number', 'description', 'customer_id'],
+                        attributes: ['ticket_id', 'ticket_number', 'description', 'customer_id', 'responsible_employee_id'],
                         include: [{
                             model: CustomerStatus,
                             as: 'customer_status',
@@ -220,7 +221,7 @@ class FeedbackController {
                 offset: offset
             });
 
-            // Transform data - get customer through ticket
+            // Transform data - get customer and responsible employee through ticket
             const enrichedFeedback = await Promise.all(feedbacks.map(async (feedback) => {
                 const feedbackData = feedback.toJSON();
                 
@@ -229,6 +230,14 @@ class FeedbackController {
                 if (feedbackData.ticket?.customer_id) {
                     customer = await Customer.findByPk(feedbackData.ticket.customer_id, {
                         attributes: ['customer_id', 'full_name', 'email', 'phone_number']
+                    });
+                }
+
+                // Get responsible employee data through ticket
+                let responsibleEmployee = null;
+                if (feedbackData.ticket?.responsible_employee_id) {
+                    responsibleEmployee = await Employee.findByPk(feedbackData.ticket.responsible_employee_id, {
+                        attributes: ['employee_id', 'full_name', 'npp', 'email']
                     });
                 }
 
@@ -245,6 +254,12 @@ class FeedbackController {
                         full_name: customer.full_name,
                         email: customer.email,
                         phone_number: customer.phone_number
+                    } : null,
+                    responsible_employee: responsibleEmployee ? {
+                        id: responsibleEmployee.employee_id,
+                        full_name: responsibleEmployee.full_name,
+                        npp: responsibleEmployee.npp,
+                        email: responsibleEmployee.email
                     } : null,
                     score: feedbackData.score,
                     comment: feedbackData.comment,

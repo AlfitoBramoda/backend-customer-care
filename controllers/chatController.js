@@ -49,22 +49,20 @@ class ChatController {
 
     /**
      * POST /v1/chats/:session_id/messages
-     * Body: { sender_id, sender_type_id, message }
+     * Body: { message }
      */
     static async sendMessage(req, res, next) {
         try {
             const { session_id } = req.params;
-            const { sender_id, sender_type_id, message } = req.body;
+            const { message } = req.body;
 
+            // Extract sender info from authenticated user
+            const sender_id = req.user.id;
+            const sender_type_id = req.user.role === 'employee' ? 2 : 1;
+            
             // Validasi input
             if (!session_id) {
                 throw new ValidationError('session_id is required');
-            }
-            if (!sender_id) {
-                throw new ValidationError('sender_id is required');
-            }
-            if (!sender_type_id) {
-                throw new ValidationError('sender_type_id is required');
             }
             if (!message || message.trim().length === 0) {
                 throw new ValidationError('message is required');
