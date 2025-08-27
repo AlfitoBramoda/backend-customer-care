@@ -238,8 +238,13 @@ socket.on("chat:send", async (msg = {}) => {
     // Use auth token from message or environment variable
     const token = msg.authToken || API_TOKEN;
     if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-      console.log("[persist] Using auth token:", token ? "***" + token.slice(-4) : "none");
+      // Check if token already has Bearer prefix
+      if (token.startsWith('Bearer ')) {
+        headers["Authorization"] = token;
+      } else {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      console.log("[persist] Using auth token:", token ? "***" + token.slice(-10) : "none");
     } else {
       console.warn("[persist] No auth token available - API calls may fail");
     }
