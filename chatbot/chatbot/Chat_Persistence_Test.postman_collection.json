@@ -1,0 +1,188 @@
+{
+  "info": {
+    "name": "Chat Persistence Test",
+    "description": "Test endpoints untuk Socket.IO chat message persistence ke PostgreSQL",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "backend_api",
+      "value": "https://bcare.my.id",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Check Config",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/test/test-config",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "test-config"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Test Room Format Validation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/test-room-formats",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "test-room-formats"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3a. Test Ticket Room (ticket:123)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"ticket:123\",\n  \"message\": \"Test message from Postman untuk ticket room\",\n  \"senderId\": \"CUS-TEST-001\",\n  \"senderTypeId\": 1,\n  \"authToken\": \"MASUKKAN_TOKEN_DISINI\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/test-chat-persistence",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "test-chat-persistence"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3b. Test Call Room (call:ticket-456)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"call:ticket-456\",\n  \"message\": \"Test message from call room via Postman\",\n  \"senderId\": \"EMP-TEST-001\",\n  \"senderTypeId\": 2,\n  \"authToken\": \"MASUKKAN_TOKEN_DISINI\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/test-chat-persistence",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "test-chat-persistence"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3c. Test DM Room (should skip)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"dm:CUS-1:EMP-2\",\n  \"message\": \"Test DM message - should be skipped\",\n  \"senderId\": \"CUS-TEST-001\",\n  \"senderTypeId\": 1\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/test-chat-persistence",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "test-chat-persistence"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3d. Test Without Auth Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"ticket:789\",\n  \"message\": \"Test message tanpa auth token\",\n  \"senderId\": \"CUS-TEST-002\",\n  \"senderTypeId\": 1\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/test-chat-persistence",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "test-chat-persistence"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. Backend Login (Get Token)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"employee@bni.com\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{backend_api}}/v1/auth/login",
+          "host": ["{{backend_api}}"],
+          "path": ["v1", "auth", "login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. Test With Valid Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"room\": \"ticket:999\",\n  \"message\": \"Test message dengan valid auth token\",\n  \"senderId\": \"EMP-TEST-AUTH\",\n  \"senderTypeId\": 2,\n  \"authToken\": \"PASTE_TOKEN_FROM_LOGIN_RESPONSE_HERE\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/test/test-chat-persistence",
+          "host": ["{{base_url}}"],
+          "path": ["api", "test", "test-chat-persistence"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

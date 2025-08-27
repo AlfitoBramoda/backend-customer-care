@@ -11,12 +11,15 @@ const { extractJsonWithLM } = require('../services/lm-studio');
 const { faqSearch } = require('../services/faq-service');
 const { searchSLA } = require('../services/sla-service');
 const { semanticAutocorrect, normalizeTimeWindow, inferPriority } = require('../utils/classification');
+const testRoutes = require('./test-routes');
 
 // -----------------------------
 // Route Handlers
 // -----------------------------
 
 function setupRoutes(app) {
+  // Register test routes
+  app.use('/api/test', testRoutes);
   // Health check
   app.get('/healthz', (req, res) => {
     res.json({ status: 'ok', model: LM_MODEL });
