@@ -15,6 +15,11 @@ module.exports = {
       { division_id: 9, division_code: 'UIC8', division_name: 'DGO USER 8', created_at: new Date(), updated_at: new Date() }, 
       { division_id: 10, division_code: 'UIC10', division_name: 'DGO USER 10', created_at: new Date(), updated_at: new Date() }
     ],{});
+
+    // Fix sequence
+    await queryInterface.sequelize.query(
+      "SELECT setval(pg_get_serial_sequence('division', 'division_id'), COALESCE(MAX(division_id), 1)) FROM division;"
+    );
   },
 
   async down (queryInterface, Sequelize) {

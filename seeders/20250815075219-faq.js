@@ -230,6 +230,11 @@ module.exports = {
         updated_at: new Date('2025-08-14T08:58:00Z')
       }
     ],{});
+
+    // Fix sequence
+    await queryInterface.sequelize.query(
+      "SELECT setval(pg_get_serial_sequence('faq', 'faq_id'), COALESCE(MAX(faq_id), 1)) FROM faq;"
+    );
   },
 
   async down (queryInterface, Sequelize) {

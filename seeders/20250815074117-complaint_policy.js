@@ -962,6 +962,11 @@ module.exports = {
         "updated_at": new Date()
       }
     ], {});         
+
+    // Fix sequence
+    await queryInterface.sequelize.query(
+      "SELECT setval(pg_get_serial_sequence('complaint_policy', 'policy_id'), COALESCE(MAX(policy_id), 1)) FROM complaint_policy;"
+    );
   },
 
   async down (queryInterface, Sequelize) {

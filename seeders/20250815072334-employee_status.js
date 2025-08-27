@@ -11,6 +11,11 @@ module.exports = {
       { employee_status_id: 5, employee_status_code: 'DECLINED', employee_status_name: 'Declined', description: 'Ditolak atau tidak valid', created_at: new Date(), updated_at: new Date() },
       { employee_status_id: 6, employee_status_code: 'DONE_BY_UIC', employee_status_name: 'Done by UIC', description: 'UIC done ticket', created_at: new Date(), updated_at: new Date() }
     ], {});
+
+    // Fix sequence
+    await queryInterface.sequelize.query(
+      "SELECT setval(pg_get_serial_sequence('employee_status', 'employee_status_id'), COALESCE(MAX(employee_status_id), 1)) FROM employee_status;"
+    );
   },
 
   async down (queryInterface, Sequelize) {

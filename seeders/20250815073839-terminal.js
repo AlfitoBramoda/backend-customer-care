@@ -32,6 +32,11 @@ module.exports = {
         updated_at: new Date()
       }
     ], {});
+
+    // Fix sequence
+    await queryInterface.sequelize.query(
+      "SELECT setval(pg_get_serial_sequence('terminal', 'terminal_id'), COALESCE(MAX(terminal_id), 1)) FROM terminal;"
+    );
   },
 
   async down (queryInterface, Sequelize) {
