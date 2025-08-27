@@ -1,10 +1,30 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 require('dotenv').config();
 
 const app = express();
 
-app.use(cors());
+// Trust proxy (for HTTPS redirect & secure cookies)
+app.set('trust proxy', 1);
+
+// Security headers
+const isProd = process.env.NODE_ENV === 'production';
+app.use(helmet({
+    contentSecurityPolicy: isProd ? { useDefaults: true } : false,
+    crossOriginEmbedderPolicy: false,
+}));
+
+// CORS configuration
+const allowlist = (process.env.CORS_ORIGIN || 'http://localhost:3001').split(',');
+app.use(cors({
+    origin: (origin, cb) => {
+        if (!origin) return cb(null, true);
+        cb(null, allowlist.includes(origin));
+    },
+    credentials: process.env.CORS_CREDENTIALS === 'true'
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -65,6 +85,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT_APP || 3001;
 app.listen(PORT, () => {
+    console.log(`✅ GCS configured successfully`);
     console.log(`Server running on port ${PORT}`);
 });
 
