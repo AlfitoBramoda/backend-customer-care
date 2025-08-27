@@ -20,10 +20,16 @@ const allowlist = (process.env.CORS_ORIGIN || 'http://localhost:3001').split(','
 app.use(cors({
     origin: (origin, cb) => {
         if (!origin) return cb(null, true);
+        console.log('CORS check - Origin:', origin, 'Allowed:', allowlist.includes(origin));
         cb(null, allowlist.includes(origin));
     },
-    credentials: process.env.CORS_CREDENTIALS === 'true'
+    credentials: process.env.CORS_CREDENTIALS === 'true',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Access-Control-Allow-Origin','ngrok-skip-browser-warning','Content-Type', 'Authorization', 'X-Requested-With'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
