@@ -186,59 +186,14 @@ socket.on("chat:send", async (msg = {}) => {
   console.log(`[chat] message from ${socket.data.userId} to room ${msg.room}: ${preview}...`);
   socket.to(msg.room).emit("chat:new", msg);
 
-  // 2) persist ke REST API backend -> /v1/chats/:session_id/messages
+  // 2) persist ke REST API backend
   try {
-    // Backend API base URL dari konfigurasi
     const base = process.env.PERSIST_BASE_URL || BACKEND_API_URL;
-
-    // ambil ticketId dari msg.ticketId atau parse dari room "ticket:123", "call:ticket-30", dll
-    const ticketId =
-      msg.ticketId ??
-      (typeof msg.room === "string" ? (msg.room.match(/ticket[-:]?(\d+)/)?.[1] ?? null) : null);
-
-    // Debug logging
-    console.log("[persist] debug - msg.ticketId:", msg.ticketId);
-    console.log("[persist] debug - msg.room:", msg.room);
-    console.log("[persist] debug - extracted ticketId:", ticketId);
-
-    if (!ticketId) {
-      // Check if this is a DM room (which doesn't need persistence)
-      if (typeof msg.room === "string" && msg.room.startsWith("dm:")) {
-        console.log("[persist] skip: DM room - tidak perlu persist ke database");
-        return;
-      }
-      
-      console.warn("[persist] skip: tidak bisa resolve ticketId dari msg.room / msg.ticketId");
-      console.warn("[persist] msg.room:", msg.room);
-      console.warn("[persist] Pastikan room format: 'call:ticket-123', 'ticket:123', atau kirim ticketId di message");
-      return;
-    }
-
-    console.log(`[persist] ✅ Will persist to ticket ${ticketId}`);
-
-    // normalisasi field (dukung camelCase & snake_case)
-    const sender_id      = msg.sender_id      ?? msg.senderId      ?? socket.data.userId;
-    const sender_type_id = msg.sender_type_id ?? msg.senderTypeId  ?? (sender_id?.startsWith("EMP-") ? 2 : 1); // 1=Customer, 2=Employee
-    const message        = (msg.message ?? msg.text ?? "").toString();
-
-    console.log("[persist] payload:", { sender_id, sender_type_id, message, ticketId });
-
-    if (!message.trim()) {
-      console.warn("[persist] skip: message kosong");
-      return;
-    }
-
-    // Step 1: Buat/pastikan chat session ada (POST /v1/chats/sessions)
-    console.log("[persist] Step 1: Ensuring chat session exists...");
-    
-    const headers = { 
+    const headers = {
       "Content-Type": "application/json"
     };
-    
-    // Use auth token from message or environment variable
     const token = msg.authToken || API_TOKEN;
     if (token) {
-      // Check if token already has Bearer prefix
       if (token.startsWith('Bearer ')) {
         headers["Authorization"] = token;
       } else {
@@ -248,13 +203,82 @@ socket.on("chat:send", async (msg = {}) => {
     } else {
       console.warn("[persist] No auth token available - API calls may fail");
     }
-    
+
+    // ambil ticketId dari msg.ticketId atau parse dari room "ticket:123", "call:ticket-30", dll
+    const ticketId =
+      msg.ticketId ??
+      (typeof msg.room === "string" ? (msg.room.match(/ticket[-:]?(\d+)/)?.[1] ?? null) : null);
+
+    // normalisasi field (dukung camelCase & snake_case)
+    const sender_id      = msg.sender_id      ?? msg.senderId      ?? socket.data.userId;
+    const sender_type_id = msg.sender_type_id ?? msg.senderTypeId  ?? (sender_id?.startsWith("EMP-") ? 2 : 1); // 1=Customer, 2=Employee
+    const message        = (msg.message ?? msg.text ?? "").toString();
+
+    if (!message.trim()) {
+      console.warn("[persist] skip: message kosong");
+      return;
+    }
+
+    if (typeof msg.room === "string" && msg.room.startsWith("dm:")) {
+      // DM room, persist ke endpoint khusus DM
+      console.log("[persist] DM room detected, persist to /v1/chats/dm-messages");
+      // Extract DM participants
+      const dmParts = msg.room.split(":");
+      // Format: dm:CUS-2:EMP-1
+      const customer_id = dmParts.find(p => p.startsWith("CUS-")) || null;
+      const employee_id = dmParts.find(p => p.startsWith("EMP-")) || null;
+      const payload = {
+        customer_id,
+        employee_id,
+        sender_id,
+        sender_type_id,
+        message,
+        room: msg.room
+      };
+      console.log("[persist] DM payload:", payload);
+      const dmResp = await fetch(`${base}/v1/chats/dm-messages`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload)
+      });
+      if (!dmResp.ok) {
+        const errorText = await dmResp.text();
+        console.error("[persist] DM message save failed:", dmResp.status, errorText);
+        socket.emit("chat:persist_error", {
+          status: dmResp.status,
+          error: errorText,
+          endpoint: `${base}/v1/chats/dm-messages`
+        });
+      } else {
+        const saved = await dmResp.json();
+        console.log("[persist] ✅ DM message saved successfully:", saved);
+        socket.emit("chat:ack", {
+          success: true,
+          room: msg.room,
+          data: saved,
+          endpoint: `${base}/v1/chats/dm-messages`
+        });
+      }
+      return;
+    }
+
+    if (!ticketId) {
+      console.warn("[persist] skip: tidak bisa resolve ticketId dari msg.room / msg.ticketId");
+      console.warn("[persist] msg.room:", msg.room);
+      console.warn("[persist] Pastikan room format: 'call:ticket-123', 'ticket:123', atau kirim ticketId di message");
+      return;
+    }
+
+    console.log(`[persist] ✅ Will persist to ticket ${ticketId}`);
+    console.log("[persist] payload:", { sender_id, sender_type_id, message, ticketId });
+
+    // Step 1: Buat/pastikan chat session ada (POST /v1/chats/sessions)
+    console.log("[persist] Step 1: Ensuring chat session exists...");
     const sessionResp = await fetch(`${base}/v1/chats/sessions`, {
       method: "POST",
       headers,
       body: JSON.stringify({ ticket_id: Number(ticketId) })
     });
-
     if (!sessionResp.ok) {
       const sessionError = await sessionResp.text();
       console.warn("[persist] Session creation failed:", sessionResp.status, sessionError);
@@ -268,24 +292,23 @@ socket.on("chat:send", async (msg = {}) => {
     console.log("[persist] Step 2: Sending message...");
     const messageResp = await fetch(`${base}/v1/chats/${ticketId}/messages`, {
       method: "POST",
-      headers, // gunakan headers yang sama (dengan/tanpa auth)
+      headers,
       body: JSON.stringify({ sender_id, sender_type_id, message })
     });
-
     if (!messageResp.ok) {
       const errorText = await messageResp.text();
       console.error("[persist] Message save failed:", messageResp.status, errorText);
-      socket.emit("chat:persist_error", { 
-        status: messageResp.status, 
+      socket.emit("chat:persist_error", {
+        status: messageResp.status,
         error: errorText,
         endpoint: `${base}/v1/chats/${ticketId}/messages`
       });
     } else {
       const saved = await messageResp.json();
       console.log("[persist] ✅ Message saved successfully:", saved);
-      socket.emit("chat:ack", { 
-        success: true, 
-        ticket_id: Number(ticketId), 
+      socket.emit("chat:ack", {
+        success: true,
+        ticket_id: Number(ticketId),
         data: saved,
         endpoint: `${base}/v1/chats/${ticketId}/messages`
       });
@@ -612,6 +635,7 @@ socket.on("chat:send", async (msg = {}) => {
     }
   });
 });
+
 
 
 // Add Socket.IO status endpoint with detailed info
