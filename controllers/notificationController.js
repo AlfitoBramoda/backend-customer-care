@@ -1,5 +1,5 @@
 const { HTTP_STATUS } = require('../constants/statusCodes');
-const FCMService = require('../services/fcm_service');
+const FCMService = require('../services/fcmService');
 const db = require('../models');
 
 const {
