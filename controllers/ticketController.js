@@ -84,11 +84,11 @@ class TicketController {
             }
 
             if (customer_id && req.user.role === 'employee') {
-                whereClause.customer_id = customer_id;
+                whereClause.customer_id = parseInt(customer_id);
             }
 
             if (employee_id && req.user.role === 'employee') {
-                whereClause.responsible_employee_id = employee_id;
+                whereClause.responsible_employee_id = parseInt(employee_id);
             }
 
             if (priority) {
@@ -96,11 +96,11 @@ class TicketController {
             }
 
             if (channel_id) {
-                whereClause.issue_channel_id = channel_id;
+                whereClause.issue_channel_id = parseInt(channel_id);
             }
 
             if (complaint_id) {
-                whereClause.complaint_id = complaint_id;
+                whereClause.complaint_id = parseInt(complaint_id);
             }
 
             if (date_from || date_to) {
@@ -603,6 +603,7 @@ class TicketController {
 
     async getDetailedTicketData(ticket, userRole) {
         const baseData = {
+            ticket_id: ticket.ticket_id,
             ticket_number: ticket.ticket_number,
             description: ticket.description,
             transaction_date: ticket.transaction_date,
@@ -826,7 +827,7 @@ class TicketController {
             }
 
             // Validate references
-            const channel = await Channel.findByPk(issue_channel_id);
+            const channel = await Channel.findByPk(parseInt(issue_channel_id));
             if (!channel) {
                 return res.status(400).json({
                     success: false,
@@ -834,7 +835,7 @@ class TicketController {
                 });
             }
 
-            const complaint = await ComplaintCategory.findByPk(complaint_id);
+            const complaint = await ComplaintCategory.findByPk(parseInt(complaint_id));
             if (!complaint) {
                 return res.status(400).json({
                     success: false,
@@ -853,7 +854,7 @@ class TicketController {
             }
 
             // Resolve policy
-            const policy = await this.resolvePolicy(complaint.complaint_id, channel.channel_id);
+            const policy = await this.resolvePolicy(parseInt(complaint.complaint_id), parseInt(channel.channel_id));
             
             // Generate ticket number
             const ticketNumber = await this.generateTicketNumber();
@@ -909,17 +910,17 @@ class TicketController {
                 customer_id: targetCustomerId,
                 customer_status_id: customerStatus?.customer_status_id,
                 employee_status_id: employeeStatus?.employee_status_id,
-                priority_id: priority_id || 3,
+                priority_id: priority_id ? parseInt(priority_id) : 3,
                 issue_channel_id: parseInt(issue_channel_id),
-                intake_source_id: req.user.role === 'customer' ? 2 : intake_source_id,
+                intake_source_id: req.user.role === 'customer' ? 2 : (intake_source_id ? parseInt(intake_source_id) : null),
                 related_account_id: related_account_id ? parseInt(related_account_id) : null,
                 related_card_id: related_card_id ? parseInt(related_card_id) : null,
                 complaint_id: parseInt(complaint_id),
-                responsible_employee_id: !action ? null : req.user.id,
+                responsible_employee_id: !action ? null : parseInt(req.user.id),
                 policy_id: policy?.policy_id || null,
                 committed_due_at: committedDueAt,
                 transaction_date: transaction_date || null,
-                amount: amount || null,
+                amount: amount ? parseFloat(amount) : null,
                 terminal_id: terminal_id ? parseInt(terminal_id) : null,
                 closed_time: employeeStatus?.employee_status_id === 4 ? new Date() : null,
                 division_notes: division_notes ? JSON.stringify(division_notes) : null
@@ -938,17 +939,17 @@ class TicketController {
                 customer_id: targetCustomerId,
                 customer_status_id: customerStatus?.customer_status_id,
                 employee_status_id: employeeStatus?.employee_status_id,
-                priority_id: priority_id || 3,
+                priority_id: priority_id ? parseInt(priority_id) : 3,
                 issue_channel_id: parseInt(issue_channel_id),
-                intake_source_id: req.user.role === 'customer' ? 2 : intake_source_id,
+                intake_source_id: req.user.role === 'customer' ? 2 : (intake_source_id ? parseInt(intake_source_id) : null),
                 related_account_id: related_account_id ? parseInt(related_account_id) : null,
                 related_card_id: related_card_id ? parseInt(related_card_id) : null,
                 complaint_id: parseInt(complaint_id),
-                responsible_employee_id: !action ? null : req.user.id,
+                responsible_employee_id: !action ? null : parseInt(req.user.id),
                 policy_id: policy?.policy_id || null,
                 committed_due_at: committedDueAt,
                 transaction_date: transaction_date || null,
-                amount: amount || null,
+                amount: amount ? parseFloat(amount) : null,
                 terminal_id: terminal_id ? parseInt(terminal_id) : null,
                 closed_time: employeeStatus?.employee_status_id === 4 ? new Date() : null,
                 division_notes: division_notes ? JSON.stringify(division_notes) : null
