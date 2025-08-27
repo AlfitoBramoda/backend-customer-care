@@ -3,6 +3,74 @@
 const { HTTP_STATUS } = require('../constants/statusCodes');
 
 class ChatController {
+    /**
+     * POST /v1/chats/dm-messages
+     * Body: { customer_id, employee_id, sender_id, sender_type_id, message, room }
+     */
+    async sendDMMessage(req, res, next) {
+        try {
+            const { customer_id, employee_id, sender_id, sender_type_id, message, room } = req.body;
+            if (!customer_id || !employee_id) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                    success: false,
+                    message: 'customer_id dan employee_id wajib diisi'
+                });
+            }
+            if (!sender_id) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                    success: false,
+                    message: 'sender_id wajib diisi'
+                });
+            }
+            if (!sender_type_id) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                    success: false,
+                    message: 'sender_type_id wajib diisi'
+                });
+            }
+            if (!message || `${message}`.trim().length === 0) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                    success: false,
+                    message: 'message wajib diisi'
+                });
+            }
+
+            // Validasi sender_type
+            const senderType = this.db.get('sender_type')
+                .find({ sender_type_id: Number(sender_type_id) })
+                .value();
+            if (!senderType) {
+                return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                    success: false,
+                    message: 'Invalid sender_type_id'
+                });
+            }
+
+            // Buat DM message baru
+            const dmMessages = this.db.get('dm_message').value() || [];
+            const newDM = {
+                dm_id: this.generateId(dmMessages),
+                customer_id,
+                employee_id,
+                sender_id,
+                sender_type_id: Number(sender_type_id),
+                message: message.trim(),
+                room,
+                sent_at: new Date().toISOString(),
+                id: this.generateId(dmMessages)
+            };
+            this.db.get('dm_message').push(newDM).write();
+
+            return res.status(HTTP_STATUS.CREATED).json({
+                success: true,
+                message: 'DM message sent',
+                data: newDM
+            });
+        } catch (err) {
+            console.error('sendDMMessage error:', err);
+            next(err);
+        }
+    }
     constructor(db) {
         this.db = db;
     }
