@@ -187,7 +187,7 @@ if (process.env.FCM_ENABLED === 'true') {
 }
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = 4000;
 httpServer.listen(PORT, () => {
   console.log(`B-Care mock API running at http://localhost:${PORT}/v1`);
   console.log(`Socket.IO ready at http://localhost:${PORT}/socket.io`);

@@ -69,7 +69,7 @@ class TicketController {
                 if (req.user.role_id === 1 && req.user.division_id === 1) {
                     // CXC Agent can see all tickets - no additional filter
                 } else {
-                    // Other employees: only see tickets escalated to their division
+                    // Other employees (non-CXC): only see tickets escalated to their division
                     whereClause['$employee_status.employee_status_code$'] = 'ESCALATED';
                     whereClause['$policy.uic_id$'] = req.user.division_id;
                 }
@@ -197,12 +197,16 @@ class TicketController {
                 logging: console.log // Tambahkan ini untuk melihat SQL query
             });
 
-            // Transform data based on role
-            const allTickets = await Promise.all(tickets.map(async (ticket) => {
+            // Transform data based on role - matching mock structure exactly
+            const allTickets = tickets.map(ticket => {
                 const baseTicket = {
                     ticket_id: ticket.ticket_id,
                     ticket_number: ticket.ticket_number,
-                    issue_channel: ticket.issue_channel,
+                    issue_channel: ticket.issue_channel ? {
+                        channel_id: ticket.issue_channel.channel_id,
+                        channel_name: ticket.issue_channel.channel_name,
+                        channel_code: ticket.issue_channel.channel_code
+                    } : null,
                     created_time: ticket.created_time
                 };
 
@@ -210,19 +214,36 @@ class TicketController {
                     const customTicket = {
                         ...baseTicket,
                         customer: ticket.customer,
-                        complaint: ticket.complaint_category,
-                        employee_status: ticket.employee_status
+                        complaint: ticket.complaint_category ? {
+                            complaint_id: ticket.complaint_category.complaint_id,
+                            complaint_name: ticket.complaint_category.complaint_name,
+                            complaint_code: ticket.complaint_category.complaint_code
+                        } : null,
+                        employee_status: ticket.employee_status ? {
+                            employee_status_id: ticket.employee_status.employee_status_id,
+                            employee_status_name: ticket.employee_status.employee_status_name,
+                            employee_status_code: ticket.employee_status.employee_status_code
+                        } : null
                     };
 
                     if (req.user.role_id === 1 && req.user.division_id === 1) {
-                        const division = await this.calculateDivision(ticket);
                         return {
                             ...customTicket,
-                            related_account: ticket.related_account,
-                            related_card: ticket.related_card,
-                            intake_source: ticket.intake_source,
-                            division: division,
-                            responsible_employee_id: ticket.responsible_employee_id,
+                            related_account: ticket.related_account ? {
+                                account_id: ticket.related_account.account_id,
+                                account_number: ticket.related_account.account_number
+                            } : null,
+                            related_card: ticket.related_card ? {
+                                card_id: ticket.related_card.card_id,
+                                card_number: ticket.related_card.card_number,
+                                card_type: ticket.related_card.card_type
+                            } : null,
+                            intake_source: ticket.intake_source ? {
+                                source_id: ticket.intake_source.source_id,
+                                source_name: ticket.intake_source.source_name,
+                                source_code: ticket.intake_source.source_code
+                            } : null,
+                            division: null, // Will be populated after mapping
                             policy: ticket.policy ? {
                                 policy_id: ticket.policy.policy_id,
                                 sla_days: ticket.policy.sla,
@@ -234,23 +255,57 @@ class TicketController {
                     } else {
                         return {
                             ...customTicket,
-                            responsible_employee_id: ticket.responsible_employee_id,
                             policy: ticket.policy ? {
                                 policy_id: ticket.policy.policy_id,
                                 sla_days: ticket.policy.sla,
                                 sla_hours: ticket.policy.sla * 24
                             } : null,
                             committed_due_at: ticket.committed_due_at,
-                            sla_info: this.calculateSLAInfo(ticket)
+                            sla_info: this.calculateSLAInfo(ticket),
+                            division: null // Will be populated after mapping
                         };
                     }
                 } else {
+                    // Customer role: limited data only
                     return {
                         ...baseTicket,
-                        customer_status: ticket.customer_status
+                        customer_status: ticket.customer_status ? {
+                            customer_status_id: ticket.customer_status.customer_status_id,
+                            customer_status_name: ticket.customer_status.customer_status_name,
+                            customer_status_code: ticket.customer_status.customer_status_code
+                        } : null
                     };
                 }
-            }));
+            });
+
+            // Populate division data for CXC agents
+            if (req.user.role === 'employee' && req.user.role_id === 1 && req.user.division_id === 1) {
+                for (let i = 0; i < allTickets.length; i++) {
+                    const ticket = allTickets[i];
+                    if (ticket.division === null) {
+                        const originalTicket = tickets[i];
+                        let targetDivisionId;
+                        
+                        if (originalTicket.employee_status?.employee_status_code === 'ESCALATED') {
+                            targetDivisionId = originalTicket.policy?.uic_id;
+                        } else {
+                            targetDivisionId = 1;
+                        }
+
+                        if (targetDivisionId) {
+                            const division = await Division.findByPk(targetDivisionId, {
+                                attributes: ['division_id', 'division_name', 'division_code']
+                            });
+                            
+                            ticket.division = division ? {
+                                division_id: division.division_id,
+                                division_name: division.division_name,
+                                division_code: division.division_code
+                            } : null;
+                        }
+                    }
+                }
+            }
 
             res.status(HTTP_STATUS.OK).json({
                 success: true,
@@ -289,8 +344,7 @@ class TicketController {
                     { 
                         model: ComplaintPolicy, 
                         as: 'policy', 
-                        required: false,
-                        include: [{ model: Division, as: 'uic_division', required: false }]
+                        required: false
                     }
                 ]
             });
@@ -312,12 +366,31 @@ class TicketController {
         // Common data for both roles
         const commonData = {
             ...baseData,
-            customer_status: fullTicket.customer_status,
-            issue_channel: fullTicket.issue_channel,
+            customer_status: fullTicket.customer_status ? {
+                customer_status_id: fullTicket.customer_status.customer_status_id,
+                customer_status_name: fullTicket.customer_status.customer_status_name,
+                customer_status_code: fullTicket.customer_status.customer_status_code
+            } : null,
+            issue_channel: fullTicket.issue_channel ? {
+                channel_id: fullTicket.issue_channel.channel_id,
+                channel_name: fullTicket.issue_channel.channel_name,
+                channel_code: fullTicket.issue_channel.channel_code
+            } : null,
             customer: fullTicket.customer,
-            related_account: fullTicket.related_account,
-            related_card: fullTicket.related_card,
-            complaint: fullTicket.complaint
+            related_account: fullTicket.related_account ? {
+                account_id: fullTicket.related_account.account_id,
+                account_number: fullTicket.related_account.account_number
+            } : null,
+            related_card: fullTicket.related_card ? {
+                card_id: fullTicket.related_card.card_id,
+                card_number: fullTicket.related_card.card_number,
+                card_type: fullTicket.related_card.card_type
+            } : null,
+            complaint: fullTicket.complaint_category ? {
+                complaint_id: fullTicket.complaint_category.complaint_id,
+                complaint_name: fullTicket.complaint_category.complaint_name,
+                complaint_code: fullTicket.complaint_category.complaint_code
+            } : null
         };
 
         // Customer role: return limited data
@@ -327,25 +400,55 @@ class TicketController {
 
         // Employee role: return full data
         if (userRole === 'employee') {
-            return {
+            const employeeData = {
                 ...commonData,
-                employee: fullTicket.responsible_employee,
-                priority: fullTicket.priority,
-                employee_status: fullTicket.employee_status,
-                terminal: fullTicket.terminal,
-                intake_source: fullTicket.intake_source,
+                employee: fullTicket.responsible_employee ? {
+                    employee_id: fullTicket.responsible_employee.employee_id,
+                    full_name: fullTicket.responsible_employee.full_name,
+                    npp: fullTicket.responsible_employee.npp,
+                    email: fullTicket.responsible_employee.email
+                } : null,
+                priority: fullTicket.priority ? {
+                    priority_id: fullTicket.priority.priority_id,
+                    priority_name: fullTicket.priority.priority_name,
+                    priority_code: fullTicket.priority.priority_code
+                } : null,
+                employee_status: fullTicket.employee_status ? {
+                    employee_status_id: fullTicket.employee_status.employee_status_id,
+                    employee_status_name: fullTicket.employee_status.employee_status_name,
+                    employee_status_code: fullTicket.employee_status.employee_status_code
+                } : null,
+                terminal: fullTicket.terminal ? {
+                    terminal_id: fullTicket.terminal.terminal_id,
+                    terminal_code: fullTicket.terminal.terminal_code,
+                    location: fullTicket.terminal.location
+                } : null,
+                intake_source: fullTicket.intake_source ? {
+                    source_id: fullTicket.intake_source.source_id,
+                    source_name: fullTicket.intake_source.source_name,
+                    source_code: fullTicket.intake_source.source_code
+                } : null,
                 policy: fullTicket.policy ? {
                     policy_id: fullTicket.policy.policy_id,
                     sla_days: fullTicket.policy.sla,
                     sla_hours: fullTicket.policy.sla * 24,
-                    uic_id: fullTicket.policy.uic_id,
-                    uic_code: fullTicket.policy.uic_division?.division_code,
-                    uic_name: fullTicket.policy.uic_division?.division_name
+                    uic_id: fullTicket.policy.uic_id
                 } : null,
                 committed_due_at: fullTicket.committed_due_at,
                 division_notes: this.parseDivisionNotes(fullTicket.division_notes),
                 sla_info: this.calculateSLAInfo(fullTicket)
             };
+
+            // Add division info if policy exists
+            if (fullTicket.policy?.uic_id) {
+                const division = await Division.findByPk(fullTicket.policy.uic_id);
+                if (division) {
+                    employeeData.policy.uic_code = division.division_code;
+                    employeeData.policy.uic_name = division.division_name;
+                }
+            }
+
+            return employeeData;
         }
 
         return commonData;
@@ -374,13 +477,13 @@ class TicketController {
                 if (req.user.role_id === 1 && req.user.division_id === 1) {
                     // CXC Agent can see all tickets
                 } else {
-                    // Other employees: only ESCALATED tickets to their division
+                    // Other employees (non-CXC): only ESCALATED tickets to their division
                     const employeeStatus = await EmployeeStatus.findByPk(ticket.employee_status_id);
                     
                     if (employeeStatus?.employee_status_code !== 'ESCALATED') {
                         return res.status(HTTP_STATUS.FORBIDDEN).json({
                             success: false,
-                            message: 'Access denied'
+                            message: 'Access denied - only escalated tickets can be viewed'
                         });
                     }
                     
@@ -389,7 +492,7 @@ class TicketController {
                     if (policy?.uic_id != req.user.division_id) {
                         return res.status(HTTP_STATUS.FORBIDDEN).json({
                             success: false,
-                            message: 'Access denied'
+                            message: 'Access denied - ticket not assigned to your division'
                         });
                     }
                 }
@@ -413,7 +516,6 @@ class TicketController {
             {
                 model: Customer,
                 as: 'customer',
-                attributes: ['customer_id', 'full_name', 'email', 'phone_number']
             },
             {
                 model: CustomerStatus,
@@ -512,18 +614,51 @@ class TicketController {
             closed_time: ticket.closed_time
         };
 
-        // Get status history
+        // Get status history and email history
         const statusHistory = await this.getStatusHistory(ticket.ticket_id);
+        const emailHistory = await this.getEmailHistory(ticket.ticket_id);
 
-        // Process activities
-        const activities = ticket.activities?.map(activity => ({
-            ticket_activity_id: activity.ticket_activity_id,
-            activity_type: activity.activity_type,
-            sender_type: activity.sender_type,
-            sender_id: activity.sender_id,
-            content: activity.content,
-            ticket_activity_time: activity.ticket_activity_time
-        })) || [];
+        // Process activities with sender details
+        const activities = [];
+        if (ticket.activities) {
+            for (const activity of ticket.activities) {
+                let sender = null;
+                if (activity.sender_type?.sender_type_code === 'CUSTOMER') {
+                    const customer = await Customer.findByPk(activity.sender_id);
+                    if (customer) {
+                        sender = {
+                            sender_id: customer.customer_id,
+                            full_name: customer.full_name,
+                            email: customer.email,
+                            type: 'customer'
+                        };
+                    }
+                } else if (activity.sender_type?.sender_type_code === 'EMPLOYEE') {
+                    const employee = await Employee.findByPk(activity.sender_id, {
+                        include: [{ model: Division, as: 'division' }]
+                    });
+                    if (employee) {
+                        sender = {
+                            sender_id: employee.employee_id,
+                            full_name: employee.full_name,
+                            npp: employee.npp,
+                            email: employee.email,
+                            division: employee.division,
+                            type: 'employee'
+                        };
+                    }
+                }
+
+                activities.push({
+                    ticket_activity_id: activity.ticket_activity_id,
+                    activity_type: activity.activity_type,
+                    sender_type: activity.sender_type,
+                    sender: sender,
+                    content: activity.content,
+                    ticket_activity_time: activity.ticket_activity_time
+                });
+            }
+        }
 
         // Process attachments
         const attachments = [];
@@ -544,15 +679,41 @@ class TicketController {
         const commonData = {
             ...baseData,
             customer: ticket.customer,
-            customer_status: ticket.customer_status,
-            issue_channel: ticket.issue_channel,
-            complaint: ticket.complaint_category,
-            related_account: ticket.related_account,
-            related_card: ticket.related_card,
+            customer_status: ticket.customer_status ? {
+                customer_status_id: ticket.customer_status.customer_status_id,
+                customer_status_name: ticket.customer_status.customer_status_name,
+                customer_status_code: ticket.customer_status.customer_status_code
+            } : null,
+            issue_channel: ticket.issue_channel ? {
+                channel_id: ticket.issue_channel.channel_id,
+                channel_name: ticket.issue_channel.channel_name,
+                channel_code: ticket.issue_channel.channel_code
+            } : null,
+            complaint: ticket.complaint_category ? {
+                complaint_id: ticket.complaint_category.complaint_id,
+                complaint_name: ticket.complaint_category.complaint_name,
+                complaint_code: ticket.complaint_category.complaint_code
+            } : null,
+            related_account: ticket.related_account ? {
+                account_id: ticket.related_account.account_id,
+                account_number: ticket.related_account.account_number,
+                account_type: ticket.related_account.account_type
+            } : null,
+            related_card: ticket.related_card ? {
+                card_id: ticket.related_card.card_id,
+                card_number: ticket.related_card.card_number,
+                card_type: ticket.related_card.card_type
+            } : null,
             activities: activities,
             attachments: attachments,
             status_history: statusHistory,
-            feedback: ticket.feedback
+            email_history: emailHistory,
+            feedback: ticket.feedback ? {
+                feedback_id: ticket.feedback.feedback_id,
+                rating: ticket.feedback.rating,
+                comment: ticket.feedback.comment,
+                created_time: ticket.feedback.created_time
+            } : null
         };
 
         // Customer role: return limited data
@@ -562,24 +723,58 @@ class TicketController {
 
         // Employee role: return full data
         if (userRole === 'employee') {
-            return {
+            const employeeData = {
                 ...commonData,
-                employee: ticket.responsible_employee,
-                priority: ticket.priority,
-                employee_status: ticket.employee_status,
-                terminal: ticket.terminal,
-                intake_source: ticket.intake_source,
-                policy: ticket.policy ? {
-                    policy_id: ticket.policy.policy_id,
-                    sla: ticket.policy.sla,
-                    uic_id: ticket.policy.uic_id,
-                    uic_code: ticket.policy.uic_division?.division_code,
-                    uic_name: ticket.policy.uic_division?.division_name
+                employee: ticket.responsible_employee ? {
+                    employee_id: ticket.responsible_employee.employee_id,
+                    full_name: ticket.responsible_employee.full_name,
+                    npp: ticket.responsible_employee.npp,
+                    email: ticket.responsible_employee.email
                 } : null,
+                priority: ticket.priority ? {
+                    priority_id: ticket.priority.priority_id,
+                    priority_name: ticket.priority.priority_name,
+                    priority_code: ticket.priority.priority_code
+                } : null,
+                employee_status: ticket.employee_status ? {
+                    employee_status_id: ticket.employee_status.employee_status_id,
+                    employee_status_name: ticket.employee_status.employee_status_name,
+                    employee_status_code: ticket.employee_status.employee_status_code
+                } : null,
+                terminal: ticket.terminal ? {
+                    terminal_id: ticket.terminal.terminal_id,
+                    terminal_code: ticket.terminal.terminal_code,
+                    location: ticket.terminal.location
+                } : null,
+                intake_source: ticket.intake_source ? {
+                    source_id: ticket.intake_source.source_id,
+                    source_name: ticket.intake_source.source_name,
+                    source_code: ticket.intake_source.source_code
+                } : null,
+                policy: null,
                 committed_due_at: ticket.committed_due_at,
                 division_notes: this.parseDivisionNotes(ticket.division_notes),
                 sla_info: this.calculateSLAInfo(ticket)
             };
+
+            // Handle policy with division lookup
+            if (ticket.policy) {
+                employeeData.policy = {
+                    policy_id: ticket.policy.policy_id,
+                    sla: ticket.policy.sla,
+                    uic_id: ticket.policy.uic_id
+                };
+
+                if (ticket.policy.uic_id) {
+                    const division = await Division.findByPk(ticket.policy.uic_id);
+                    if (division) {
+                        employeeData.policy.uic_code = division.division_code;
+                        employeeData.policy.uic_name = division.division_name;
+                    }
+                }
+            }
+
+            return employeeData;
         }
 
         return commonData;
@@ -618,14 +813,14 @@ class TicketController {
                 if (req.user.role_id !== 1 || req.user.division_id !== 1) {
                     return res.status(HTTP_STATUS.FORBIDDEN).json({
                         success: false,
-                        message: 'Only CXC agents can create tickets'
+                        message: 'Only CXC agents can create tickets on behalf of customers'
                     });
                 }
                 
                 if (!customer_id) {
                     return res.status(HTTP_STATUS.BAD_REQUEST).json({
                         success: false,
-                        message: 'Employee must provide customer_id'
+                        message: 'CXC agent must provide customer_id when creating tickets'
                     });
                 }
             }
@@ -1036,6 +1231,28 @@ class TicketController {
                 });
             }
 
+            // Additional check for non-CXC employees
+            if (req.user.role === 'employee' && (req.user.role_id !== 1 || req.user.division_id !== 1)) {
+                // Non-CXC employees can only update tickets escalated to their division
+                const employeeStatus = await EmployeeStatus.findByPk(ticket.employee_status_id);
+                
+                if (employeeStatus?.employee_status_code !== 'ESCALATED') {
+                    return res.status(HTTP_STATUS.FORBIDDEN).json({
+                        success: false,
+                        message: 'You can only update escalated tickets'
+                    });
+                }
+                
+                const policy = await ComplaintPolicy.findByPk(ticket.policy_id);
+                
+                if (policy?.uic_id != req.user.division_id) {
+                    return res.status(HTTP_STATUS.FORBIDDEN).json({
+                        success: false,
+                        message: 'You can only update tickets assigned to your division'
+                    });
+                }
+            }
+
             let customerStatus, employeeStatus;
             const updateData = {};
 
@@ -1360,9 +1577,20 @@ class TicketController {
             if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
                 throw new ForbiddenError('Access denied');
             } else if (req.user.role === 'employee') {
-                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
-                    if (ticket.responsible_employee_id !== req.user.id) {
-                        throw new ForbiddenError('Access denied - you can only view activities for tickets assigned to you');
+                if (req.user.role_id === 1 && req.user.division_id === 1) {
+                    // CXC Agent can see all activities
+                } else {
+                    // Non-CXC employees: only escalated tickets to their division
+                    const employeeStatus = await EmployeeStatus.findByPk(ticket.employee_status_id);
+                    
+                    if (employeeStatus?.employee_status_code !== 'ESCALATED') {
+                        throw new ForbiddenError('Access denied - you can only view activities for escalated tickets');
+                    }
+                    
+                    const policy = await ComplaintPolicy.findByPk(ticket.policy_id);
+                    
+                    if (policy?.uic_id != req.user.division_id) {
+                        throw new ForbiddenError('Access denied - you can only view activities for tickets assigned to your division');
                     }
                 }
             }
@@ -1492,9 +1720,20 @@ class TicketController {
             if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
                 throw new ForbiddenError('Access denied');
             } else if (req.user.role === 'employee') {
-                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
-                    if (ticket.responsible_employee_id !== req.user.id) {
-                        throw new ForbiddenError('Access denied - you can only view attachments for tickets assigned to you');
+                if (req.user.role_id === 1 && req.user.division_id === 1) {
+                    // CXC Agent can see all attachments
+                } else {
+                    // Non-CXC employees: only escalated tickets to their division
+                    const employeeStatus = await EmployeeStatus.findByPk(ticket.employee_status_id);
+                    
+                    if (employeeStatus?.employee_status_code !== 'ESCALATED') {
+                        throw new ForbiddenError('Access denied - you can only view attachments for escalated tickets');
+                    }
+                    
+                    const policy = await ComplaintPolicy.findByPk(ticket.policy_id);
+                    
+                    if (policy?.uic_id != req.user.division_id) {
+                        throw new ForbiddenError('Access denied - you can only view attachments for tickets assigned to your division');
                     }
                 }
             }
@@ -1831,6 +2070,39 @@ class TicketController {
         };
     }
 
+    async getEmailHistory(ticketId) {
+        const emailActivities = await TicketActivity.findAll({
+            where: {
+                ticket_id: ticketId,
+                ticket_activity_type_id: 4 // EMAIL_SENT type
+            },
+            include: [{
+                model: SenderType,
+                as: 'sender_type'
+            }],
+            order: [['ticket_activity_time', 'ASC']]
+        });
+
+        const emailHistory = [];
+        for (const activity of emailActivities) {
+            let sentBy = 'System';
+            if (activity.sender_type?.sender_type_code === 'EMPLOYEE') {
+                const employee = await Employee.findByPk(activity.sender_id);
+                sentBy = employee?.full_name || employee?.npp || 'Employee';
+            }
+
+            emailHistory.push({
+                email_id: activity.ticket_activity_id,
+                content: activity.content,
+                sent_by: sentBy,
+                sent_at: activity.ticket_activity_time,
+                activity_id: activity.ticket_activity_id
+            });
+        }
+
+        return emailHistory;
+    }
+
     async createTicketActivity(req, res, next) {
         try {
             const { id } = req.params;
@@ -1856,9 +2128,20 @@ class TicketController {
             if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
                 throw new ForbiddenError('Access denied');
             } else if (req.user.role === 'employee') {
-                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
-                    if (ticket.responsible_employee_id !== req.user.id) {
-                        throw new ForbiddenError('Access denied - you can only add activities to tickets assigned to you');
+                if (req.user.role_id === 1 && req.user.division_id === 1) {
+                    // CXC Agent can add activities to all tickets
+                } else {
+                    // Non-CXC employees: only escalated tickets to their division
+                    const employeeStatus = await EmployeeStatus.findByPk(ticket.employee_status_id);
+                    
+                    if (employeeStatus?.employee_status_code !== 'ESCALATED') {
+                        throw new ForbiddenError('Access denied - you can only add activities to escalated tickets');
+                    }
+                    
+                    const policy = await ComplaintPolicy.findByPk(ticket.policy_id);
+                    
+                    if (policy?.uic_id != req.user.division_id) {
+                        throw new ForbiddenError('Access denied - you can only add activities to tickets assigned to your division');
                     }
                 }
             }
@@ -2076,7 +2359,11 @@ class TicketController {
             const division = await Division.findByPk(targetDivisionId, {
                 attributes: ['division_id', 'division_name', 'division_code']
             });
-            return division;
+            return division ? {
+                division_id: division.division_id,
+                division_name: division.division_name,
+                division_code: division.division_code
+            } : null;
         }
         return null;
     }
