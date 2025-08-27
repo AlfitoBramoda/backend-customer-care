@@ -56,6 +56,8 @@ class ChatController {
             const { session_id } = req.params;
             const { sender_id, sender_type_id, message } = req.body;
 
+            console.log(req.user)
+            
             // Validasi input
             if (!session_id) {
                 throw new ValidationError('session_id is required');

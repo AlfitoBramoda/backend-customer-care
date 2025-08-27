@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
-const { PORT, NODE_ENV } = require('./src/config/config');
+const { PORT, NODE_ENV, BACKEND_API_URL, API_TOKEN } = require('./src/config/config');
 const { loadSLAData } = require('./src/services/sla-service');
 const { setupRoutes } = require('./src/routes/routes');
 
@@ -63,6 +63,14 @@ app.get('/socket-test', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'socket-test.html'));
 });
 
+app.get('/video-call-test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'video-call-test.html'));
+});
+
+app.get('/persistence-test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'persistence-test.html'));
+});
+
 // -----------------------------
 // Socket.IO Real-time Features
 // -----------------------------
@@ -110,16 +118,16 @@ io.on("connection", (socket) => {
     console.log("🔄 Transport upgraded to:", socket.conn.transport.name);
   });
   
-  // ---- IDENTITAS
+  // ---- IDENTITAS with enhanced debugging
   socket.on("auth:register", ({ userId }) => {
     if (!userId) return;
     socket.data.userId = userId;
     addUserSocket(userId, socket.id);
     socket.emit("auth:ok", { userId });
-    console.log(`[auth] ${socket.id} -> ${userId}`);
+    console.log(`[auth] ${socket.id} -> ${userId} (total users: ${userSockets.size})`);
   });
 
-  // ---- BUKA DM BERDASAR ID
+  // ---- BUKA DM BERDASAR ID with enhanced debugging
   socket.on("dm:open", ({ toUserId }) => {
     const from = socket.data.userId;
     if (!from || !toUserId) return;
@@ -131,19 +139,26 @@ io.on("connection", (socket) => {
     socket.emit("dm:pending", { room, toUserId });
 
     const targets = userSockets.get(toUserId);
+    console.log(`[dm:open] target user ${toUserId} has ${targets?.size || 0} active sockets`);
     if (targets && targets.size > 0) {
       for (const sid of targets) {
+        console.log(`[dm:open] sending request to socket ${sid}`);
         io.to(sid).emit("dm:request", { room, fromUserId: from });
       }
+    } else {
+      console.log(`[dm:open] target user ${toUserId} is not online`);
     }
   });
 
   socket.on("dm:join", ({ room }) => {
     if (!room) return;
+    console.log(`[dm:join] ${socket.data.userId} joining room ${room}`);
     socket.join(room);
     emitPresence(room);
     const set = io.sockets.adapter.rooms.get(room);
+    console.log(`[dm:join] room ${room} now has ${set?.size || 0} members`);
     if (set && set.size >= 2) {
+      console.log(`[dm:join] room ${room} is ready for communication`);
       io.to(room).emit("dm:ready", { room });
     }
   });
@@ -154,58 +169,406 @@ io.on("connection", (socket) => {
     socket.emit("presence:list", { room, peers: peersIn(room) });
   });
 
-  // ---- Chat (TIDAK echo ke pengirim)
-  socket.on("chat:send", (msg) => {
-    if (!msg?.room) return;
-    socket.to(msg.room).emit("chat:new", msg);
-  });
+  // ---- Chat (TIDAK echo ke pengirim) with debugging + PERSIST
+socket.on("chat:send", async (msg = {}) => {
+  if (!msg?.room) return;
 
-  // ---- Typing indicator
+  // 1) realtime broadcast
+  const preview = String(msg.message ?? msg.text ?? "").substring(0, 50);
+  console.log("MESSAGESSSSSS =====>",msg.message)
+  console.log("TESXTTTTTT =====>",msg.text)
+  console.log("PREVIEWWWW =====>",preview)
+
+  console.log(`[chat] message from ${socket.data.userId} to room ${msg.room}: ${preview}...`);
+  socket.to(msg.room).emit("chat:new", msg);
+
+  // 2) persist ke REST API backend -> /v1/chats/:session_id/messages
+  try {
+    // Backend API base URL dari konfigurasi
+    const base = process.env.PERSIST_BASE_URL || BACKEND_API_URL;
+
+    // ambil ticketId dari msg.ticketId atau parse dari room "ticket:123", "call:ticket-30", dll
+    const ticketId =
+      msg.ticketId ??
+      (typeof msg.room === "string" ? (msg.room.match(/ticket[-:]?(\d+)/)?.[1] ?? null) : null);
+
+    // Debug logging
+    console.log("[persist] debug - msg.ticketId:", msg.ticketId);
+    console.log("[persist] debug - msg.room:", msg.room);
+    console.log("[persist] debug - extracted ticketId:", ticketId);
+
+    if (!ticketId) {
+      // Check if this is a DM room (which doesn't need persistence)
+      if (typeof msg.room === "string" && msg.room.startsWith("dm:")) {
+        console.log("[persist] skip: DM room - tidak perlu persist ke database");
+        return;
+      }
+      
+      console.warn("[persist] skip: tidak bisa resolve ticketId dari msg.room / msg.ticketId");
+      console.warn("[persist] msg.room:", msg.room);
+      console.warn("[persist] Pastikan room format: 'call:ticket-123', 'ticket:123', atau kirim ticketId di message");
+      return;
+    }
+
+    console.log(`[persist] ✅ Will persist to ticket ${ticketId}`);
+
+    // normalisasi field (dukung camelCase & snake_case)
+    const sender_id      = msg.sender_id      ?? msg.senderId      ?? socket.data.userId;
+    const sender_type_id = msg.sender_type_id ?? msg.senderTypeId  ?? (sender_id?.startsWith("EMP-") ? 2 : 1); // 1=Customer, 2=Employee
+    const message        = (msg.message ?? msg.text ?? "").toString();
+
+    console.log("[persist] payload:", { sender_id, sender_type_id, message, ticketId });
+
+    if (!message.trim()) {
+      console.warn("[persist] skip: message kosong");
+      return;
+    }
+
+    // Step 1: Buat/pastikan chat session ada (POST /v1/chats/sessions)
+    console.log("[persist] Step 1: Ensuring chat session exists...");
+    
+    const headers = { 
+      "Content-Type": "application/json"
+    };
+    if (API_TOKEN) {
+      headers["Authorization"] = `Bearer ${API_TOKEN}`;
+    }
+    
+    const sessionResp = await fetch(`${base}/v1/chats/sessions`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ ticket_id: Number(ticketId) })
+    });
+
+    if (!sessionResp.ok) {
+      const sessionError = await sessionResp.text();
+      console.warn("[persist] Session creation failed:", sessionResp.status, sessionError);
+      // Lanjutkan saja, mungkin session sudah ada
+    } else {
+      const sessionData = await sessionResp.json();
+      console.log("[persist] Session ensured:", sessionData);
+    }
+
+    // Step 2: Kirim message (POST /v1/chats/:session_id/messages)
+    console.log("[persist] Step 2: Sending message...");
+    const messageResp = await fetch(`${base}/v1/chats/${ticketId}/messages`, {
+      method: "POST",
+      headers, // gunakan headers yang sama (dengan/tanpa auth)
+      body: JSON.stringify({ sender_id, sender_type_id, message })
+    });
+
+    if (!messageResp.ok) {
+      const errorText = await messageResp.text();
+      console.error("[persist] Message save failed:", messageResp.status, errorText);
+      socket.emit("chat:persist_error", { 
+        status: messageResp.status, 
+        error: errorText,
+        endpoint: `${base}/v1/chats/${ticketId}/messages`
+      });
+    } else {
+      const saved = await messageResp.json();
+      console.log("[persist] ✅ Message saved successfully:", saved);
+      socket.emit("chat:ack", { 
+        success: true, 
+        ticket_id: Number(ticketId), 
+        data: saved,
+        endpoint: `${base}/v1/chats/${ticketId}/messages`
+      });
+    }
+  } catch (err) {
+    console.error("[persist] Network error:", err);
+    socket.emit("chat:persist_error", { error: err.message });
+  }
+});
+
+  // ---- Typing indicator with debugging
   socket.on("typing", ({ room }) => {
     if (!room) return;
+    console.log(`[typing] from ${socket.data.userId} in room ${room}`);
     socket.to(room).emit("typing");
   });
 
-  // ---- Mock call features
+  // ---- AUDIO CALL EVENTS (WebRTC Compatible)
+  socket.on("audio:invite", ({ room }) => {
+    if (!room) return;
+    console.log(`[audio] invite from ${socket.data.userId} to room ${room}`);
+    const roomPeers = peersIn(room);
+    console.log(`[audio] room ${room} has ${roomPeers.length} peers:`, roomPeers.map(p => p.userId));
+    socket.to(room).emit("call:ringing", {
+      type: "audio",
+      from: socket.data.userId,
+      fromUserId: socket.data.userId,
+      room
+    });
+  });
+
+  socket.on("audio:accept", ({ room }) => {
+    if (!room) return;
+    console.log(`[audio] accept from ${socket.data.userId} in room ${room}`);
+    socket.to(room).emit("audio:accepted", {
+      from: socket.data.userId,
+      fromUserId: socket.data.userId,
+      room
+    });
+  });
+
+  socket.on("audio:decline", ({ room }) => {
+    if (!room) return;
+    console.log(`[audio] decline from ${socket.data.userId} in room ${room}`);
+    socket.to(room).emit("call:declined", {
+      type: "audio",
+      from: socket.data.userId,
+      fromUserId: socket.data.userId,
+      room
+    });
+  });
+
+  socket.on("audio:hangup", ({ room }) => {
+    if (!room) return;
+    console.log(`[audio] hangup from ${socket.data.userId} in room ${room}`);
+    socket.to(room).emit("call:ended", {
+      type: "audio",
+      from: socket.data.userId,
+      fromUserId: socket.data.userId,
+      room
+    });
+  });
+
+  // ---- VIDEO CALL EVENTS (Enhanced with debugging)
   socket.on("call:invite", ({ room }) => {
     if (!room) return;
-    socket.to(room).emit("call:ringing", { fromUserId: socket.data.userId });
+    console.log(`[call] invite from ${socket.data.userId} to room ${room}`);
+    const roomPeers = peersIn(room);
+    console.log(`[call] room ${room} has ${roomPeers.length} peers:`, roomPeers.map(p => p.userId));
+    socket.to(room).emit("call:ringing", { 
+      type: "video",
+      fromUserId: socket.data.userId,
+      room 
+    });
   });
   
   socket.on("call:accept", ({ room }) => {
     if (!room) return;
-    socket.to(room).emit("call:accepted", {});
+    console.log(`[call] accept from ${socket.data.userId} in room ${room}`);
+    socket.to(room).emit("call:accepted", { 
+      fromUserId: socket.data.userId,
+      room 
+    });
   });
   
   socket.on("call:decline", ({ room }) => {
     if (!room) return;
-    socket.to(room).emit("call:declined", {});
+    console.log(`[call] decline from ${socket.data.userId} in room ${room}`);
+    socket.to(room).emit("call:declined", { 
+      fromUserId: socket.data.userId,
+      room 
+    });
   });
 
   socket.on("call:hangup", ({ room }) => {
     if (!room) return;
-    socket.to(room).emit("call:ended", {});
+    console.log(`[call] hangup from ${socket.data.userId} in room ${room}`);
+    socket.to(room).emit("call:ended", { 
+      fromUserId: socket.data.userId,
+      room 
+    });
   });
 
   socket.on("call:frame", ({ room, data }) => {
     if (!room || !data) return;
+    // Don't log frame data as it's too verbose
     socket.to(room).emit("call:frame", { data });
   });
 
-  // ---- Audio streaming handlers
-  socket.on("audio:chunk", ({ room, data }) => {
+  // ---- WebRTC Signaling Events
+  socket.on("webrtc:offer", ({ room, offer, audioOnly }) => {
+    if (!room || !offer) {
+      console.log(`[webrtc] offer rejected - missing data from ${socket.data.userId}`);
+      return;
+    }
+    console.log(`[webrtc] offer from ${socket.data.userId} in ${room} (audio-only: ${!!audioOnly})`);
+    socket.to(room).emit("webrtc:offer", {
+      offer,
+      room,
+      audioOnly,
+      fromUserId: socket.data.userId,
+    });
+  });
+
+  socket.on("webrtc:answer", ({ room, answer }) => {
+    if (!room || !answer) {
+      console.log(`[webrtc] answer rejected - missing data from ${socket.data.userId}`);
+      return;
+    }
+    console.log(`[webrtc] answer from ${socket.data.userId} in ${room}`);
+    socket.to(room).emit("webrtc:answer", {
+      answer,
+      fromUserId: socket.data.userId,
+      room
+    });
+  });
+
+  socket.on("webrtc:ice-candidate", ({ room, candidate }) => {
+    if (!room || !candidate) {
+      console.log(`[webrtc] ice-candidate rejected - missing data from ${socket.data.userId}`);
+      return;
+    }
+    console.log(`[webrtc] ice-candidate from ${socket.data.userId} in ${room}`);
+    socket.to(room).emit("webrtc:ice-candidate", {
+      candidate,
+      fromUserId: socket.data.userId,
+      room
+    });
+  });
+
+  socket.on("webrtc:end-call", ({ room }) => {
+    if (!room) {
+      console.log(`[webrtc] end-call rejected - no room from ${socket.data.userId}`);
+      return;
+    }
+    console.log(`[webrtc] end-call from ${socket.data.userId} in ${room}`);
+    socket.to(room).emit("webrtc:end-call", {
+      fromUserId: socket.data.userId,
+      room
+    });
+  });
+
+  // ---- WebRTC Media Controls
+  socket.on("webrtc:audio-toggle", ({ room, enabled }) => {
     if (!room) return;
-    socket.to(room).emit("audio:chunk", { data, timestamp: Date.now() });
+    console.log(`[webrtc] audio ${enabled ? "enabled" : "disabled"} from ${socket.data.userId}`);
+    socket.to(room).emit("webrtc:audio-toggle", {
+      fromUserId: socket.data.userId,
+      enabled,
+      room
+    });
+  });
+
+  socket.on("webrtc:video-toggle", ({ room, enabled }) => {
+    if (!room) return;
+    console.log(`[webrtc] video ${enabled ? "enabled" : "disabled"} from ${socket.data.userId}`);
+    socket.to(room).emit("webrtc:video-toggle", {
+      fromUserId: socket.data.userId,
+      enabled,
+      room
+    });
+  });
+
+  socket.on("webrtc:speaker-toggle", ({ room, enabled }) => {
+    if (!room) return;
+    console.log(`[webrtc] speaker ${enabled ? "enabled" : "disabled"} from ${socket.data.userId}`);
+    socket.to(room).emit("webrtc:speaker-toggle", {
+      fromUserId: socket.data.userId,
+      enabled,
+      room
+    });
+  });
+
+  socket.on("webrtc:test", ({ room }) => {
+    if (!room) return;
+    const total = peersIn(room).length;
+    console.log(`[webrtc] test from ${socket.data.userId} in ${room} - ${total} total peers`);
+    socket.emit("webrtc:test:response", {
+      success: true,
+      peersInRoom: total,
+      room,
+      webrtcSupported: true,
+    });
+  });
+
+  // ---- Enhanced Audio Streaming with WebRTC compatibility
+  socket.on("audio:chunk", ({ room, data }) => {
+    if (!room || !data) {
+      console.log(`[audio] chunk rejected from ${socket.data.userId} (missing room/data)`);
+      return;
+    }
+    const peers = peersIn(room).length;
+    console.log(`[audio] chunk from ${socket.data.userId} in ${room} - peers: ${peers}, size: ${data?.length || 0}`);
+    const payload = {
+      data,
+      timestamp: Date.now(),
+      fromUserId: socket.data.userId,
+      room,
+    };
+    socket.to(room).emit("audio:chunk", payload);
+    socket.to(room).emit("audio:data", payload); // alias for compatibility
+  });
+
+  socket.on("audio:data", ({ room, data }) => {
+    if (!room || !data) return;
+    const payload = {
+      data,
+      timestamp: Date.now(),
+      fromUserId: socket.data.userId,
+      room,
+    };
+    socket.to(room).emit("audio:data", payload);
+    socket.to(room).emit("audio:chunk", payload); // alias
   });
   
   socket.on("audio:start", ({ room }) => {
     if (!room) return;
-    socket.to(room).emit("audio:started", { fromUserId: socket.data.userId });
+    const peers = peersIn(room).length;
+    console.log(`[audio] start from ${socket.data.userId} in ${room} - notifying ${peers - 1} peers`);
+    socket.to(room).emit("audio:started", { 
+      fromUserId: socket.data.userId,
+      room 
+    });
   });
   
   socket.on("audio:stop", ({ room }) => {
     if (!room) return;
-    socket.to(room).emit("audio:stopped", { fromUserId: socket.data.userId });
+    const peers = peersIn(room).length;
+    console.log(`[audio] stop from ${socket.data.userId} in ${room} - notifying ${peers - 1} peers`);
+    socket.to(room).emit("audio:stopped", { 
+      fromUserId: socket.data.userId,
+      room 
+    });
+  });
+
+  socket.on("audio:mute", ({ room, muted }) => {
+    if (!room) return;
+    console.log(`[audio] ${muted ? "muted" : "unmuted"} from ${socket.data.userId} in ${room}`);
+    socket.to(room).emit("audio:mute", {
+      fromUserId: socket.data.userId,
+      muted,
+      room,
+    });
+  });
+
+  socket.on("audio:speaker", ({ room, speaker }) => {
+    if (!room) return;
+    console.log(`[audio] speaker ${speaker ? "on" : "off"} from ${socket.data.userId} in ${room}`);
+    socket.to(room).emit("audio:speaker", {
+      fromUserId: socket.data.userId,
+      speaker,
+      room,
+    });
+  });
+
+  socket.on("audio:test", ({ room }) => {
+    if (!room) return;
+    const total = peersIn(room).length;
+    console.log(`[audio] test from ${socket.data.userId} in ${room} - ${total} total peers`);
+    socket.emit("audio:test:response", {
+      success: true,
+      peersInRoom: total,
+      room,
+    });
+  });
+
+  // ---- Ticket Context Handler
+  socket.on("ticket:context", ({ room, ticketId, fromUserId }) => {
+    if (!room || !ticketId) {
+      console.log(`[ticket] context rejected - missing data from ${socket.data.userId}`);
+      return;
+    }
+    console.log(`[ticket] context from ${fromUserId || socket.data.userId} in ${room} - ticket: ${ticketId}`);
+    socket.to(room).emit("ticket:context", {
+      ticketId,
+      fromUserId: fromUserId || socket.data.userId,
+      room,
+    });
   });
 
   // ---- Join/leave generic (kalau dipakai)
@@ -214,27 +577,56 @@ io.on("connection", (socket) => {
     socket.join(room);
     if (userId) socket.data.userId = userId;
     emitPresence(room);
+    console.log(`[join] ${socket.data.userId} joined ${room}`);
   });
 
   socket.on("leave", ({ room }) => {
     if (!room) return;
     socket.leave(room);
     emitPresence(room);
+    console.log(`[leave] ${socket.data.userId} left ${room}`);
   });
 
   socket.on("disconnect", (reason) => {
     const uid = socket.data.userId;
-    if (uid) removeUserSocket(uid, socket.id);
-    console.log("🔌 Socket disconnected:", socket.id, "reason:", reason);
+    if (uid) {
+      removeUserSocket(uid, socket.id);
+      console.log(`🔌 Socket disconnected: ${socket.id} (user: ${uid}) reason: ${reason} (remaining users: ${userSockets.size})`);
+    } else {
+      console.log(`🔌 Socket disconnected: ${socket.id} reason: ${reason}`);
+    }
   });
 });
 
-// Add Socket.IO status endpoint
+
+// Add Socket.IO status endpoint with detailed info
 app.get('/socket-status', (req, res) => {
+  const rooms = [];
+  io.sockets.adapter.rooms.forEach((sockets, room) => {
+    if (!room.includes('dm:')) return; // Only show DM rooms
+    const peers = Array.from(sockets).map(sid => {
+      const socket = io.sockets.sockets.get(sid);
+      return {
+        socketId: sid,
+        userId: socket?.data?.userId || 'unknown'
+      };
+    });
+    rooms.push({ room, peers });
+  });
+
   res.json({
     app: "bni-customer-care-integrated",
     socketio: "enabled", 
     connected_sockets: io.engine.clientsCount,
+    total_users: userSockets.size,
+    active_rooms: rooms.length,
+    rooms: rooms,
+    features: {
+      chat: "✅ READY",
+      audio_calls: "✅ READY", 
+      video_calls: "✅ READY",
+      webrtc: "✅ READY"
+    },
     time: new Date().toISOString()
   });
 });
@@ -247,10 +639,12 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`📋 API Tester: http://localhost:${PORT}/`);
   console.log(`💬 Chatbot Interface: http://localhost:${PORT}/chatbot`);
   console.log(`🔌 Socket.IO Test: http://localhost:${PORT}/socket-test`);
+  console.log(`🎥 Video Call Test: http://localhost:${PORT}/video-call-test`);
+  console.log(`🧪 Persistence Test: http://localhost:${PORT}/persistence-test`);
   console.log(`📊 Socket Status: http://localhost:${PORT}/socket-status`);
   console.log(`\n📊 Service Info:`);
   console.log(`   Environment: ${NODE_ENV}`);
-  console.log(`   Features: REST API + Socket.IO + Real-time Chat`);
+  console.log(`   Features: REST API + Socket.IO + Real-time Chat + WebRTC`);
   console.log(`   Access: All interfaces (nginx reverse proxy)`);
   
   if (NODE_ENV === 'production') {
@@ -264,5 +658,13 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`🤖 AI Service: ${LM_BASE_URL}`);
   console.log(`🌡️ Temperature: ${LM_TEMPERATURE}`);
   console.log(`🔌 Socket.IO: Enabled with real-time features`);
+  console.log(`📱 Live Chat: ✅ READY`);
+  console.log(`📞 Audio Calls: ✅ READY`);
+  console.log(`📹 Video Calls: ✅ READY`);
+  console.log(`🌐 WebRTC: ✅ READY`);
   console.log(`   Current AI URL: ${LM_BASE_URL}`);
+  console.log(`\n💾 Chat Persistence:`);
+  console.log(`📡 Backend API: ${BACKEND_API_URL}`);
+  console.log(`🔐 Auth Token: ${API_TOKEN ? '✅ CONFIGURED' : '❌ NOT SET'}`);
+  console.log(`📤 Auto-save: All ticket room messages → PostgreSQL`);
 });

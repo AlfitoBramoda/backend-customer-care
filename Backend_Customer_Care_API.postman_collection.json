@@ -1,0 +1,978 @@
+{
+  "info": {
+    "name": "Backend Customer Care API",
+    "description": "Complete Postman collection for testing Backend Customer Care API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/v1",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customer_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "employee_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "ticket_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "activity_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "feedback_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "attachment_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "chat_session_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/../health",
+              "host": ["{{base_url}}"],
+              "path": ["..", "health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Socket Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/../socket/status",
+              "host": ["{{base_url}}"],
+              "path": ["..", "socket", "status"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Customer Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.token) {",
+                  "        pm.collectionVariables.set('auth_token', response.data.token);",
+                  "        console.log('Auth token saved:', response.data.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"andi.saputra@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login/customer",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login", "customer"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Employee Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.token) {",
+                  "        pm.collectionVariables.set('auth_token', response.data.token);",
+                  "        console.log('Auth token saved:', response.data.token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@company.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login/employee",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login", "employee"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"your_refresh_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Get All Tickets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tickets?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["tickets"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tickets/{{ticket_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tickets", "{{ticket_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Ticket\",\n  \"description\": \"This is a test ticket created via Postman\",\n  \"complaint_category_id\": 1,\n  \"priority_id\": 1,\n  \"channel_id\": 1,\n  \"source_id\": 1,\n  \"customer_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["tickets"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Ticket",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in_progress\",\n  \"assigned_to\": 1,\n  \"priority_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tickets/{{ticket_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tickets", "{{ticket_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Ticket",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tickets/{{ticket_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["tickets", "{{ticket_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket Activities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tickets/{{ticket_id}}/activities",
+              "host": ["{{base_url}}"],
+              "path": ["tickets", "{{ticket_id}}", "activities"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Ticket Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activity_type_id\": 1,\n  \"description\": \"Customer responded to inquiry\",\n  \"notes\": \"Additional notes about the activity\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tickets/{{ticket_id}}/activities",
+              "host": ["{{base_url}}"],
+              "path": ["tickets", "{{ticket_id}}", "activities"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket Attachments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tickets/{{ticket_id}}/attachments",
+              "host": ["{{base_url}}"],
+              "path": ["tickets", "{{ticket_id}}", "attachments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Ticket Feedback",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/tickets/{{ticket_id}}/feedback",
+              "host": ["{{base_url}}"],
+              "path": ["tickets", "{{ticket_id}}", "feedback"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Ticket Feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Excellent service, very helpful!\",\n  \"feedback_type\": \"positive\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/tickets/{{ticket_id}}/feedback",
+              "host": ["{{base_url}}"],
+              "path": ["tickets", "{{ticket_id}}", "feedback"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Activities",
+      "item": [
+        {
+          "name": "Get Activity by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/activities/{{activity_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["activities", "{{activity_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Feedback",
+      "item": [
+        {
+          "name": "Get All Feedback",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/feedback?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["feedback"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Feedback Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/feedback/{{feedback_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["feedback", "{{feedback_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Feedback",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"comment\": \"Updated feedback comment\",\n  \"rating\": 4\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/feedback/{{feedback_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["feedback", "{{feedback_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Get All Customers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/customers?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["customers"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customer by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/customers/{{customer_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["customers", "{{customer_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customer Accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/customers/{{customer_id}}/accounts",
+              "host": ["{{base_url}}"],
+              "path": ["customers", "{{customer_id}}", "accounts"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customer Cards",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/customers/{{customer_id}}/cards",
+              "host": ["{{base_url}}"],
+              "path": ["customers", "{{customer_id}}", "cards"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reference Data",
+      "item": [
+        {
+          "name": "Get Channels",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/channels",
+              "host": ["{{base_url}}"],
+              "path": ["channels"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Complaint Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/complaint-categories",
+              "host": ["{{base_url}}"],
+              "path": ["complaint-categories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get SLAs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/slas",
+              "host": ["{{base_url}}"],
+              "path": ["slas"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get UICs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/uics",
+              "host": ["{{base_url}}"],
+              "path": ["uics"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Priorities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/priorities",
+              "host": ["{{base_url}}"],
+              "path": ["priorities"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sources",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sources",
+              "host": ["{{base_url}}"],
+              "path": ["sources"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Terminals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/terminals",
+              "host": ["{{base_url}}"],
+              "path": ["terminals"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Policies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/policies?category_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["policies"],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "FAQ",
+      "item": [
+        {
+          "name": "Get FAQs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/faqs?category=general&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["faqs"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "general"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Attachments",
+      "item": [
+        {
+          "name": "Upload Attachment to Ticket",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "description",
+                  "value": "Test attachment upload",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/tickets/{{ticket_id}}/attachments",
+              "host": ["{{base_url}}"],
+              "path": ["tickets", "{{ticket_id}}", "attachments"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Attachment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/attachments/{{attachment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["attachments", "{{attachment_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Attachment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/attachments/{{attachment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["attachments", "{{attachment_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Chat",
+      "item": [
+        {
+          "name": "Create Chat Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.session_id) {",
+                  "        pm.collectionVariables.set('chat_session_id', response.data.session_id);",
+                  "        console.log('Chat session ID saved:', response.data.session_id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": 1,\n  \"initial_message\": \"Hello, I need help with my account\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chats/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["chats", "sessions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Chat Message",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"I'm having trouble accessing my account dashboard\",\n  \"sender_type\": \"customer\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/chats/{{chat_session_id}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["chats", "{{chat_session_id}}", "messages"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Chat Messages",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/chats/{{chat_session_id}}/messages?limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["chats", "{{chat_session_id}}", "messages"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Register FCM Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fcm_token\": \"fake-fcm-token-for-testing\",\n  \"device_type\": \"web\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/notifications/register-token",
+              "host": ["{{base_url}}"],
+              "path": ["notifications", "register-token"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Notification History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/notifications/history?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["notifications", "history"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/notifications/1/read",
+              "host": ["{{base_url}}"],
+              "path": ["notifications", "1", "read"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Notification\",\n  \"body\": \"This is a test notification from Postman\",\n  \"data\": {\n    \"type\": \"test\",\n    \"ticket_id\": \"123\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/notifications/test",
+              "host": ["{{base_url}}"],
+              "path": ["notifications", "test"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Socket.IO",
+      "item": [
+        {
+          "name": "Get Online Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/socket/users/online",
+              "host": ["{{base_url}}"],
+              "path": ["socket", "users", "online"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message via REST",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room\": \"ticket_123\",\n  \"message\": \"Test message via REST API\",\n  \"fromUserId\": \"user_123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/socket/message/send",
+              "host": ["{{base_url}}"],
+              "path": ["socket", "message", "send"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
