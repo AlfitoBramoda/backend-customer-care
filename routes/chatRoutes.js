@@ -15,3 +15,4 @@ router.get('/:session_id/messages', authenticateToken, ChatController.getMessage
 router.delete('/:session_id/messages/:message_id', authenticateToken, ChatController.deleteMessage);
 
 module.exports = router;
+

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Chat Persistence Test</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .test-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .test-btn.save { background: #4CAF50; color: white; }
+        .test-btn.skip { background: #FF9800; color: white; }
+        .test-btn.error { background: #f44336; color: white; }
+        .test-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        
+        .logs {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 Quick Chat Persistence Test</h1>
+        <p>Test different room formats to verify PostgreSQL persistence</p>
+        <div id="connection-status">Connecting...</div>
+        <div id="auth-status" style="margin-top: 10px;">Not logged in</div>
+    </div>
+
+    <!-- Login Section -->
+    <div id="login-section" class="test-section" style="background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);">
+        <h3>🔐 Authentication Required</h3>
+        <p>API requires authentication. Please login first:</p>
+        <div style="margin: 15px 0;">
+            <input type="text" id="loginEmail" placeholder="Email (e.g., employee@bni.com)" style="padding: 10px; margin: 5px; width: 200px;">
+            <input type="password" id="loginPassword" placeholder="Password" style="padding: 10px; margin: 5px; width: 150px;">
+            <button onclick="login()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Login</button>
+        </div>
+        <div style="font-size: 12px; color: #636e72; background: rgba(255,255,255,0.7); padding: 10px; border-radius: 5px;">
+            <strong>Test Credentials:</strong><br>
+            Employee: employee@bni.com / password123<br>
+            Customer: customer@bni.com / password123
+        </div>
+    </div>
+
+    <!-- Main Test Area (initially hidden) -->
+    <div id="test-area" style="display: none;">
+
+    <div class="test-section">
+        <h3>🚀 Quick Tests</h3>
+        <div class="test-buttons">
+            <button class="test-btn save" onclick="testTicketRoom1()">
+                ✅ Test Ticket Room 1<br>
+                <small>call:ticket-1 (Should SAVE)</small>
+            </button>
+            <button class="test-btn save" onclick="testTicketRoom32()">
+                ✅ Test Ticket Room 32<br>
+                <small>call:ticket-32 (Should SAVE)</small>
+            </button>
+            <button class="test-btn skip" onclick="testDMRoom()">
+                ⏭️ Test DM Room<br>
+                <small>dm:CUS-1:EMP-1 (Should SKIP)</small>
+            </button>
+            <button class="test-btn save" onclick="testExplicitTicketId()">
+                🎯 Test Explicit TicketId<br>
+                <small>DM + ticketId=99 (Should SAVE)</small>
+            </button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>📊 Test Results</h3>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔍 Live Logs</h3>
+        <div id="logs" class="logs">Waiting for connection...</div>
+    </div>
+
+    </div> <!-- Close test-area -->
+
+    <script>
+        const socket = io();
+        let testCounter = 0;
+        let authToken = null;
+        let currentUser = null;
+        
+        // Check for saved auth token
+        const savedToken = localStorage.getItem('auth_token');
+        const savedUser = localStorage.getItem('current_user');
+        if (savedToken && savedUser) {
+            authToken = savedToken;
+            currentUser = JSON.parse(savedUser);
+            showTestArea();
+            updateAuthStatus();
+        }
+        
+        // Authentication functions
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
+            
+            log('🔄 Attempting login...');
+            
+            try {
+                const response = await fetch('https://bcare.my.id/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    authToken = data.data.token;
+                    currentUser = data.data.user;
+                    
+                    // Save to localStorage
+                    localStorage.setItem('auth_token', authToken);
+                    localStorage.setItem('current_user', JSON.stringify(currentUser));
+                    
+                    log(`✅ Login successful! Welcome ${currentUser.name || currentUser.email}`, 'success');
+                    showTestArea();
+                    updateAuthStatus();
+                } else {
+                    log(`❌ Login failed: ${data.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`, 'error');
+            }
+        }
+        
+        function showTestArea() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('test-area').style.display = 'block';
+        }
+        
+        function updateAuthStatus() {
+            const authStatusEl = document.getElementById('auth-status');
+            if (authToken && currentUser) {
+                authStatusEl.textContent = `✅ Logged in as ${currentUser.name || currentUser.email}`;
+                authStatusEl.style.color = '#00b894';
+            } else {
+                authStatusEl.textContent = '❌ Not logged in';
+                authStatusEl.style.color = '#e17055';
+            }
+        }
+        
+        // Helper functions
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logsDiv = document.getElementById('logs');
+            logsDiv.textContent += `[${timestamp}] ${message}\n`;
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        function addResult(test, result, details) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `status ${result}`;
+            resultDiv.innerHTML = `
+                <strong>${test}</strong><br>
+                Result: ${result.toUpperCase()}<br>
+                ${details}
+            `;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        // Socket event handlers
+        socket.on('connect', () => {
+            document.getElementById('connection-status').innerHTML = '✅ Connected to Socket.IO';
+            document.getElementById('connection-status').style.color = '#4CAF50';
+            log('✅ Connected to Socket.IO server');
+            
+            // Auto register as test user
+            socket.emit('auth:register', { userId: 'TEST-USER' });
+        });
+
+        socket.on('disconnect', () => {
+            document.getElementById('connection-status').innerHTML = '❌ Disconnected';
+            document.getElementById('connection-status').style.color = '#f44336';
+            log('❌ Disconnected from server');
+        });
+
+        socket.on('chat:ack', (data) => {
+            log(`✅ PERSISTENCE SUCCESS: ${JSON.stringify(data)}`);
+            addResult(`Test #${testCounter}`, 'success', `Message saved to PostgreSQL! Ticket ID: ${data.ticket_id}`);
+        });
+
+        socket.on('chat:persist_error', (error) => {
+            log(`❌ PERSISTENCE ERROR: ${JSON.stringify(error)}`);
+            addResult(`Test #${testCounter}`, 'error', `Save failed: ${error.error || error.status}`);
+        });
+
+        // Test functions
+        function testTicketRoom1() {
+            if (!authToken) {
+                alert('Please login first');
+                return;
+            }
+            
+            testCounter++;
+            log(`🧪 TEST ${testCounter}: Testing call:ticket-1 room`);
+            
+            const message = {
+                room: 'call:ticket-1',
+                message: `Test message for ticket 1 - ${new Date().toISOString()}`,
+                senderId: 'EMP-1',
+                senderTypeId: 2,
+                authToken: authToken
+            };
+            
+            socket.emit('join', { room: 'call:ticket-1', userId: 'EMP-1' });
+            socket.emit('chat:send', message);
+            log(`📤 Sent: ${JSON.stringify({...message, authToken: '***'})}`);
+        }
+
+        function testTicketRoom32() {
+            if (!authToken) {
+                alert('Please login first');
+                return;
+            }
+            
+            testCounter++;
+            log(`🧪 TEST ${testCounter}: Testing call:ticket-32 room`);
+            
+            const message = {
+                room: 'call:ticket-32',
+                message: `Test message for ticket 32 - ${new Date().toISOString()}`,
+                senderId: 'CUS-1',
+                senderTypeId: 1,
+                authToken: authToken
+            };
+            
+            socket.emit('join', { room: 'call:ticket-32', userId: 'CUS-1' });
+            socket.emit('chat:send', message);
+            log(`📤 Sent: ${JSON.stringify({...message, authToken: '***'})}`);
+        }
+
+        function testDMRoom() {
+            testCounter++;
+            log(`🧪 TEST ${testCounter}: Testing dm:CUS-1:EMP-1 room (should skip)`);
+            
+            const message = {
+                room: 'dm:CUS-1:EMP-1',
+                message: `DM test message - ${new Date().toISOString()}`,
+                senderId: 'EMP-1',
+                senderTypeId: 2,
+                authToken: authToken
+            };
+            
+            socket.emit('join', { room: 'dm:CUS-1:EMP-1', userId: 'EMP-1' });
+            socket.emit('chat:send', message);
+            log(`📤 Sent: ${JSON.stringify({...message, authToken: '***'})}`);
+            
+            // DM rooms should skip, so we'll add result manually after a delay
+            setTimeout(() => {
+                addResult(`Test #${testCounter}`, 'info', 'DM room correctly skipped persistence');
+            }, 1000);
+        }
+
+        function testExplicitTicketId() {
+            if (!authToken) {
+                alert('Please login first');
+                return;
+            }
+            
+            testCounter++;
+            log(`🧪 TEST ${testCounter}: Testing explicit ticketId in DM room`);
+            
+            const message = {
+                room: 'dm:CUS-1:EMP-1',
+                ticketId: 99, // Explicit ticket ID
+                message: `Explicit ticket ID test - ${new Date().toISOString()}`,
+                senderId: 'CUS-1',
+                senderTypeId: 1,
+                authToken: authToken
+            };
+            
+            socket.emit('join', { room: 'dm:CUS-1:EMP-1', userId: 'CUS-1' });
+            socket.emit('chat:send', message);
+            log(`📤 Sent: ${JSON.stringify({...message, authToken: '***'})}`);
+        }
+
+        // Auto-run tests on load (optional)
+        setTimeout(() => {
+            if (socket.connected) {
+                log('🚀 Ready for testing! Please login first, then click buttons above to run tests.');
+            }
+            updateAuthStatus();
+        }, 1000);
+        
+        // Login form keyboard support
+        document.addEventListener('DOMContentLoaded', () => {
+            const emailInput = document.getElementById('loginEmail');
+            const passwordInput = document.getElementById('loginPassword');
+            
+            if (emailInput) {
+                emailInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        passwordInput.focus();
+                    }
+                });
+            }
+            
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        login();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

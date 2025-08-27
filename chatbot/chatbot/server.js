@@ -71,6 +71,10 @@ app.get('/persistence-test', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'persistence-test.html'));
 });
 
+app.get('/quick-test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'quick-test.html'));
+});
+
 // -----------------------------
 // Socket.IO Real-time Features
 // -----------------------------
@@ -230,8 +234,14 @@ socket.on("chat:send", async (msg = {}) => {
     const headers = { 
       "Content-Type": "application/json"
     };
-    if (API_TOKEN) {
-      headers["Authorization"] = `Bearer ${API_TOKEN}`;
+    
+    // Use auth token from message or environment variable
+    const token = msg.authToken || API_TOKEN;
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+      console.log("[persist] Using auth token:", token ? "***" + token.slice(-4) : "none");
+    } else {
+      console.warn("[persist] No auth token available - API calls may fail");
     }
     
     const sessionResp = await fetch(`${base}/v1/chats/sessions`, {
@@ -641,6 +651,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`🔌 Socket.IO Test: http://localhost:${PORT}/socket-test`);
   console.log(`🎥 Video Call Test: http://localhost:${PORT}/video-call-test`);
   console.log(`🧪 Persistence Test: http://localhost:${PORT}/persistence-test`);
+  console.log(`⚡ Quick Test: http://localhost:${PORT}/quick-test`);
   console.log(`📊 Socket Status: http://localhost:${PORT}/socket-status`);
   console.log(`\n📊 Service Info:`);
   console.log(`   Environment: ${NODE_ENV}`);
