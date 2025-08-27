@@ -10,6 +10,10 @@ router.post('/sessions', authenticateToken, ChatController.createSession);
 router.get('/:session_id/summary', authenticateToken, ChatController.getSessionSummary);
 
 // Chat message endpoints  
+
+// DM message endpoint
+router.post('/dm-messages', authenticateToken, ChatController.sendDMMessage);
+
 router.post('/:session_id/messages', authenticateToken, ChatController.sendMessage);
 router.get('/:session_id/messages', authenticateToken, ChatController.getMessages);
 router.delete('/:session_id/messages/:message_id', authenticateToken, ChatController.deleteMessage);
