@@ -222,6 +222,7 @@ class TicketController {
                             related_card: ticket.related_card,
                             intake_source: ticket.intake_source,
                             division: division,
+                            responsible_employee_id: ticket.responsible_employee_id,
                             policy: ticket.policy ? {
                                 policy_id: ticket.policy.policy_id,
                                 sla_days: ticket.policy.sla,
@@ -233,6 +234,7 @@ class TicketController {
                     } else {
                         return {
                             ...customTicket,
+                            responsible_employee_id: ticket.responsible_employee_id,
                             policy: ticket.policy ? {
                                 policy_id: ticket.policy.policy_id,
                                 sla_days: ticket.policy.sla,
