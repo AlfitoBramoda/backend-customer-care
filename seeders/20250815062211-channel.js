@@ -14,6 +14,11 @@ module.exports = {
       { channel_id: 8, channel_code: 'MTUNAI_ALFAMART', channel_name: 'Mobile Tunai Alfamart', supports_terminal: false, created_at: new Date(), updated_at: new Date() },
       { channel_id: 9, channel_code: 'QRIS_DEBIT', channel_name: 'QRIS Kartu Debit', supports_terminal: false, created_at: new Date(), updated_at: new Date() }
     ], {});
+
+    // Fix sequence
+    await queryInterface.sequelize.query(
+      "SELECT setval(pg_get_serial_sequence('channel', 'channel_id'), COALESCE(MAX(channel_id), 1)) FROM channel;"
+    );
   },
 
   async down (queryInterface, Sequelize) {

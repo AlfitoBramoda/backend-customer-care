@@ -40,6 +40,9 @@ node_modules/
 config/gcs-service-account.json
 mock/config/gcs-service-account.json
 config/config.json
+mock/config/config.json
+mock/
+
 
 
 .env.development

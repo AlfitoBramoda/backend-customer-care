@@ -37,6 +37,11 @@ module.exports = {
         updated_at: new Date()
       }
     ], {});
+
+    // Fix sequence
+    await queryInterface.sequelize.query(
+      "SELECT setval(pg_get_serial_sequence('card', 'card_id'), COALESCE(MAX(card_id), 1)) FROM card;"
+    );
   },
 
   async down (queryInterface, Sequelize) {

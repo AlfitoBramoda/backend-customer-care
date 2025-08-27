@@ -56,6 +56,10 @@ app.use('/v1', createAttachmentRoutes());
 const createFaqRoutes = require('./routes/faqRoutes');
 app.use('/v1/faqs', createFaqRoutes());
 
+// Add Chat routes
+const chatRoutes = require('./routes/chatRoutes');
+app.use('/v1/chats', chatRoutes);
+
 // Swagger - NO AUTH REQUIRED
 const { swaggerSpec, swaggerUi, swaggerUiOptions } = require('./mock/docs/swagger');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));

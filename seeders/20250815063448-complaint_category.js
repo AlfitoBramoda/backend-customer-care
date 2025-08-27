@@ -53,6 +53,11 @@ module.exports = {
       { complaint_id: 47, complaint_code: 'TRANSFER_ATM_PRIMA_DANA_TDK_MASUK', complaint_name: 'Transfer ATM Prima (Dana Tdk Masuk ke Rek Tujuan)', created_at: new Date(), updated_at: new Date() },
       { complaint_id: 48, complaint_code: 'TRANSFER_ATM_PRIMA_BILATERAL', complaint_name: 'Transfer ATM Prima Bilateral (Refund,salah/batal transfer,rek terdebet > 1x)', created_at: new Date(), updated_at: new Date() }
     ], {});
+
+    // Fix sequence
+    await queryInterface.sequelize.query(
+      "SELECT setval(pg_get_serial_sequence('complaint_category', 'complaint_id'), COALESCE(MAX(complaint_id), 1)) FROM complaint_category;"
+    );
   },
 
   async down (queryInterface, Sequelize) {

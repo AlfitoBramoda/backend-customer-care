@@ -9,6 +9,7 @@ const {
     complaint_policy: ComplaintPolicy,
     division: Division,
     terminal: Terminal,
+    terminal_type: TerminalType,
     ticket: Ticket,
     employee: Employee,
     faq: FAQ,
@@ -314,6 +315,98 @@ class ReferenceController {
                 success: true,
                 message: "Sources retrieved successfully",
                 data: enrichedSources
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // GET /v1/terminals - List all terminals
+    async getTerminals(req, res, next) {
+        try {
+            const { channel_id, terminal_type_id, location } = req.query;
+
+            let whereClause = {};
+
+            if (channel_id) {
+                whereClause.channel_id = parseInt(channel_id);
+            }
+
+            if (terminal_type_id) {
+                whereClause.terminal_type_id = parseInt(terminal_type_id);
+            }
+
+            if (location) {
+                whereClause.location = {
+                    [Op.iLike]: `%${location}%`
+                };
+            }
+
+            const terminals = await Terminal.findAll({
+                where: whereClause,
+                include: [
+                    {
+                        model: TerminalType,
+                        as: 'terminal_type',
+                        attributes: ['terminal_type_id', 'terminal_type_code', 'terminal_type_name']
+                    },
+                    {
+                        model: Channel,
+                        as: 'channel',
+                        attributes: ['channel_id', 'channel_code', 'channel_name', 'supports_terminal']
+                    }
+                ],
+                order: [['terminal_id', 'ASC']]
+            });
+
+            const enrichedTerminals = await Promise.all(terminals.map(async (terminal) => {
+                const ticketsCount = await Ticket.count({
+                    where: { terminal_id: terminal.terminal_id }
+                });
+
+                const terminalData = terminal.toJSON();
+                return {
+                    terminal_id: terminalData.terminal_id,
+                    terminal_code: terminalData.terminal_code,
+                    location: terminalData.location,
+                    tickets_count: ticketsCount,
+                    terminal_type: terminalData.terminal_type,
+                    channel: terminalData.channel
+                };
+            }));
+
+            // Get summary data
+            const terminalTypes = await TerminalType.findAll();
+            const channels = await Channel.findAll({ where: { supports_terminal: true } });
+
+            const byType = await Promise.all(terminalTypes.map(async (type) => {
+                const count = await Terminal.count({ where: { terminal_type_id: type.terminal_type_id } });
+                return {
+                    terminal_type_code: type.terminal_type_code,
+                    terminal_type_name: type.terminal_type_name,
+                    count
+                };
+            }));
+
+            const byChannel = await Promise.all(channels.map(async (channel) => {
+                const count = await Terminal.count({ where: { channel_id: channel.channel_id } });
+                return {
+                    channel_code: channel.channel_code,
+                    channel_name: channel.channel_name,
+                    count
+                };
+            }));
+
+            res.status(HTTP_STATUS.OK).json({
+                success: true,
+                message: "Terminals retrieved successfully",
+                summary: {
+                    total_terminals: enrichedTerminals.length,
+                    by_type: byType,
+                    by_channel: byChannel
+                },
+                data: enrichedTerminals
             });
 
         } catch (error) {

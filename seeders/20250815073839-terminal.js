@@ -27,11 +27,16 @@ module.exports = {
         terminal_code: 'CRM101',
         terminal_type_id: 2,
         location: 'Surabaya Darmo',
-        channel_id: 2,
+        channel_id: 3,
         created_at: new Date(),
         updated_at: new Date()
       }
     ], {});
+
+    // Fix sequence
+    await queryInterface.sequelize.query(
+      "SELECT setval(pg_get_serial_sequence('terminal', 'terminal_id'), COALESCE(MAX(terminal_id), 1)) FROM terminal;"
+    );
   },
 
   async down (queryInterface, Sequelize) {

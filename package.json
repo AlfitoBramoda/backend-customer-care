@@ -11,8 +11,8 @@
     "staging": "cross-env NODE_ENV=staging node -r dotenv/config mock/server-clean.js dotenv_config_path=.env.staging",
     "production": "cross-env NODE_ENV=production node -r dotenv/config mock/server-clean.js dotenv_config_path=.env.production",
     "db:create": "npx sequelize-cli db:create",
-    "db:migrate": "cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/sequelize-cli db:migrate",
-    "db:seed": "cross-env NODE_ENV=production node -r dotenv/config node_modules/.bin/sequelize-cli db:seed:all",
+    "db:migrate": "cross-env NODE_ENV=development sequelize-cli db:migrate",
+    "db:seed": "cross-env NODE_ENV=development sequelize-cli db:seed:all",
     "db:reset": "npx sequelize-cli db:migrate:undo:all && npm run db:migrate && npm run db:seed",
     "db:status": "npx sequelize-cli db:migrate:status"
   },
