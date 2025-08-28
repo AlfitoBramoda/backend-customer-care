@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot Database Test</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Chatbot Database Integration Test</h1>
+    
+    <div>
+        <h3>Send Message</h3>
+        <input type="number" id="ticketId" placeholder="Ticket ID (must exist in DB)" value="1">
+        <input type="number" id="senderId" placeholder="Sender ID" value="1">
+        <input type="text" id="messageInput" placeholder="Type message..." value="Hello from chatbot test">
+        <button onclick="sendMessage()">Send Message</button>
+    </div>
+    
+    <div>
+        <h3>Get Chat History</h3>
+        <input type="number" id="historyTicketId" placeholder="Ticket ID (must exist in DB)" value="1">
+        <button onclick="getChatHistory()">Get History</button>
+    </div>
+    
+    <div>
+        <h3>Bot Response Test (Real-time only, not saved)</h3>
+        <input type="text" id="botResponse" placeholder="Bot response..." value="This is a bot response">
+        <button onclick="sendBotResponse()">Send Bot Response</button>
+    </div>
+    
+    <div id="messages" style="border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-top: 20px;"></div>
+
+    <script>
+        const socket = io();
+        const messages = document.getElementById('messages');
+        
+        function addMessage(msg) {
+            messages.innerHTML += '<div>' + JSON.stringify(msg, null, 2) + '</div><hr>';
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        socket.on('connect', () => {
+            addMessage({type: 'system', message: 'Connected to chatbot server'});
+        });
+        
+        socket.on('chat:history', (data) => {
+            addMessage({type: 'history', data: data});
+        });
+        
+        socket.on('chat:error', (error) => {
+            addMessage({type: 'error', error: error});
+        });
+        
+        socket.on('chat:success', (data) => {
+            addMessage({type: 'success', data: data});
+        });
+        
+        socket.on('chatbot:message', (data) => {
+            addMessage({type: 'bot_response', data: data});
+        });
+        
+        socket.on('ticket:joined', (data) => {
+            addMessage({type: 'system', message: `Joined ticket room: ${data.room}`});
+        });
+        
+        socket.on('chat:new', (data) => {
+            addMessage({type: 'broadcast', data: data});
+        });
+        
+        function sendMessage() {
+            const ticketId = document.getElementById('ticketId').value;
+            const senderId = document.getElementById('senderId').value;
+            const message = document.getElementById('messageInput').value;
+            
+            // Join ticket room first
+            socket.emit('ticket:join', { ticketId: parseInt(ticketId) });
+            
+            // Send message
+            socket.emit('chat:send', {
+                ticketId: parseInt(ticketId),
+                senderId: parseInt(senderId),
+                message: message
+            });
+            
+            addMessage({type: 'sent', ticketId, senderId, message});
+        }
+        
+        function getChatHistory() {
+            const ticketId = document.getElementById('historyTicketId').value;
+            socket.emit('chat:history', {ticketId: parseInt(ticketId)});
+        }
+        
+        function sendBotResponse() {
+            const response = document.getElementById('botResponse').value;
+            
+            socket.emit('chatbot:response', {
+                botResponse: response,
+                timestamp: new Date().toISOString()
+            });
+        }
+    </script>
+</body>
+</html>

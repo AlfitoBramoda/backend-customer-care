@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BNI Customer Care - Real-time Chat Demo</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .container { 
+            display: flex; 
+            gap: 30px; 
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .user-panel { 
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            width: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        .user-panel:hover {
+            transform: translateY(-5px);
+        }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: white;
+            font-weight: bold;
+        }
+        .customer-avatar { background: linear-gradient(45deg, #4CAF50, #45a049); }
+        .employee-avatar { background: linear-gradient(45deg, #2196F3, #1976D2); }
+        .panel-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #333;
+        }
+        .status { 
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #28a745;
+            font-weight: 500;
+        }
+        .status.disconnected {
+            border-left-color: #dc3545;
+            background: linear-gradient(45deg, #fff5f5, #fed7d7);
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+        }
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #1e7e34);
+            color: white;
+        }
+        .btn-info {
+            background: linear-gradient(45deg, #17a2b8, #117a8b);
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .message-input {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .message-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        .message-input input:focus {
+            border-color: #007bff;
+        }
+        .send-btn {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+        .messages { 
+            height: 400px;
+            overflow-y: auto;
+            border: 2px solid #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            background: #fafafa;
+            margin: 20px 0;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 12px 15px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .message.system {
+            background: linear-gradient(45deg, #6c757d, #5a6268);
+            color: white;
+            text-align: center;
+            max-width: 100%;
+            font-size: 0.9em;
+        }
+        .message.sent {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            margin-left: auto;
+        }
+        .message.received {
+            background: linear-gradient(45deg, #28a745, #1e7e34);
+            color: white;
+        }
+        .message.error {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            color: white;
+            max-width: 100%;
+        }
+        .message-time {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        .typing-indicator {
+            background: #e9ecef;
+            color: #6c757d;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-style: italic;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        .demo-info {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏦 BNI Customer Care</h1>
+        <p>Real-time Chat System Demo - Customer ↔ Employee Communication</p>
+    </div>
+    
+    <div class="demo-info">
+        <strong>Demo Instructions:</strong> 
+        1. Register both users → 2. Join same ticket → 3. Start chatting → Messages sync in real-time + saved to database
+    </div>
+    
+    <div class="container">
+        <!-- Customer Panel -->
+        <div class="user-panel">
+            <div class="panel-header">
+                <div class="avatar customer-avatar">👤</div>
+                <div>
+                    <div class="panel-title">Customer Portal</div>
+                    <small>Login with Email | Ticket: #1</small>
+                </div>
+            </div>
+            
+            <div class="status disconnected" id="customer-status">🔴 Disconnected</div>
+            
+            <div class="controls">
+                <button class="btn btn-primary" onclick="customerAuth()">🔐 Login with Email</button>
+                <button class="btn btn-success" onclick="customerJoinTicket()">🎫 Join Ticket #1</button>
+                <button class="btn btn-info" onclick="getChatHistory('customer')">📜 Load History</button>
+            </div>
+            
+            <div class="message-input">
+                <input type="text" id="customer-message" placeholder="Type your message..." value="Hello, I need help with my credit card">
+                <button class="send-btn" onclick="customerSendMessage()">📤 Send</button>
+            </div>
+            
+            <div class="messages" id="customer-messages">
+                <div class="message system">💬 Customer chat window - waiting for connection...</div>
+            </div>
+        </div>
+        
+        <!-- Employee Panel -->
+        <div class="user-panel">
+            <div class="panel-header">
+                <div class="avatar employee-avatar">👨‍💼</div>
+                <div>
+                    <div class="panel-title">Employee Dashboard</div>
+                    <small>Login with NPP | Ticket: #1</small>
+                </div>
+            </div>
+            
+            <div class="status disconnected" id="employee-status">🔴 Disconnected</div>
+            
+            <div class="controls">
+                <button class="btn btn-primary" onclick="employeeAuth()">🔐 Login with NPP</button>
+                <button class="btn btn-success" onclick="employeeJoinTicket()">🎫 Join Ticket #1</button>
+                <button class="btn btn-info" onclick="getChatHistory('employee')">📜 Load History</button>
+            </div>
+            
+            <div class="message-input">
+                <input type="text" id="employee-message" placeholder="Type your response..." value="Hello! I'm here to help you with your credit card issue.">
+                <button class="send-btn" onclick="employeeSendMessage()">📤 Send</button>
+            </div>
+            
+            <div class="messages" id="employee-messages">
+                <div class="message system">💼 Agent chat window - waiting for connection...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create two separate socket connections
+        const customerSocket = io();
+        const employeeSocket = io();
+        
+        // Helper functions
+        function addMessage(containerId, msg, type = 'system') {
+            const container = document.getElementById(containerId);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            let content = '';
+            const time = new Date().toLocaleTimeString();
+            
+            if (type === 'system') {
+                content = `🔔 ${msg.message || JSON.stringify(msg)}`;
+            } else if (type === 'sent') {
+                content = `${msg.message}<div class="message-time">You sent at ${time}</div>`;
+            } else if (type === 'received') {
+                content = `${msg.message}<div class="message-time">From ${msg.senderType} at ${time}</div>`;
+            } else if (type === 'error') {
+                content = `❌ Error: ${msg.error?.message || msg.message || JSON.stringify(msg)}`;
+            } else {
+                content = JSON.stringify(msg, null, 2);
+            }
+            
+            messageDiv.innerHTML = content;
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+            
+            // Debug logging
+            console.log(`[${containerId}] Added ${type} message:`, msg);
+        }
+        
+        function updateStatus(statusId, message, connected = false) {
+            const statusEl = document.getElementById(statusId);
+            statusEl.textContent = message;
+            statusEl.className = connected ? 'status' : 'status disconnected';
+        }
+        
+        function getChatHistory(userType) {
+            const socket = userType === 'customer' ? customerSocket : employeeSocket;
+            socket.emit('chat:history', { ticketId: 1 });
+        }
+        
+        // Customer Socket Events
+        customerSocket.on('connect', () => {
+            updateStatus('customer-status', '🟢 Connected - Ready to chat', true);
+            addMessage('customer-messages', {message: 'Connected to BNI Customer Care'}, 'system');
+        });
+        
+        customerSocket.on('auth:ok', (data) => {
+            addMessage('customer-messages', {message: `✅ Authenticated as ${data.userType} (${data.userIdentifier}) - ${data.userInfo?.full_name || 'User'} (ID: ${data.userId})`}, 'system');
+        });
+        
+        customerSocket.on('auth:error', (error) => {
+            addMessage('customer-messages', error, 'error');
+        });
+        
+        customerSocket.on('ticket:joined', (data) => {
+            addMessage('customer-messages', {message: `Joined ticket room: ${data.room} (${data.members?.length || 0} participants)`}, 'system');
+        });
+        
+        customerSocket.on('chat:success', (data) => {
+            // Message sent successfully - no need to show
+        });
+        
+        customerSocket.on('chat:new', (data) => {
+            // Always show messages from others (since socket.to() excludes sender)
+            addMessage('customer-messages', {
+                message: data.message,
+                senderId: data.senderId,
+                senderType: data.senderType === 'customer' ? 'Customer' : 'Agent'
+            }, 'received');
+        });
+        
+        customerSocket.on('chat:history', (data) => {
+            const container = document.getElementById('customer-messages');
+            container.innerHTML = '<div class="message system">📜 Chat History Loaded</div>';
+            data.messages.forEach(msg => {
+                const type = msg.sender_type_id == 1 ? 'sent' : 'received';
+                addMessage('customer-messages', {
+                    message: msg.message,
+                    senderId: msg.sender_id,
+                    senderType: msg.sender_type_id == 1 ? 'Customer' : 'Agent'
+                }, type);
+            });
+        });
+        
+        customerSocket.on('chat:error', (error) => {
+            addMessage('customer-messages', error, 'error');
+        });
+        
+        // Employee Socket Events
+        employeeSocket.on('connect', () => {
+            updateStatus('employee-status', '🟢 Connected - Ready to assist', true);
+            addMessage('employee-messages', {message: 'Connected to BNI Agent Dashboard'}, 'system');
+        });
+        
+        employeeSocket.on('auth:ok', (data) => {
+            addMessage('employee-messages', {message: `✅ Authenticated as ${data.userType} (${data.userIdentifier}) - ${data.userInfo?.full_name || 'Agent'} (ID: ${data.userId})`}, 'system');
+        });
+        
+        employeeSocket.on('auth:error', (error) => {
+            addMessage('employee-messages', error, 'error');
+        });
+        
+        employeeSocket.on('ticket:joined', (data) => {
+            addMessage('employee-messages', {message: `Joined ticket room: ${data.room} (${data.members?.length || 0} participants)`}, 'system');
+        });
+        
+        employeeSocket.on('chat:success', (data) => {
+            // Message sent successfully - no need to show
+        });
+        
+        employeeSocket.on('chat:new', (data) => {
+            // Always show messages from others (since socket.to() excludes sender)
+            addMessage('employee-messages', {
+                message: data.message,
+                senderId: data.senderId,
+                senderType: data.senderType === 'customer' ? 'Customer' : 'Agent'
+            }, 'received');
+        });
+        
+        employeeSocket.on('chat:history', (data) => {
+            const container = document.getElementById('employee-messages');
+            container.innerHTML = '<div class="message system">📜 Chat History Loaded</div>';
+            data.messages.forEach(msg => {
+                const type = msg.sender_type_id == 2 ? 'sent' : 'received';
+                addMessage('employee-messages', {
+                    message: msg.message,
+                    senderId: msg.sender_id,
+                    senderType: msg.sender_type_id == 1 ? 'Customer' : 'Agent'
+                }, type);
+            });
+        });
+        
+        employeeSocket.on('chat:error', (error) => {
+            addMessage('employee-messages', error, 'error');
+        });
+        
+        // Customer Functions
+        function customerAuth() {
+            const email = prompt('Enter customer email:', 'customer@example.com');
+            if (email) {
+                customerSocket.emit('auth:register', {
+                    userIdentifier: email,
+                    userType: 'customer'
+                });
+            }
+        }
+        
+        function customerJoinTicket() {
+            customerSocket.emit('ticket:join', { ticketId: 1 });
+        }
+        
+        function customerSendMessage() {
+            const input = document.getElementById('customer-message');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Show message immediately
+            addMessage('customer-messages', {message: message}, 'sent');
+            
+            customerSocket.emit('chat:send', {
+                ticketId: 1,
+                message: message
+            });
+            
+            input.value = '';
+        }
+        
+        // Employee Functions
+        function employeeAuth() {
+            const npp = prompt('Enter employee NPP:', '12345');
+            if (npp) {
+                employeeSocket.emit('auth:register', {
+                    userIdentifier: npp,
+                    userType: 'employee'
+                });
+            }
+        }
+        
+        function employeeJoinTicket() {
+            employeeSocket.emit('ticket:join', { ticketId: 1 });
+        }
+        
+        function employeeSendMessage() {
+            const input = document.getElementById('employee-message');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Show message immediately
+            addMessage('employee-messages', {message: message}, 'sent');
+            
+            employeeSocket.emit('chat:send', {
+                ticketId: 1,
+                message: message
+            });
+            
+            input.value = '';
+        }
+        
+        // Enter key support
+        document.getElementById('customer-message').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') customerSendMessage();
+        });
+        
+        document.getElementById('employee-message').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') employeeSendMessage();
+        });
+    </script>
+</body>
+</html>

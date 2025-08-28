@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -6,6 +7,7 @@ const { Server } = require('socket.io');
 const { PORT, NODE_ENV } = require('./src/config/config');
 const { loadSLAData } = require('./src/services/sla-service');
 const { setupRoutes } = require('./src/routes/routes');
+const ChatService = require('./services/chatService');
 
 // -----------------------------
 // Initialize Express App & Socket.IO
@@ -40,6 +42,19 @@ app.use(express.json({ limit: '2mb' }));
 // -----------------------------
 // Load SLA data on startup
 loadSLAData();
+
+// Test database connection
+ChatService.testConnection().then(async (success) => {
+  if (success) {
+    console.log('\n📊 Running additional database tests...');
+    await ChatService.testInsert();
+    console.log('🚀 Database tests completed\n');
+  } else {
+    console.log('\n❌ Database connection failed - check your configuration\n');
+  }
+}).catch(err => {
+  console.error('Database connection test failed:', err);
+});
 
 // -----------------------------
 // Setup Routes
@@ -78,7 +93,9 @@ const removeUserSocket = (userId, sid) => {
   set.delete(sid);
   if (set.size === 0) userSockets.delete(userId);
 };
-const dmRoomOf = (a, b) => `dm:${[a, b].sort().join(":")}`;
+const dmRoomOf = (a, b) => `dm:${[a, b].sort().join(":")}`;  
+const ticketRoomOf = (ticketId) => `ticket:${ticketId}`;
+const getTicketRoom = (ticketId) => ticketRoomOf(ticketId);
 
 function peersIn(room) {
   const r = io.sockets.adapter.rooms.get(room);
@@ -110,13 +127,47 @@ io.on("connection", (socket) => {
     console.log("🔄 Transport upgraded to:", socket.conn.transport.name);
   });
   
-  // ---- IDENTITAS
-  socket.on("auth:register", ({ userId }) => {
-    if (!userId) return;
-    socket.data.userId = userId;
-    addUserSocket(userId, socket.id);
-    socket.emit("auth:ok", { userId });
-    console.log(`[auth] ${socket.id} -> ${userId}`);
+  // ---- IDENTITAS dengan validation (email/NPP)
+  socket.on("auth:register", async ({ userIdentifier, userType }) => {
+    if (!userIdentifier) {
+      socket.emit("auth:error", { message: userType === 'employee' ? "NPP is required" : "Email is required" });
+      return;
+    }
+    
+    try {
+      // Validate user exists in database
+      const validation = await ChatService.validateUser(userIdentifier, userType || 'customer');
+      
+      if (!validation.valid) {
+        socket.emit("auth:error", { message: validation.message });
+        console.log(`[auth] ❌ ${socket.id} -> ${userIdentifier} (${userType}) - VALIDATION FAILED: ${validation.message}`);
+        return;
+      }
+      
+      // Set socket data after validation
+      socket.data.userIdentifier = userIdentifier;
+      socket.data.userType = userType || 'customer';
+      socket.data.userInfo = validation.user;
+      
+      // Use actual database ID for socket mapping
+      const actualUserId = validation.user.customer_id || validation.user.employee_id;
+      socket.data.userId = actualUserId;
+      
+      addUserSocket(actualUserId, socket.id);
+      socket.emit("auth:ok", { 
+        userIdentifier,
+        userId: actualUserId,
+        userType: userType || 'customer',
+        userInfo: validation.user,
+        message: validation.message
+      });
+      
+      console.log(`[auth] ✅ ${socket.id} -> ${userIdentifier} (${userType}) - VALIDATED as ID ${actualUserId}`);
+      
+    } catch (error) {
+      socket.emit("auth:error", { message: "Authentication failed: " + error.message });
+      console.log(`[auth] ❌ ${socket.id} -> ${userIdentifier} (${userType}) - ERROR: ${error.message}`);
+    }
   });
 
   // ---- BUKA DM BERDASAR ID
@@ -154,16 +205,169 @@ io.on("connection", (socket) => {
     socket.emit("presence:list", { room, peers: peersIn(room) });
   });
 
-  // ---- Chat (TIDAK echo ke pengirim)
-  socket.on("chat:send", (msg) => {
-    if (!msg?.room) return;
-    socket.to(msg.room).emit("chat:new", msg);
+  // ---- Join ticket room
+  socket.on("ticket:join", async ({ ticketId }) => {
+    if (!ticketId) return;
+    
+    const room = getTicketRoom(ticketId);
+    socket.join(room);
+    socket.data.currentTicketRoom = room;
+    socket.data.currentTicketId = ticketId;
+    
+    console.log(`🎫 User ${socket.data.userId} (${socket.data.userType}) joined ticket room: ${room}`);
+    
+    // Check who else is in the room
+    const roomMembers = peersIn(room);
+    console.log(`👥 Room ${room} now has ${roomMembers.length} members:`, roomMembers);
+    
+    socket.emit('ticket:joined', { ticketId, room, members: roomMembers });
+    emitPresence(room);
+  });
+  
+  // ---- Leave ticket room
+  socket.on("ticket:leave", ({ ticketId }) => {
+    const room = getTicketRoom(ticketId);
+    socket.leave(room);
+    socket.data.currentTicketRoom = null;
+    socket.data.currentTicketId = null;
+    
+    console.log(`🎫 User ${socket.data.userId} left ticket room: ${room}`);
+    emitPresence(room);
+  });
+  
+  // ---- Chat dengan ticket-based room
+  socket.on("chat:send", async (msg) => {
+    if (!msg?.message) return;
+    
+    console.log('Received chat message:', msg);
+    
+    try {
+      // Smart context detection dengan proper mapping
+      let chatData = {
+        ticketId: msg.ticketId || socket.data.currentTicketId,
+        userIdentifier: msg.userIdentifier || socket.data.userIdentifier,
+        senderType: msg.senderType || socket.data.userType || 'customer',
+        message: msg.message
+      };
+      
+      // Map sender type ke database ID
+      const senderTypeMap = {
+        'customer': 1,
+        'employee': 2, 
+        'system': 3,
+        'bot': 3
+      };
+      
+      chatData.senderTypeId = senderTypeMap[chatData.senderType] || 1;
+      
+      // Auto-detect missing data (only for customers)
+      if (!chatData.ticketId && chatData.userIdentifier && chatData.senderType === 'customer') {
+        chatData.ticketId = await ChatService.ensureTicket(chatData.userIdentifier);
+        console.log(`🎫 Auto-created/found ticket: ${chatData.ticketId}`);
+        
+        // Auto-join ticket room
+        const room = getTicketRoom(chatData.ticketId);
+        socket.join(room);
+        socket.data.currentTicketRoom = room;
+        socket.data.currentTicketId = chatData.ticketId;
+      }
+      
+      // Get ticket room
+      const ticketRoom = getTicketRoom(chatData.ticketId);
+      
+      // Validate required data
+      if (chatData.ticketId && chatData.userIdentifier && chatData.message) {
+        
+        // Cross-check user exists in appropriate table
+        const userValidation = await ChatService.validateUser(chatData.userIdentifier, chatData.senderType);
+        
+        if (!userValidation.valid) {
+          console.log(`❌ User validation failed: ${userValidation.message}`);
+          socket.emit('chat:error', { 
+            message: `Cannot send message: ${userValidation.message}`,
+            code: 'USER_NOT_FOUND'
+          });
+          return;
+        }
+        
+        console.log('Saving to database:', chatData);
+        console.log(`✅ User validated: ${userValidation.user.full_name}`);
+        
+        await ChatService.saveUserMessage(
+          chatData.ticketId, 
+          chatData.userIdentifier, 
+          chatData.message,
+          chatData.senderTypeId,
+          chatData.senderType
+        );
+        console.log(`💾 User message saved: ticket=${chatData.ticketId}, user=${chatData.userIdentifier}`);
+        
+        socket.emit('chat:success', { 
+          message: 'Message saved successfully',
+          ticketId: chatData.ticketId,
+          room: ticketRoom,
+          senderInfo: userValidation.user
+        });
+        
+        // Broadcast ke semua user di ticket room KECUALI pengirim
+        console.log(`📢 Broadcasting message to room ${ticketRoom}`);
+        const roomMembers = peersIn(ticketRoom);
+        console.log(`👥 Broadcasting to ${roomMembers.length} members:`, roomMembers);
+        
+        socket.to(ticketRoom).emit("chat:new", {
+          ...chatData,
+          senderInfo: userValidation.user,
+          senderId: userValidation.user.customer_id || userValidation.user.employee_id,
+          timestamp: new Date().toISOString(),
+          room: ticketRoom
+        });
+        
+      } else {
+        console.log('Missing required fields after auto-detection:', chatData);
+        socket.emit('chat:error', { message: 'Unable to determine chat context' });
+      }
+      
+    } catch (error) {
+      console.error('Error handling chat message:', error.message);
+      socket.emit('chat:error', { message: 'Failed to save message', error: error.message });
+    }
+  });
+  
+  // ---- Chatbot response (tidak disimpan ke database)
+  socket.on("chatbot:response", (data) => {
+    // Hanya emit response ke client, tidak simpan ke database
+    socket.emit("chatbot:message", data);
+  });
+  
+  // ---- Get chat history
+  socket.on("chat:history", async ({ ticketId }) => {
+    try {
+      if (ticketId) {
+        const history = await ChatService.getChatHistory(ticketId);
+        socket.emit("chat:history", { ticketId, messages: history });
+      }
+    } catch (error) {
+      console.error('Error getting chat history:', error);
+      socket.emit('chat:error', { message: 'Failed to get chat history' });
+    }
   });
 
-  // ---- Typing indicator
-  socket.on("typing", ({ room }) => {
+  // ---- Typing indicator untuk ticket room
+  socket.on("typing", ({ ticketId }) => {
+    const room = ticketId ? getTicketRoom(ticketId) : socket.data.currentTicketRoom;
     if (!room) return;
-    socket.to(room).emit("typing");
+    socket.to(room).emit("typing", { 
+      userId: socket.data.userId,
+      userType: socket.data.userType 
+    });
+  });
+  
+  socket.on("typing:stop", ({ ticketId }) => {
+    const room = ticketId ? getTicketRoom(ticketId) : socket.data.currentTicketRoom;
+    if (!room) return;
+    socket.to(room).emit("typing:stop", { 
+      userId: socket.data.userId 
+    });
   });
 
   // ---- Mock call features
@@ -237,6 +441,35 @@ app.get('/socket-status', (req, res) => {
     connected_sockets: io.engine.clientsCount,
     time: new Date().toISOString()
   });
+});
+
+// Add database status endpoint
+app.get('/db-status', async (req, res) => {
+  try {
+    const isConnected = await ChatService.testConnection();
+    const count = await ChatService.getChatHistory(1);
+    
+    res.json({
+      database: isConnected ? 'connected' : 'disconnected',
+      table_exists: true,
+      sample_query: 'success',
+      time: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      database: 'error',
+      error: error.message,
+      time: new Date().toISOString()
+    });
+  }
+});
+
+app.get('/db-test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'chatbot-db-test.html'));
+});
+
+app.get('/debug-chat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'debug-chat.html'));
 });
 
 // -----------------------------
