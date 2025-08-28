@@ -166,9 +166,26 @@ class AttachmentController {
             if (req.user.role === 'customer' && ticket.customer_id !== req.user.id) {
                 throw new ForbiddenError('Access denied');
             } else if (req.user.role === 'employee') {
-                if (req.user.role_id !== 1 || req.user.division_id !== 1) {
-                    if (ticket.responsible_employee_id !== req.user.id) {
-                        throw new ForbiddenError('Access denied - you can only access attachments for tickets assigned to you');
+                if (req.user.role_id === 1 && req.user.division_id === 1) {
+                    // CXC Agent can see all tickets
+                } else {
+                    // Other employees (non-CXC): only ESCALATED tickets to their division
+                    const employeeStatus = await EmployeeStatus.findByPk(ticket.employee_status_id);
+                    
+                    if (employeeStatus?.employee_status_code !== 'ESCALATED') {
+                        return res.status(HTTP_STATUS.FORBIDDEN).json({
+                            success: false,
+                            message: 'Access denied - only escalated tickets can be viewed'
+                        });
+                    }
+                    
+                    const policy = await ComplaintPolicy.findByPk(ticket.policy_id);
+                    
+                    if (policy?.uic_id != req.user.division_id) {
+                        return res.status(HTTP_STATUS.FORBIDDEN).json({
+                            success: false,
+                            message: 'Access denied - ticket not assigned to your division'
+                        });
                     }
                 }
             }

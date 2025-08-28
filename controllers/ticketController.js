@@ -54,9 +54,6 @@ class TicketController {
                 date_to,
                 search
             } = req.query;
-            
-            console.log(req.user);
-
             // Build base where clause
             let whereClause = {
                 delete_at: null // Only non-deleted tickets
