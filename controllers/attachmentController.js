@@ -10,7 +10,9 @@ const {
     ticket_activity: TicketActivity,
     ticket: Ticket,
     customer: Customer,
-    employee: Employee
+    employee: Employee,
+    employee_status: EmployeeStatus,
+    complaint_policy: ComplaintPolicy
 } = db;
 
 class AttachmentController {
