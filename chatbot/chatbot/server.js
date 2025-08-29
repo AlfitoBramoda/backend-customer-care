@@ -360,7 +360,7 @@ io.on("connection", (socket) => {
         
         // Simpan ke database
         await ChatMessage.create({
-          ticket_id: ticketId,
+          ticket_id: +ticketId,
           sender_id: senderInfo.sender_id,
           sender_type_id: senderInfo.sender_type_id,
           message: msg.message,
