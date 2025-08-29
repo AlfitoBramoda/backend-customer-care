@@ -7,6 +7,11 @@ const { PORT, NODE_ENV } = require('./src/config/config');
 const { loadSLAData } = require('./src/services/sla-service');
 const { setupRoutes } = require('./src/routes/routes');
 
+// Database models
+const db = require('../../models');
+const { Op } = require('sequelize');
+const { ticket: Ticket, chat_message: ChatMessage } = db;
+
 // -----------------------------
 // Initialize Express App & Socket.IO
 // -----------------------------
@@ -63,11 +68,71 @@ app.get('/socket-test', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'socket-test.html'));
 });
 
+app.get('/chat-db-test', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'chat-db-test.html'));
+});
+
 // -----------------------------
 // Socket.IO Real-time Features
 // -----------------------------
 // userId -> Set<socketId>
 const userSockets = new Map();
+// Cache room -> ticket_id mapping
+const roomTicketCache = new Map();
+
+// Helper functions
+function extractSenderInfo(userId) {
+  const [prefix, idStr] = userId.split('-');
+  return {
+    sender_id: parseInt(idStr),
+    sender_type_id: prefix === 'CUS' ? 1 : 2
+  };
+}
+
+async function findActiveTicket(room) {
+  try {
+    const [, userA, userB] = room.split(':');
+    const customer = userA.startsWith('CUS') ? userA : userB;
+    const employee = userA.startsWith('EMP') ? userA : userB;
+    
+    const customerId = parseInt(customer.split('-')[1]);
+    const employeeId = parseInt(employee.split('-')[1]);
+    
+    const ticket = await Ticket.findOne({
+      where: {
+        customer_id: customerId,
+        responsible_employee_id: employeeId,
+        employee_status_id: { [Op.in]: [1, 2] }
+      },
+      order: [['created_time', 'DESC']]
+    });
+    
+    if (ticket) {
+      console.log(`[TICKET] Found active ticket: ${ticket.ticket_number} (ID: ${ticket.ticket_id})`);
+      return ticket.ticket_id;
+    } else {
+      console.log(`[TICKET] No active ticket found for ${customer} <-> ${employee}`);
+      return null;
+    }
+  } catch (error) {
+    console.error('[TICKET] Error finding ticket:', error);
+    return null;
+  }
+}
+
+async function getActiveTicketFromRoom(room) {
+  if (roomTicketCache.has(room)) {
+    return roomTicketCache.get(room);
+  }
+  
+  const ticketId = await findActiveTicket(room);
+  
+  if (ticketId) {
+    roomTicketCache.set(room, ticketId);
+  }
+  
+  return ticketId;
+}
 const addUserSocket = (userId, sid) => {
   if (!userSockets.has(userId)) userSockets.set(userId, new Set());
   userSockets.get(userId).add(sid);
@@ -155,8 +220,34 @@ io.on("connection", (socket) => {
   });
 
   // ---- Chat (TIDAK echo ke pengirim)
-  socket.on("chat:send", (msg) => {
+  socket.on("chat:send", async (msg) => {
     if (!msg?.room) return;
+    
+    try {
+      // Cari ticket aktif
+      const ticketId = await getActiveTicketFromRoom(msg.room);
+      
+      if (ticketId) {
+        const senderInfo = extractSenderInfo(socket.data.userId);
+        
+        // Simpan ke database
+        await ChatMessage.create({
+          ticket_id: ticketId,
+          sender_id: senderInfo.sender_id,
+          sender_type_id: senderInfo.sender_type_id,
+          message: msg.message,
+          sent_at: new Date()
+        });
+        
+        console.log(`[DB] Message saved to ticket ${ticketId} from ${socket.data.userId}`);
+      } else {
+        console.log(`[DB] No active ticket found for room ${msg.room}, message not saved`);
+      }
+    } catch (error) {
+      console.error('[DB] Error saving message:', error);
+    }
+    
+    // Teruskan ke frontend (tidak berubah)
     socket.to(msg.room).emit("chat:new", msg);
   });
 
@@ -247,6 +338,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`📋 API Tester: http://localhost:${PORT}/`);
   console.log(`💬 Chatbot Interface: http://localhost:${PORT}/chatbot`);
   console.log(`🔌 Socket.IO Test: http://localhost:${PORT}/socket-test`);
+  console.log(`🧪 Chat DB Test: http://localhost:${PORT}/chat-db-test`);
   console.log(`📊 Socket Status: http://localhost:${PORT}/socket-status`);
   console.log(`\n📊 Service Info:`);
   console.log(`   Environment: ${NODE_ENV}`);
