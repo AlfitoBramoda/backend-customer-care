@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat UI Test - Customer vs Employee</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
+        
+        .container { display: flex; height: 100vh; }
+        
+        .chat-panel { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #ddd; }
+        .chat-panel:last-child { border-right: none; }
+        
+        .chat-header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; padding: 15px; text-align: center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .customer-header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .employee-header { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        
+        .chat-controls { 
+            padding: 10px; background: white; border-bottom: 1px solid #eee;
+            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+        }
+        
+        .chat-messages { 
+            flex: 1; padding: 15px; overflow-y: auto; background: #fafafa;
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        
+        .message { 
+            max-width: 70%; padding: 10px 15px; border-radius: 18px; 
+            word-wrap: break-word; position: relative; animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .message-own { 
+            background: #007bff; color: white; align-self: flex-end; 
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-other { 
+            background: #e9ecef; color: #333; align-self: flex-start; 
+            border-bottom-left-radius: 4px; border: 1px solid #dee2e6;
+        }
+        
+        .message-history { 
+            opacity: 0.8; font-size: 0.9em;
+            border: 1px dashed rgba(255,255,255,0.3);
+        }
+        
+        .message-system { 
+            background: #6c757d; color: white; align-self: center; 
+            font-size: 0.85em; border-radius: 12px; padding: 6px 12px;
+        }
+        
+        .message-meta { 
+            font-size: 0.75em; opacity: 0.8; margin-top: 4px;
+        }
+        
+        .chat-input { 
+            padding: 15px; background: white; border-top: 1px solid #eee;
+            display: flex; gap: 10px; align-items: center;
+        }
+        
+        .chat-input input { 
+            flex: 1; padding: 12px 15px; border: 1px solid #ddd; 
+            border-radius: 25px; outline: none; font-size: 14px;
+        }
+        
+        .chat-input input:focus { border-color: #007bff; box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
+        
+        .btn { 
+            padding: 8px 16px; border: none; border-radius: 20px; 
+            cursor: pointer; font-size: 12px; font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 11px; }
+        
+        .status { 
+            padding: 8px 12px; border-radius: 15px; font-size: 12px; 
+            font-weight: 500; display: inline-block;
+        }
+        .status-connected { background: #d4edda; color: #155724; }
+        .status-disconnected { background: #f8d7da; color: #721c24; }
+        
+        .room-info { 
+            background: #e9ecef; padding: 8px 12px; border-radius: 15px; 
+            font-size: 11px; color: #495057; margin: 5px 0;
+        }
+        
+        input[type="text"] { 
+            padding: 6px 10px; border: 1px solid #ddd; border-radius: 15px; 
+            font-size: 12px; outline: none;
+        }
+        
+        .typing-indicator { 
+            background: #e9ecef; color: #6c757d; padding: 8px 15px; 
+            border-radius: 18px; align-self: flex-start; font-style: italic;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+        
+        .message-time { font-size: 10px; opacity: 0.7; margin-top: 2px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Customer Panel -->
+        <div class="chat-panel">
+            <div class="chat-header customer-header">
+                <h3>👤 Customer Panel</h3>
+                <div>Real-time Chat Interface</div>
+            </div>
+            
+            <div class="chat-controls">
+                <input type="text" id="customer-id" placeholder="Customer ID" value="CUS-1">
+                <button class="btn btn-primary btn-sm" onclick="connectCustomer()">Connect</button>
+                <span class="status status-disconnected" id="customer-status">Disconnected</span>
+                <input type="text" id="customer-target" placeholder="Employee ID" value="EMP-1">
+                <button class="btn btn-success btn-sm" onclick="openChatCustomer()">Start Chat</button>
+                <button class="btn btn-secondary btn-sm" onclick="clearCustomerMessages()">Clear</button>
+            </div>
+            
+            <div class="room-info" id="customer-room">No active room</div>
+            
+            <div class="chat-messages" id="customer-messages"></div>
+            
+            <div class="chat-input">
+                <input type="text" id="customer-message" placeholder="Type your message...">
+                <button class="btn btn-primary" onclick="sendCustomerMessage()">Send</button>
+            </div>
+        </div>
+
+        <!-- Employee Panel -->
+        <div class="chat-panel">
+            <div class="chat-header employee-header">
+                <h3>👨‍💼 Employee Panel</h3>
+                <div>Customer Support Interface</div>
+            </div>
+            
+            <div class="chat-controls">
+                <input type="text" id="employee-id" placeholder="Employee ID" value="EMP-1">
+                <button class="btn btn-primary btn-sm" onclick="connectEmployee()">Connect</button>
+                <span class="status status-disconnected" id="employee-status">Disconnected</span>
+                <input type="text" id="employee-target" placeholder="Customer ID" value="CUS-1">
+                <button class="btn btn-success btn-sm" onclick="openChatEmployee()">Join Chat</button>
+                <button class="btn btn-secondary btn-sm" onclick="clearEmployeeMessages()">Clear</button>
+            </div>
+            
+            <div class="room-info" id="employee-room">No active room</div>
+            
+            <div class="chat-messages" id="employee-messages"></div>
+            
+            <div class="chat-input">
+                <input type="text" id="employee-message" placeholder="Type your response...">
+                <button class="btn btn-success" onclick="sendEmployeeMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let customerSocket = null;
+        let employeeSocket = null;
+        let customerRoom = null;
+        let employeeRoom = null;
+
+        // Customer Functions
+        function connectCustomer() {
+            const userId = document.getElementById('customer-id').value;
+            if (!userId) return;
+
+            customerSocket = io();
+            
+            customerSocket.on('connect', () => {
+                customerSocket.emit('auth:register', { userId });
+                updateStatus('customer-status', 'Connected', true);
+            });
+
+            customerSocket.on('auth:ok', (data) => {
+                addMessage('customer-messages', `✅ Connected as ${data.userId}`, 'system');
+            });
+
+            customerSocket.on('dm:pending', (data) => {
+                customerRoom = data.room;
+                document.getElementById('customer-room').textContent = `Room: ${data.room}`;
+                addMessage('customer-messages', `📞 Waiting for employee to join...`, 'system');
+            });
+
+            customerSocket.on('dm:request', (data) => {
+                customerRoom = data.room;
+                document.getElementById('customer-room').textContent = `Room: ${data.room}`;
+                addMessage('customer-messages', `📨 Chat request from ${data.fromUserId}`, 'system');
+                customerSocket.emit('dm:join', { room: data.room });
+            });
+
+            customerSocket.on('dm:ready', (data) => {
+                addMessage('customer-messages', `✅ Chat is ready! You can start messaging.`, 'system');
+            });
+
+            customerSocket.on('chat:new', (msg) => {
+                const isFromCustomer = msg.fromUserId && msg.fromUserId.startsWith('CUS');
+                const isHistory = msg.isHistory || false;
+                
+                // Di panel customer: customer messages = 'own', employee messages = 'other'
+                const messageType = isFromCustomer ? 'own' : 'other';
+                
+                addMessage('customer-messages', msg.message, messageType, {
+                    sender: msg.fromUserId,
+                    time: msg.timestamp,
+                    isHistory: isHistory
+                });
+            });
+
+            customerSocket.on('disconnect', () => {
+                updateStatus('customer-status', 'Disconnected', false);
+            });
+        }
+
+        function openChatCustomer() {
+            if (!customerSocket) return;
+            const targetUserId = document.getElementById('customer-target').value;
+            customerSocket.emit('dm:open', { toUserId: targetUserId });
+        }
+
+        function sendCustomerMessage() {
+            if (!customerSocket || !customerRoom) return;
+            const message = document.getElementById('customer-message').value.trim();
+            if (!message) return;
+
+            customerSocket.emit('chat:send', { room: customerRoom, message });
+            addMessage('customer-messages', message, 'own', { sender: 'You', time: new Date() });
+            document.getElementById('customer-message').value = '';
+        }
+
+        function clearCustomerMessages() {
+            document.getElementById('customer-messages').innerHTML = '';
+        }
+
+        // Employee Functions
+        function connectEmployee() {
+            const userId = document.getElementById('employee-id').value;
+            if (!userId) return;
+
+            employeeSocket = io();
+            
+            employeeSocket.on('connect', () => {
+                employeeSocket.emit('auth:register', { userId });
+                updateStatus('employee-status', 'Connected', true);
+            });
+
+            employeeSocket.on('auth:ok', (data) => {
+                addMessage('employee-messages', `✅ Connected as ${data.userId}`, 'system');
+            });
+
+            employeeSocket.on('dm:pending', (data) => {
+                employeeRoom = data.room;
+                document.getElementById('employee-room').textContent = `Room: ${data.room}`;
+                addMessage('employee-messages', `📞 Waiting for customer to join...`, 'system');
+            });
+
+            employeeSocket.on('dm:request', (data) => {
+                employeeRoom = data.room;
+                document.getElementById('employee-room').textContent = `Room: ${data.room}`;
+                addMessage('employee-messages', `📨 Chat request from ${data.fromUserId}`, 'system');
+                employeeSocket.emit('dm:join', { room: data.room });
+            });
+
+            employeeSocket.on('dm:ready', (data) => {
+                addMessage('employee-messages', `✅ Chat is ready! You can start messaging.`, 'system');
+            });
+
+            employeeSocket.on('chat:new', (msg) => {
+                const isFromEmployee = msg.fromUserId && msg.fromUserId.startsWith('EMP');
+                const isHistory = msg.isHistory || false;
+                
+                // Di panel employee: employee messages = 'own', customer messages = 'other'
+                const messageType = isFromEmployee ? 'own' : 'other';
+                
+                addMessage('employee-messages', msg.message, messageType, {
+                    sender: msg.fromUserId,
+                    time: msg.timestamp,
+                    isHistory: isHistory
+                });
+            });
+
+            employeeSocket.on('disconnect', () => {
+                updateStatus('employee-status', 'Disconnected', false);
+            });
+        }
+
+        function openChatEmployee() {
+            if (!employeeSocket) return;
+            const targetUserId = document.getElementById('employee-target').value;
+            employeeSocket.emit('dm:open', { toUserId: targetUserId });
+        }
+
+        function sendEmployeeMessage() {
+            if (!employeeSocket || !employeeRoom) return;
+            const message = document.getElementById('employee-message').value.trim();
+            if (!message) return;
+
+            employeeSocket.emit('chat:send', { room: employeeRoom, message });
+            addMessage('employee-messages', message, 'own', { sender: 'You', time: new Date() });
+            document.getElementById('employee-message').value = '';
+        }
+
+        function clearEmployeeMessages() {
+            document.getElementById('employee-messages').innerHTML = '';
+        }
+
+        // Helper Functions
+        function addMessage(containerId, message, type = 'system', meta = {}) {
+            const container = document.getElementById(containerId);
+            const messageDiv = document.createElement('div');
+            
+            let className = 'message ';
+            if (type === 'own') {
+                className += 'message-own';
+            } else if (type === 'other') {
+                className += 'message-other';
+            } else {
+                className += 'message-system';
+            }
+            
+            if (meta.isHistory) {
+                className += ' message-history';
+            }
+            
+            messageDiv.className = className;
+            
+            let content = message;
+            if (meta.sender && meta.sender !== 'You') {
+                content = `<strong>${meta.sender}:</strong> ${message}`;
+            }
+            
+            if (meta.time) {
+                const timeStr = new Date(meta.time).toLocaleTimeString();
+                content += `<div class="message-time">${timeStr}</div>`;
+            }
+            
+            if (meta.isHistory) {
+                content = `📜 ${content}`;
+            }
+            
+            messageDiv.innerHTML = content;
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function updateStatus(elementId, text, isConnected) {
+            const element = document.getElementById(elementId);
+            element.textContent = text;
+            element.className = isConnected ? 'status status-connected' : 'status status-disconnected';
+        }
+
+        // Enter key support
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (e.target.id === 'customer-message') sendCustomerMessage();
+                if (e.target.id === 'employee-message') sendEmployeeMessage();
+            }
+        });
+    </script>
+</body>
+</html>
