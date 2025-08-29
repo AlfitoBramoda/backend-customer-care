@@ -351,7 +351,7 @@ io.on("connection", (socket) => {
           ticket_id: ticketId,
           sender_id: senderInfo.sender_id,
           sender_type_id: senderInfo.sender_type_id,
-          message: msg.message,
+          message: msg.text,
           sent_at: new Date()
         }
 
