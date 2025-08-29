@@ -346,6 +346,16 @@ io.on("connection", (socket) => {
       
       if (ticketId) {
         const senderInfo = extractSenderInfo(socket.data.userId);
+
+        const inputMsg = {
+          ticket_id: ticketId,
+          sender_id: senderInfo.sender_id,
+          sender_type_id: senderInfo.sender_type_id,
+          message: msg.message,
+          sent_at: new Date()
+        }
+
+        console.log(inputMsg)
         
         // Simpan ke database
         await ChatMessage.create({
