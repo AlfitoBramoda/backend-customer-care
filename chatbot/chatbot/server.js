@@ -6,6 +6,7 @@ const { Server } = require('socket.io');
 const { PORT, NODE_ENV } = require('./src/config/config');
 const { loadSLAData } = require('./src/services/sla-service');
 const { setupRoutes } = require('./src/routes/routes');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 // Database models
 const db = require('../../models');
