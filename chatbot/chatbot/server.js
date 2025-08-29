@@ -355,7 +355,8 @@ io.on("connection", (socket) => {
           sent_at: new Date()
         }
 
-        console.log(inputMsg)
+        console.log("input message:", inputMsg);
+        console.log("Isi Message:", msg)
         
         // Simpan ke database
         await ChatMessage.create({
