@@ -247,6 +247,23 @@ const removeUserSocket = (userId, sid) => {
 };
 const dmRoomOf = (a, b) => `dm:${[a, b].sort().join(":")}`;
 
+function splitRoom(room) {
+  const parts = room.split(':');
+  
+  if (parts.length !== 3 || parts[0] !== 'dm') {
+    return null;
+  }
+  
+  const [, participant1, participant2] = parts;
+  
+  return {
+    participant1,
+    participant2,
+    customer: participant1.startsWith('CUS-') ? participant1 : participant2,
+    employee: participant1.startsWith('EMP-') ? participant1 : participant2
+  };
+}
+
 function peersIn(room) {
   const r = io.sockets.adapter.rooms.get(room);
   if (!r) return [];
@@ -382,8 +399,10 @@ io.on("connection", (socket) => {
   // ---- Call features with logging
   socket.on("call:invite", async ({ room }) => {
     if (!room) return;
+    const Room = splitRoom(room);
     console.log(`[DEBUG] Call invite in room ${room} by ${socket.data.userId}`);
-    console.log(`[DEBUG] Data Socket: ${socket}`)
+    console.log(`[DEBUG] Data Socket: ${JSON.stringify(socket)}`)
+    console.log(`[DEBUG] Customer in Room: ${Room?.customer}, Employee in Room: ${Room?.employee}`);
 
     try {
       const ticketId = await getActiveTicketFromRoom(room);
@@ -394,7 +413,7 @@ io.on("connection", (socket) => {
         const inputCallLog = {
           ticket_id: +ticketId,
           employee_id: senderInfo.sender_type_id === 2 ? senderInfo.sender_id : null,
-          customer_id: senderInfo.sender_type_id === 1 ? senderInfo.sender_id : null,
+          customer_id: Room?.customer ? parseInt(Room.customer.split('-')[1]) : null,
           call_start: new Date(),
           call_status_type_id: 1
         }
