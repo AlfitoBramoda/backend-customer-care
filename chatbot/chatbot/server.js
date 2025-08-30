@@ -401,7 +401,6 @@ io.on("connection", (socket) => {
     if (!room) return;
     const Room = splitRoom(room);
     console.log(`[DEBUG] Call invite in room ${room} by ${socket.data.userId}`);
-    console.log(`[DEBUG] Data Socket: ${JSON.stringify(socket)}`)
     console.log(`[DEBUG] Customer in Room: ${Room?.customer}, Employee in Room: ${Room?.employee}`);
 
     try {
