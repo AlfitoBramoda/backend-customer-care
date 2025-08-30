@@ -380,7 +380,7 @@ io.on("connection", (socket) => {
   });
 
   // ---- Call features with logging
-  socket.on("call:invite", ({ room }) => {
+  socket.on("call:invite", async ({ room }) => {
     if (!room) return;
     console.log(`[DEBUG] Call invite in room ${room} by ${socket.data.userId}`);
 
@@ -410,7 +410,7 @@ io.on("connection", (socket) => {
     socket.to(room).emit("call:ringing", { fromUserId: socket.data.userId });
   });
   
-  socket.on("call:accept", async ({ room }) => {
+  socket.on("call:accept", ({ room }) => {
     if (!room) return;
 
     console.log(`[DEBUG] Call accepted in room ${room} by ${socket.data.userId}`);
