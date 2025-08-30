@@ -104,9 +104,31 @@ function extractSenderInfo(userId) {
 
 async function findActiveTicket(room) {
   try {
-    const [, userA, userB] = room.split(':');
+    console.log(`[DEBUG] Processing room: ${room}`);
+    
+    // Handle different room formats
+    if (room.startsWith('call:ticket-')) {
+      // Format: call:ticket-84
+      const ticketId = parseInt(room.split('-')[1]);
+      console.log(`[DEBUG] Call room detected, ticket ID: ${ticketId}`);
+      return ticketId;
+    }
+    
+    // Handle dm format: dm:CUS-1:EMP-1
+    const parts = room.split(':');
+    if (parts.length !== 3 || parts[0] !== 'dm') {
+      console.log(`[DEBUG] Invalid room format: ${room}`);
+      return null;
+    }
+    
+    const [, userA, userB] = parts;
     const customer = userA.startsWith('CUS') ? userA : userB;
     const employee = userA.startsWith('EMP') ? userA : userB;
+    
+    if (!customer || !employee) {
+      console.log(`[DEBUG] Could not identify customer/employee from room: ${room}`);
+      return null;
+    }
     
     const customerId = parseInt(customer.split('-')[1]);
     const employeeId = parseInt(employee.split('-')[1]);
