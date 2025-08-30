@@ -387,6 +387,8 @@ io.on("connection", (socket) => {
   
   socket.on("call:accept", async ({ room }) => {
     if (!room) return;
+
+    console.log(`[DEBUG] Call accepted in room ${room} by ${socket.data.userId}`);
     
     try {
       const ticketId = await getActiveTicketFromRoom(room);
@@ -401,7 +403,7 @@ io.on("connection", (socket) => {
           call_status_type_id: 1
         }
 
-        console.log("input call log:", inputCallLog);
+        console.log("[DEBUG] input call log:", inputCallLog);
         
         await CallLog.create(inputCallLog);
         
@@ -421,6 +423,8 @@ io.on("connection", (socket) => {
 
   socket.on("call:hangup", async ({ room }) => {
     if (!room) return;
+
+    console.log(`[DEBUG] Call hangup in room ${room} by ${socket.data.userId}`);
     
     try {
       const ticketId = await getActiveTicketFromRoom(room);
