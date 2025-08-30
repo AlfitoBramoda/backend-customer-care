@@ -379,7 +379,13 @@ io.on("connection", (socket) => {
     const from = socket.data.userId;
     if (!from || !toUserId) return;
     const room = dmRoomOf(from, toUserId);
-    console.log(`[dm:open] ${from} -> ${toUserId} = ${room}`);
+    
+    console.log(`\n=== DM OPEN DEBUG ===`);
+    console.log(`[DM] From: ${from}`);
+    console.log(`[DM] To: ${toUserId}`);
+    console.log(`[DM] Generated room: "${room}"`);
+    console.log(`[DM] Room format: ${room.startsWith('dm:') ? 'DM' : 'OTHER'}`);
+    console.log(`=== DM OPEN END ===\n`);
 
     socket.join(room);
     emitPresence(room);
@@ -403,8 +409,18 @@ io.on("connection", (socket) => {
 
   socket.on("dm:join", async ({ room }) => {
     if (!room) return;
+    
+    console.log(`\n=== DM JOIN DEBUG ===`);
+    console.log(`[DM] Join room: "${room}"`);
+    console.log(`[DM] User: ${socket.data.userId}`);
+    console.log(`[DM] Room format: ${room.startsWith('dm:') ? 'DM' : room.startsWith('call:ticket-') ? 'TICKET' : 'OTHER'}`);
+    
     socket.join(room);
     emitPresence(room);
+    
+    const roomMembers = io.sockets.adapter.rooms.get(room);
+    console.log(`[DM] Room "${room}" now has ${roomMembers ? roomMembers.size : 0} members`);
+    console.log(`=== DM JOIN END ===\n`);
     
     // Load history untuk socket yang join (jika belum pernah dapat history)
     const socketHistoryKey = `${room}-${socket.id}`;
@@ -428,6 +444,15 @@ io.on("connection", (socket) => {
   // ---- Chat (TIDAK echo ke pengirim)
   socket.on("chat:send", async (msg) => {
     if (!msg?.room) return;
+    
+    console.log(`\n=== CHAT SEND DEBUG ===`);
+    console.log(`[CHAT] Room: "${msg.room}"`);
+    console.log(`[CHAT] Message: "${msg.text}"`);
+    console.log(`[CHAT] From: ${socket.data.userId}`);
+    console.log(`[CHAT] Room format: ${msg.room.startsWith('dm:') ? 'DM' : msg.room.startsWith('call:ticket-') ? 'TICKET' : 'OTHER'}`);
+    
+    const roomMembers = io.sockets.adapter.rooms.get(msg.room);
+    console.log(`[CHAT] Room "${msg.room}" has ${roomMembers ? roomMembers.size : 0} members`);
     
     try {
       // Cari ticket aktif
@@ -460,7 +485,9 @@ io.on("connection", (socket) => {
     }
     
     // Teruskan ke frontend (tidak berubah)
+    console.log(`[CHAT] Emitting chat:new to room "${msg.room}"`);
     socket.to(msg.room).emit("chat:new", msg);
+    console.log(`=== CHAT SEND END ===\n`);
   });
 
   // ---- Typing indicator
@@ -618,10 +645,20 @@ io.on("connection", (socket) => {
   // ---- Join/leave generic (kalau dipakai)
   socket.on("join", ({ room, userId }) => {
     if (!room) return;
-    console.log(`[DEBUG] Socket ${socket.id} joining room ${room} as ${userId}`);
+    
+    console.log(`\n=== GENERIC JOIN DEBUG ===`);
+    console.log(`[JOIN] Room: "${room}"`);
+    console.log(`[JOIN] UserId: ${userId}`);
+    console.log(`[JOIN] Socket: ${socket.id}`);
+    console.log(`[JOIN] Room format: ${room.startsWith('dm:') ? 'DM' : room.startsWith('call:ticket-') ? 'TICKET' : 'OTHER'}`);
+    
     socket.join(room);
     if (userId) socket.data.userId = userId;
     emitPresence(room);
+    
+    const roomMembers = io.sockets.adapter.rooms.get(room);
+    console.log(`[JOIN] Room "${room}" now has ${roomMembers ? roomMembers.size : 0} members`);
+    console.log(`=== GENERIC JOIN END ===\n`);
   });
 
   socket.on("leave", ({ room }) => {
