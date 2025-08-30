@@ -477,10 +477,17 @@ io.on("connection", (socket) => {
         const senderInfo = extractSenderInfo(socket.data.userId);
         console.log("[DEBUG] Sender info:", senderInfo);
 
+        // Get ticket data to extract customer_id
+        const ticket = await Ticket.findByPk(ticketId);
+        if (!ticket) {
+          console.log(`[DEBUG] Ticket ${ticketId} not found`);
+          return;
+        }
+
         const inputCallLog = {
           ticket_id: +ticketId,
-          employee_id: senderInfo.sender_type_id === 2 ? senderInfo.sender_id : null,
-          customer_id: Room?.customer ? parseInt(Room.customer.split('-')[1]) : null,
+          employee_id: senderInfo.sender_type_id === 2 ? senderInfo.sender_id : ticket.responsible_employee_id,
+          customer_id: ticket.customer_id,
           call_start: new Date(),
           call_status_type_id: 1
         }
