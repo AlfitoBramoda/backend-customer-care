@@ -314,6 +314,11 @@ const removeUserSocket = (userId, sid) => {
 const dmRoomOf = (a, b) => `dm:${[a, b].sort().join(":")}`;
 
 function splitRoom(room) {
+  // Handle call:ticket-X format
+  if (room.startsWith('call:ticket-')) {
+    return { isTicketRoom: true, ticketId: room.split('-')[1] };
+  }
+  
   const parts = room.split(':');
   
   if (parts.length !== 3 || parts[0] !== 'dm') {
@@ -467,9 +472,14 @@ io.on("connection", (socket) => {
   // ---- Call features with logging
   socket.on("call:invite", async ({ room }) => {
     if (!room) return;
+    
+    console.log(`[CALL] Call invite received in room ${room} by ${socket.data.userId}`);
+    
+    // Join room if not already joined
+    socket.join(room);
+    
     const Room = splitRoom(room);
-    console.log(`[DEBUG] Call invite in room ${room} by ${socket.data.userId}`);
-    console.log(`[DEBUG] Customer in Room: ${Room?.customer}, Employee in Room: ${Room?.employee}`);
+    console.log(`[DEBUG] Room info:`, Room);
 
     try {
       const ticketId = await getActiveTicketFromRoom(room);
@@ -502,7 +512,12 @@ io.on("connection", (socket) => {
       console.error('[CALL] Error logging call start:', error);
     }
 
+    // Emit to all other users in the room
+    console.log(`[CALL] Emitting call:ringing to room ${room}`);
     socket.to(room).emit("call:ringing", { fromUserId: socket.data.userId });
+    
+    // Also emit call:incoming for better frontend compatibility
+    socket.to(room).emit("call:incoming", { fromUserId: socket.data.userId, room });
   });
   
   socket.on("call:accept", ({ room }) => {
