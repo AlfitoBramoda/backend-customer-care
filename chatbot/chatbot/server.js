@@ -473,13 +473,27 @@ io.on("connection", (socket) => {
   socket.on("call:invite", async ({ room }) => {
     if (!room) return;
     
-    console.log(`[CALL] Call invite received in room ${room} by ${socket.data.userId}`);
+    console.log(`\n=== CALL INVITE DEBUG ===`);
+    console.log(`[CALL:UHU] Room received: "${room}"`);
+    console.log(`[CALL:UHU] Room type: ${typeof room}`);
+    console.log(`[CALL:UHU] Room length: ${room.length}`);
+    console.log(`[CALL:UHU] Sender: ${socket.data.userId}`);
+    
+    // Detect room format
+    if (room.startsWith('call:ticket-')) {
+      console.log(`[CALL1] ✅ Detected TICKET format: ${room}`);
+    } else if (room.startsWith('dm:')) {
+      console.log(`[CALL2] ✅ Detected DM format: ${room}`);
+    } else {
+      console.log(`[CALL3] ❌ Unknown room format: ${room}`);
+    }
     
     // Join room if not already joined
     socket.join(room);
+    console.log(`[CALL] Socket joined room: ${room}`);
     
     const Room = splitRoom(room);
-    console.log(`[DEBUG] Room info:`, Room);
+    console.log(`[CALL] splitRoom result:`, Room);
 
     try {
       const ticketId = await getActiveTicketFromRoom(room);
@@ -512,18 +526,29 @@ io.on("connection", (socket) => {
       console.error('[CALL] Error logging call start:', error);
     }
 
+    // Check room members before emitting
+    const roomMembers = io.sockets.adapter.rooms.get(room);
+    console.log(`[CALL] Room "${room}" has ${roomMembers ? roomMembers.size : 0} members`);
+    if (roomMembers) {
+      console.log(`[CALL] Room members:`, Array.from(roomMembers));
+    }
+    
     // Emit to all other users in the room
-    console.log(`[CALL] Emitting call:ringing to room ${room}`);
+    console.log(`[CALL] Emitting call:ringing to room "${room}"`);
     socket.to(room).emit("call:ringing", { fromUserId: socket.data.userId });
     
     // Also emit call:incoming for better frontend compatibility
+    console.log(`[CALL] Emitting call:incoming to room "${room}"`);
     socket.to(room).emit("call:incoming", { fromUserId: socket.data.userId, room });
+    
+    console.log(`=== CALL INVITE END ===\n`);
   });
   
   socket.on("call:accept", ({ room }) => {
     if (!room) return;
 
-    console.log(`[DEBUG] Call accepted in room ${room} by ${socket.data.userId}`);
+    console.log(`[CALL] Call accepted in room "${room}" by ${socket.data.userId}`);
+    console.log(`[CALL] Room format: ${room.startsWith('call:ticket-') ? 'TICKET' : room.startsWith('dm:') ? 'DM' : 'UNKNOWN'}`);
     
     socket.to(room).emit("call:accepted", {});
   });
