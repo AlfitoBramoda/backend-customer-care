@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat History Test</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .user-section { border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .messages { height: 300px; border: 1px solid #ddd; padding: 10px; overflow-y: auto; margin: 10px 0; background: #f9f9f9; font-family: monospace; font-size: 12px; }
+        .history-msg { color: #666; background: #f0f0f0; padding: 2px 5px; margin: 1px 0; border-radius: 3px; }
+        .new-msg { color: #000; background: #e7f3ff; padding: 2px 5px; margin: 1px 0; border-radius: 3px; }
+        input, button { padding: 8px; margin: 5px; }
+        .status { padding: 10px; background: #e7f3ff; border-radius: 3px; margin: 10px 0; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Chat History & Multiple Tickets Test</h1>
+        <div class="status" id="status">Ready to test chat history and multiple ticket handling</div>
+        
+        <!-- User A (Customer) -->
+        <div class="user-section">
+            <h3>👤 User A (Customer)</h3>
+            <div class="controls">
+                <input type="text" id="userA-id" placeholder="User ID" value="CUS-1">
+                <button onclick="connectUserA()">Connect</button>
+                <span id="userA-status">Disconnected</span>
+                <input type="text" id="userA-target" placeholder="Target" value="EMP-1">
+                <button onclick="openChatA()">Open Chat</button>
+            </div>
+            <div class="controls">
+                <input type="text" id="userA-message" placeholder="Type message..." style="flex: 1;">
+                <button onclick="sendMessageA()">Send</button>
+                <button onclick="clearMessagesA()">Clear</button>
+            </div>
+            <div class="messages" id="userA-messages"></div>
+        </div>
+
+        <!-- User B (Employee) -->
+        <div class="user-section">
+            <h3>👨💼 User B (Employee)</h3>
+            <div class="controls">
+                <input type="text" id="userB-id" placeholder="User ID" value="EMP-1">
+                <button onclick="connectUserB()">Connect</button>
+                <span id="userB-status">Disconnected</span>
+                <input type="text" id="userB-target" placeholder="Target" value="CUS-1">
+                <button onclick="openChatB()">Open Chat</button>
+            </div>
+            <div class="controls">
+                <input type="text" id="userB-message" placeholder="Type message..." style="flex: 1;">
+                <button onclick="sendMessageB()">Send</button>
+                <button onclick="clearMessagesB()">Clear</button>
+            </div>
+            <div class="messages" id="userB-messages"></div>
+        </div>
+
+        <!-- Test Instructions -->
+        <div class="status warning">
+            <h4>📋 Test Scenarios:</h4>
+            <ol>
+                <li><strong>Single Ticket Test:</strong> Ensure only 1 active ticket exists, connect both users, check history loads</li>
+                <li><strong>Multiple Tickets Test:</strong> Create 2+ active tickets for same customer-employee pair, check console warnings</li>
+                <li><strong>History Test:</strong> Send some messages, disconnect, reconnect, verify history appears</li>
+                <li><strong>Real-time Test:</strong> Send messages while both connected, verify immediate delivery</li>
+            </ol>
+        </div>
+
+        <!-- Database Setup -->
+        <div class="status">
+            <h4>🗄️ Database Setup Required:</h4>
+            <pre>-- Create test tickets
+INSERT INTO ticket (customer_id, responsible_employee_id, employee_status_id, priority_id, issue_channel_id, intake_source_id, customer_status_id, ticket_number, description)
+VALUES 
+(1, 1, 1, 2, 1, 1, 1, 'TKT-TEST-001', 'First test ticket'),
+(1, 1, 2, 2, 1, 1, 1, 'TKT-TEST-002', 'Second test ticket (In Progress)');
+
+-- Add some test messages
+INSERT INTO chat_message (ticket_id, sender_id, sender_type_id, message, sent_at)
+VALUES 
+(1, 1, 1, 'Hello from customer', NOW() - INTERVAL '1 hour'),
+(1, 1, 2, 'Hello from employee', NOW() - INTERVAL '50 minutes'),
+(1, 1, 1, 'Thank you for the help', NOW() - INTERVAL '40 minutes');</pre>
+        </div>
+    </div>
+
+    <script>
+        let socketA = null;
+        let socketB = null;
+        let currentRoomA = null;
+        let currentRoomB = null;
+
+        // User A Functions
+        function connectUserA() {
+            const userId = document.getElementById('userA-id').value;
+            if (!userId) return;
+
+            socketA = io();
+            
+            socketA.on('connect', () => {
+                socketA.emit('auth:register', { userId });
+                document.getElementById('userA-status').textContent = 'Connected';
+                document.getElementById('userA-status').style.color = 'green';
+            });
+
+            socketA.on('auth:ok', (data) => {
+                addMessage('userA-messages', `✅ Authenticated as ${data.userId}`, 'new-msg');
+            });
+
+            socketA.on('dm:pending', (data) => {
+                currentRoomA = data.room;
+                addMessage('userA-messages', `📞 Chat pending: ${data.room}`, 'new-msg');
+            });
+
+            socketA.on('dm:request', (data) => {
+                currentRoomA = data.room;
+                addMessage('userA-messages', `📨 Chat request from ${data.fromUserId}: ${data.room}`, 'new-msg');
+                socketA.emit('dm:join', { room: data.room });
+            });
+
+            socketA.on('dm:ready', (data) => {
+                addMessage('userA-messages', `✅ Chat ready: ${data.room}`, 'new-msg');
+            });
+
+            socketA.on('chat:new', (msg) => {
+                const msgClass = msg.isHistory ? 'history-msg' : 'new-msg';
+                const prefix = msg.isHistory ? '📜 HISTORY' : '💬 LIVE';
+                const timestamp = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : '';
+                addMessage('userA-messages', `${prefix}: [${timestamp}] ${msg.fromUserId || 'Unknown'}: ${msg.message}`, msgClass);
+            });
+
+            socketA.on('disconnect', () => {
+                document.getElementById('userA-status').textContent = 'Disconnected';
+                document.getElementById('userA-status').style.color = 'red';
+            });
+        }
+
+        function openChatA() {
+            if (!socketA) return;
+            const targetUserId = document.getElementById('userA-target').value;
+            socketA.emit('dm:open', { toUserId: targetUserId });
+        }
+
+        function sendMessageA() {
+            if (!socketA || !currentRoomA) return;
+            const message = document.getElementById('userA-message').value;
+            if (!message) return;
+
+            socketA.emit('chat:send', { room: currentRoomA, message });
+            addMessage('userA-messages', `📤 Sent: ${message}`, 'new-msg');
+            document.getElementById('userA-message').value = '';
+        }
+
+        function clearMessagesA() {
+            document.getElementById('userA-messages').innerHTML = '';
+        }
+
+        // User B Functions
+        function connectUserB() {
+            const userId = document.getElementById('userB-id').value;
+            if (!userId) return;
+
+            socketB = io();
+            
+            socketB.on('connect', () => {
+                socketB.emit('auth:register', { userId });
+                document.getElementById('userB-status').textContent = 'Connected';
+                document.getElementById('userB-status').style.color = 'green';
+            });
+
+            socketB.on('auth:ok', (data) => {
+                addMessage('userB-messages', `✅ Authenticated as ${data.userId}`, 'new-msg');
+            });
+
+            socketB.on('dm:pending', (data) => {
+                currentRoomB = data.room;
+                addMessage('userB-messages', `📞 Chat pending: ${data.room}`, 'new-msg');
+            });
+
+            socketB.on('dm:request', (data) => {
+                currentRoomB = data.room;
+                addMessage('userB-messages', `📨 Chat request from ${data.fromUserId}: ${data.room}`, 'new-msg');
+                socketB.emit('dm:join', { room: data.room });
+            });
+
+            socketB.on('dm:ready', (data) => {
+                addMessage('userB-messages', `✅ Chat ready: ${data.room}`, 'new-msg');
+            });
+
+            socketB.on('chat:new', (msg) => {
+                const msgClass = msg.isHistory ? 'history-msg' : 'new-msg';
+                const prefix = msg.isHistory ? '📜 HISTORY' : '💬 LIVE';
+                const timestamp = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : '';
+                addMessage('userB-messages', `${prefix}: [${timestamp}] ${msg.fromUserId || 'Unknown'}: ${msg.message}`, msgClass);
+            });
+
+            socketB.on('disconnect', () => {
+                document.getElementById('userB-status').textContent = 'Disconnected';
+                document.getElementById('userB-status').style.color = 'red';
+            });
+        }
+
+        function openChatB() {
+            if (!socketB) return;
+            const targetUserId = document.getElementById('userB-target').value;
+            socketB.emit('dm:open', { toUserId: targetUserId });
+        }
+
+        function sendMessageB() {
+            if (!socketB || !currentRoomB) return;
+            const message = document.getElementById('userB-message').value;
+            if (!message) return;
+
+            socketB.emit('chat:send', { room: currentRoomB, message });
+            addMessage('userB-messages', `📤 Sent: ${message}`, 'new-msg');
+            document.getElementById('userB-message').value = '';
+        }
+
+        function clearMessagesB() {
+            document.getElementById('userB-messages').innerHTML = '';
+        }
+
+        // Helper function
+        function addMessage(containerId, message, className = '') {
+            const container = document.getElementById(containerId);
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = className;
+            div.innerHTML = `[${timestamp}] ${message}`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Enter key support
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (e.target.id === 'userA-message') sendMessageA();
+                if (e.target.id === 'userB-message') sendMessageB();
+            }
+        });
+    </script>
+</body>
+</html>

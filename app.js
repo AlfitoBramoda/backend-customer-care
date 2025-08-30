@@ -1,12 +1,26 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const app = express();
 
 // Trust proxy (for HTTPS redirect & secure cookies)
 app.set('trust proxy', 1);
+
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 1000,
+    message: {
+        success: false,
+        message: 'Too many requests, please try again later.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+app.use(limiter);
 
 // Security headers
 const isProd = process.env.NODE_ENV === 'production';

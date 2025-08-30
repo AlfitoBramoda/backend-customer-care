@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Database Test</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .user-section { border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .messages { height: 200px; border: 1px solid #ddd; padding: 10px; overflow-y: auto; margin: 10px 0; background: #f9f9f9; }
+        input, button { padding: 8px; margin: 5px; }
+        .status { padding: 10px; background: #e7f3ff; border-radius: 3px; margin: 10px 0; }
+        .error { background: #ffe7e7; }
+        .success { background: #e7ffe7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Chat Database Test</h1>
+        <div class="status" id="status">Connecting...</div>
+        
+        <!-- User A (Customer) -->
+        <div class="user-section">
+            <h3>👤 User A (Customer)</h3>
+            <div>
+                <input type="text" id="userA-id" placeholder="User ID (e.g., CUS-1)" value="CUS-1">
+                <button onclick="connectUserA()">Connect</button>
+                <span id="userA-status">Disconnected</span>
+            </div>
+            <div>
+                <input type="text" id="userA-target" placeholder="Target User ID (e.g., EMP-1)" value="EMP-1">
+                <button onclick="openChatA()">Open Chat</button>
+            </div>
+            <div>
+                <input type="text" id="userA-message" placeholder="Type message...">
+                <button onclick="sendMessageA()">Send</button>
+            </div>
+            <div class="messages" id="userA-messages"></div>
+        </div>
+
+        <!-- User B (Employee) -->
+        <div class="user-section">
+            <h3>👨‍💼 User B (Employee)</h3>
+            <div>
+                <input type="text" id="userB-id" placeholder="User ID (e.g., EMP-1)" value="EMP-1">
+                <button onclick="connectUserB()">Connect</button>
+                <span id="userB-status">Disconnected</span>
+            </div>
+            <div>
+                <input type="text" id="userB-target" placeholder="Target User ID (e.g., CUS-1)" value="CUS-1">
+                <button onclick="openChatB()">Open Chat</button>
+            </div>
+            <div>
+                <input type="text" id="userB-message" placeholder="Type message...">
+                <button onclick="sendMessageB()">Send</button>
+            </div>
+            <div class="messages" id="userB-messages"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="status">
+            <h4>📋 Test Instructions:</h4>
+            <ol>
+                <li>Make sure you have active tickets in database with customer_id=1, responsible_employee_id=1, and employee_status_id IN (1,2)</li>
+                <li>Connect both users (CUS-1 and EMP-1)</li>
+                <li>Open chat from either user</li>
+                <li>Send messages and check server console for database logs</li>
+                <li>Check chat_message table in database to verify messages are saved</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let socketA = null;
+        let socketB = null;
+        let currentRoomA = null;
+        let currentRoomB = null;
+
+        // User A Functions
+        function connectUserA() {
+            const userId = document.getElementById('userA-id').value;
+            if (!userId) return;
+
+            socketA = io();
+            
+            socketA.on('connect', () => {
+                socketA.emit('auth:register', { userId });
+                document.getElementById('userA-status').textContent = 'Connected';
+                document.getElementById('userA-status').style.color = 'green';
+            });
+
+            socketA.on('auth:ok', (data) => {
+                addMessage('userA-messages', `✅ Authenticated as ${data.userId}`);
+            });
+
+            socketA.on('dm:pending', (data) => {
+                currentRoomA = data.room;
+                addMessage('userA-messages', `📞 Chat pending: ${data.room}`);
+            });
+
+            socketA.on('dm:request', (data) => {
+                currentRoomA = data.room;
+                addMessage('userA-messages', `📨 Chat request from ${data.fromUserId}: ${data.room}`);
+                socketA.emit('dm:join', { room: data.room });
+            });
+
+            socketA.on('dm:ready', (data) => {
+                addMessage('userA-messages', `✅ Chat ready: ${data.room}`);
+            });
+
+            socketA.on('chat:new', (msg) => {
+                addMessage('userA-messages', `💬 Received: ${msg.message}`);
+            });
+
+            socketA.on('disconnect', () => {
+                document.getElementById('userA-status').textContent = 'Disconnected';
+                document.getElementById('userA-status').style.color = 'red';
+            });
+        }
+
+        function openChatA() {
+            if (!socketA) return;
+            const targetUserId = document.getElementById('userA-target').value;
+            socketA.emit('dm:open', { toUserId: targetUserId });
+        }
+
+        function sendMessageA() {
+            if (!socketA || !currentRoomA) return;
+            const message = document.getElementById('userA-message').value;
+            if (!message) return;
+
+            socketA.emit('chat:send', { room: currentRoomA, message });
+            addMessage('userA-messages', `📤 Sent: ${message}`);
+            document.getElementById('userA-message').value = '';
+        }
+
+        // User B Functions
+        function connectUserB() {
+            const userId = document.getElementById('userB-id').value;
+            if (!userId) return;
+
+            socketB = io();
+            
+            socketB.on('connect', () => {
+                socketB.emit('auth:register', { userId });
+                document.getElementById('userB-status').textContent = 'Connected';
+                document.getElementById('userB-status').style.color = 'green';
+            });
+
+            socketB.on('auth:ok', (data) => {
+                addMessage('userB-messages', `✅ Authenticated as ${data.userId}`);
+            });
+
+            socketB.on('dm:pending', (data) => {
+                currentRoomB = data.room;
+                addMessage('userB-messages', `📞 Chat pending: ${data.room}`);
+            });
+
+            socketB.on('dm:request', (data) => {
+                currentRoomB = data.room;
+                addMessage('userB-messages', `📨 Chat request from ${data.fromUserId}: ${data.room}`);
+                socketB.emit('dm:join', { room: data.room });
+            });
+
+            socketB.on('dm:ready', (data) => {
+                addMessage('userB-messages', `✅ Chat ready: ${data.room}`);
+            });
+
+            socketB.on('chat:new', (msg) => {
+                addMessage('userB-messages', `💬 Received: ${msg.message}`);
+            });
+
+            socketB.on('disconnect', () => {
+                document.getElementById('userB-status').textContent = 'Disconnected';
+                document.getElementById('userB-status').style.color = 'red';
+            });
+        }
+
+        function openChatB() {
+            if (!socketB) return;
+            const targetUserId = document.getElementById('userB-target').value;
+            socketB.emit('dm:open', { toUserId: targetUserId });
+        }
+
+        function sendMessageB() {
+            if (!socketB || !currentRoomB) return;
+            const message = document.getElementById('userB-message').value;
+            if (!message) return;
+
+            socketB.emit('chat:send', { room: currentRoomB, message });
+            addMessage('userB-messages', `📤 Sent: ${message}`);
+            document.getElementById('userB-message').value = '';
+        }
+
+        // Helper function
+        function addMessage(containerId, message) {
+            const container = document.getElementById(containerId);
+            const timestamp = new Date().toLocaleTimeString();
+            container.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Enter key support
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (e.target.id === 'userA-message') sendMessageA();
+                if (e.target.id === 'userB-message') sendMessageB();
+            }
+        });
+
+        // Status update
+        document.getElementById('status').textContent = 'Ready to test! Make sure database has active tickets.';
+        document.getElementById('status').className = 'status success';
+    </script>
+</body>
+</html>

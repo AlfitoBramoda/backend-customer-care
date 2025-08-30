@@ -15,7 +15,7 @@ const rateLimit    = require('express-rate-limit');
 const http         = require('http');
 const { setupSocketIO } = require('./socket/realtime');
 
-const server = express();
+const app = express();
 const httpServer = http.createServer(server);
 
 // Trust proxy (HTTPS redirect & secure cookies)
@@ -60,18 +60,18 @@ server.use(cors({
   credentials: process.env.CORS_CREDENTIALS === 'true'
 }));
 
-// Rate limit (increased limits)
-server.use(rateLimit({
+// Rate limit
+app.use(rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 30 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 10000, // Increased from 1000 to 5000
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000,
   message: {
     error: 'Too many requests from this IP',
     retryAfter: '15 minutes'
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skipSuccessfulRequests: false, // Count all requests
-  skipFailedRequests: false,     // Count failed requests too
+  skipSuccessfulRequests: false,
+  skipFailedRequests: false,
 }));
 
 
