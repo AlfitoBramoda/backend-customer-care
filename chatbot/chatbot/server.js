@@ -120,6 +120,9 @@ async function findActiveTicket(room) {
       },
       order: [['created_time', 'DESC']]
     });
+
+    console.log(`[TICKET] Customer: ${customer} (${customerId}), Employee: ${employee} (${employeeId})`);
+    console.log(`[TICKET] Found ${activeTickets.length} active tickets for ${customer} <-> ${employee}`);
     
     if (activeTickets.length === 0) {
       console.log(`[TICKET] No active tickets found for ${customer} <-> ${employee}`);
