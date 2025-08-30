@@ -95,10 +95,36 @@ const historyLoadedRooms = new Set();
 
 // Helper functions
 function extractSenderInfo(userId) {
-  const [prefix, idStr] = userId.split('-');
+  console.log(`[DEBUG] Extracting sender info from userId: ${userId}`);
+  
+  if (!userId) {
+    console.log(`[DEBUG] userId is null/undefined`);
+    return { sender_id: null, sender_type_id: null };
+  }
+  
+  // Handle different formats
+  let prefix, idStr;
+  
+  if (userId.includes('-')) {
+    // Format: CUS-1, EMP-1
+    [prefix, idStr] = userId.split('-');
+  } else if (userId.startsWith('CUS') || userId.startsWith('EMP')) {
+    // Format: CUS00001, EMP00001
+    prefix = userId.substring(0, 3);
+    idStr = userId.substring(3).replace(/^0+/, '') || '0'; // Remove leading zeros
+  } else {
+    console.log(`[DEBUG] Unknown userId format: ${userId}`);
+    return { sender_id: null, sender_type_id: null };
+  }
+  
+  const senderId = parseInt(idStr);
+  const senderTypeId = prefix === 'CUS' ? 1 : 2;
+  
+  console.log(`[DEBUG] Parsed - prefix: ${prefix}, idStr: ${idStr}, sender_id: ${senderId}, sender_type_id: ${senderTypeId}`);
+  
   return {
-    sender_id: parseInt(idStr),
-    sender_type_id: prefix === 'CUS' ? 1 : 2
+    sender_id: isNaN(senderId) ? null : senderId,
+    sender_type_id: senderTypeId
   };
 }
 
@@ -404,6 +430,8 @@ io.on("connection", (socket) => {
       
       if (ticketId) {
         const senderInfo = extractSenderInfo(socket.data.userId);
+
+        console.log("Sender info:", senderInfo);
 
         const inputMsg = {
           ticket_id: +ticketId,
