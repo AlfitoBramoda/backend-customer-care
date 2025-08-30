@@ -383,11 +383,13 @@ io.on("connection", (socket) => {
   socket.on("call:invite", async ({ room }) => {
     if (!room) return;
     console.log(`[DEBUG] Call invite in room ${room} by ${socket.data.userId}`);
+    console.log(`[DEBUG] Data Socket: ${socket}`)
 
     try {
       const ticketId = await getActiveTicketFromRoom(room);
       if (ticketId) {
         const senderInfo = extractSenderInfo(socket.data.userId);
+        console.log("[DEBUG] Sender info:", senderInfo);
 
         const inputCallLog = {
           ticket_id: +ticketId,
