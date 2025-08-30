@@ -382,6 +382,7 @@ io.on("connection", (socket) => {
   // ---- Call features with logging
   socket.on("call:invite", ({ room }) => {
     if (!room) return;
+    console.log(`[DEBUG] Call invite in room ${room} by ${socket.data.userId}`);
     socket.to(room).emit("call:ringing", { fromUserId: socket.data.userId });
   });
   
@@ -418,6 +419,7 @@ io.on("connection", (socket) => {
   
   socket.on("call:decline", ({ room }) => {
     if (!room) return;
+    console.log(`[DEBUG] Call declined in room ${room} by ${socket.data.userId}`);
     socket.to(room).emit("call:declined", {});
   });
 
@@ -454,28 +456,33 @@ io.on("connection", (socket) => {
 
   socket.on("call:frame", ({ room, data }) => {
     if (!room || !data) return;
+    console.log(`[DEBUG] Call frame in room ${room} by ${socket.data.userId}, data size: ${data.length}`);
     socket.to(room).emit("call:frame", { data });
   });
 
   // ---- Audio streaming handlers
   socket.on("audio:chunk", ({ room, data }) => {
     if (!room) return;
+    console.log(`[DEBUG] Audio chunk in room ${room} by ${socket.data.userId}, data size: ${data.length}`);
     socket.to(room).emit("audio:chunk", { data, timestamp: Date.now() });
   });
   
   socket.on("audio:start", ({ room }) => {
     if (!room) return;
+    console.log(`[DEBUG] Audio started in room ${room} by ${socket.data.userId}`);
     socket.to(room).emit("audio:started", { fromUserId: socket.data.userId });
   });
   
   socket.on("audio:stop", ({ room }) => {
     if (!room) return;
+    console.log(`[DEBUG] Audio stopped in room ${room} by ${socket.data.userId}`);
     socket.to(room).emit("audio:stopped", { fromUserId: socket.data.userId });
   });
 
   // ---- Join/leave generic (kalau dipakai)
   socket.on("join", ({ room, userId }) => {
     if (!room) return;
+    console.log(`[DEBUG] Socket ${socket.id} joining room ${room} as ${userId}`);
     socket.join(room);
     if (userId) socket.data.userId = userId;
     emitPresence(room);
@@ -483,12 +490,14 @@ io.on("connection", (socket) => {
 
   socket.on("leave", ({ room }) => {
     if (!room) return;
+    console.log(`[DEBUG] Socket ${socket.id} leaving room ${room}`);
     socket.leave(room);
     emitPresence(room);
   });
 
   socket.on("disconnect", (reason) => {
     const uid = socket.data.userId;
+    console.log(`[DEBUG] Socket disconnected: ${socket.id}, reason: ${reason}, userId: ${uid}`);
     if (uid) removeUserSocket(uid, socket.id);
     
     // Cleanup history cache untuk socket ini
