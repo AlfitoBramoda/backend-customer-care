@@ -383,14 +383,7 @@ io.on("connection", (socket) => {
   socket.on("call:invite", ({ room }) => {
     if (!room) return;
     console.log(`[DEBUG] Call invite in room ${room} by ${socket.data.userId}`);
-    socket.to(room).emit("call:ringing", { fromUserId: socket.data.userId });
-  });
-  
-  socket.on("call:accept", async ({ room }) => {
-    if (!room) return;
 
-    console.log(`[DEBUG] Call accepted in room ${room} by ${socket.data.userId}`);
-    
     try {
       const ticketId = await getActiveTicketFromRoom(room);
       if (ticketId) {
@@ -413,6 +406,14 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.error('[CALL] Error logging call start:', error);
     }
+
+    socket.to(room).emit("call:ringing", { fromUserId: socket.data.userId });
+  });
+  
+  socket.on("call:accept", async ({ room }) => {
+    if (!room) return;
+
+    console.log(`[DEBUG] Call accepted in room ${room} by ${socket.data.userId}`);
     
     socket.to(room).emit("call:accepted", {});
   });
