@@ -11,7 +11,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 // Database models
 const db = require('../../models');
 const { Op } = require('sequelize');
-const { ticket: Ticket, chat_message: ChatMessage } = db;
+const { ticket: Ticket, chat_message: ChatMessage, call_log: CallLog } = db;
 
 // -----------------------------
 // Initialize Express App & Socket.IO
@@ -357,7 +357,6 @@ io.on("connection", (socket) => {
         }
 
         console.log("input message:", inputMsg);
-        console.log("Isi Message:", msg)
         
         // Simpan ke database
         await ChatMessage.create(inputMsg);
@@ -380,14 +379,38 @@ io.on("connection", (socket) => {
     socket.to(room).emit("typing");
   });
 
-  // ---- Mock call features
+  // ---- Call features with logging
   socket.on("call:invite", ({ room }) => {
     if (!room) return;
     socket.to(room).emit("call:ringing", { fromUserId: socket.data.userId });
   });
   
-  socket.on("call:accept", ({ room }) => {
+  socket.on("call:accept", async ({ room }) => {
     if (!room) return;
+    
+    try {
+      const ticketId = await getActiveTicketFromRoom(room);
+      if (ticketId) {
+        const senderInfo = extractSenderInfo(socket.data.userId);
+
+        const inputCallLog = {
+          ticket_id: +ticketId,
+          employee_id: senderInfo.sender_type_id === 2 ? senderInfo.sender_id : null,
+          customer_id: senderInfo.sender_type_id === 1 ? senderInfo.sender_id : null,
+          call_start: new Date(),
+          call_status_type_id: 1
+        }
+
+        console.log("input call log:", inputCallLog);
+        
+        await CallLog.create(inputCallLog);
+        
+        console.log(`[CALL] Call started for ticket ${ticketId}`);
+      }
+    } catch (error) {
+      console.error('[CALL] Error logging call start:', error);
+    }
+    
     socket.to(room).emit("call:accepted", {});
   });
   
@@ -396,8 +419,32 @@ io.on("connection", (socket) => {
     socket.to(room).emit("call:declined", {});
   });
 
-  socket.on("call:hangup", ({ room }) => {
+  socket.on("call:hangup", async ({ room }) => {
     if (!room) return;
+    
+    try {
+      const ticketId = await getActiveTicketFromRoom(room);
+      if (ticketId) {
+        await CallLog.update(
+          { 
+            call_end: new Date(),
+            call_status_type_id: 2
+          },
+          { 
+            where: { 
+              ticket_id: +ticketId,
+              call_end: null
+            },
+            order: [['call_start', 'DESC']]
+          }
+        );
+        
+        console.log(`[CALL] Call ended for ticket ${ticketId}`);
+      }
+    } catch (error) {
+      console.error('[CALL] Error logging call end:', error);
+    }
+    
     socket.to(room).emit("call:ended", {});
   });
 
