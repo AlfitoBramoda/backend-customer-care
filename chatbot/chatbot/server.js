@@ -111,6 +111,20 @@ async function findActiveTicket(room) {
     const customerId = parseInt(customer.split('-')[1]);
     const employeeId = parseInt(employee.split('-')[1]);
     
+    console.log(`[DEBUG] Room: ${room}`);
+    console.log(`[DEBUG] Parsed - Customer: ${customer} (ID: ${customerId}), Employee: ${employee} (ID: ${employeeId})`);
+    
+    // Debug: Cek semua ticket untuk customer ini
+    const allCustomerTickets = await Ticket.findAll({
+      where: { customer_id: customerId },
+      order: [['created_time', 'DESC']]
+    });
+    
+    console.log(`[DEBUG] Total tickets for customer ${customerId}: ${allCustomerTickets.length}`);
+    allCustomerTickets.forEach(ticket => {
+      console.log(`[DEBUG] Ticket ${ticket.ticket_number}: customer_id=${ticket.customer_id}, responsible_employee_id=${ticket.responsible_employee_id}, customer_status_id=${ticket.customer_status_id}`);
+    });
+    
     // Cek berapa banyak ticket aktif
     const activeTickets = await Ticket.findAll({
       where: {
@@ -126,6 +140,7 @@ async function findActiveTicket(room) {
     
     if (activeTickets.length === 0) {
       console.log(`[TICKET] No active tickets found for ${customer} <-> ${employee}`);
+      console.log(`[DEBUG] Query criteria: customer_id=${customerId}, responsible_employee_id=${employeeId}, customer_status_id IN [1,2,3]`);
       return null;
     }
     
