@@ -623,6 +623,102 @@ io.on("connection", (socket) => {
     socket.to(room).emit("call:frame", { data });
   });
 
+    // ---- WebRTC Signaling Events
+  socket.on("webrtc:offer", ({ room, offer, audioOnly }) => {
+    if (!room || !offer) {
+      console.log(`[webrtc] offer rejected - missing data from ${socket.data.userId}`);
+      return;
+    }
+    console.log(`[webrtc] offer from ${socket.data.userId} in ${room} (audio-only: ${!!audioOnly})`);
+    socket.to(room).emit("webrtc:offer", {
+      offer,
+      room,
+      audioOnly,
+      fromUserId: socket.data.userId,
+    });
+  });
+
+  socket.on("webrtc:answer", ({ room, answer }) => {
+    if (!room || !answer) {
+      console.log(`[webrtc] answer rejected - missing data from ${socket.data.userId}`);
+      return;
+    }
+    console.log(`[webrtc] answer from ${socket.data.userId} in ${room}`);
+    socket.to(room).emit("webrtc:answer", {
+      answer,
+      fromUserId: socket.data.userId,
+      room
+    });
+  });
+
+  socket.on("webrtc:ice-candidate", ({ room, candidate }) => {
+    if (!room || !candidate) {
+      console.log(`[webrtc] ice-candidate rejected - missing data from ${socket.data.userId}`);
+      return;
+    }
+    console.log(`[webrtc] ice-candidate from ${socket.data.userId} in ${room}`);
+    socket.to(room).emit("webrtc:ice-candidate", {
+      candidate,
+      fromUserId: socket.data.userId,
+      room
+    });
+  });
+
+  socket.on("webrtc:end-call", ({ room }) => {
+    if (!room) {
+      console.log(`[webrtc] end-call rejected - no room from ${socket.data.userId}`);
+      return;
+    }
+    console.log(`[webrtc] end-call from ${socket.data.userId} in ${room}`);
+    socket.to(room).emit("webrtc:end-call", {
+      fromUserId: socket.data.userId,
+      room
+    });
+  });
+
+  // ---- WebRTC Media Controls
+  socket.on("webrtc:audio-toggle", ({ room, enabled }) => {
+    if (!room) return;
+    console.log(`[webrtc] audio ${enabled ? "enabled" : "disabled"} from ${socket.data.userId}`);
+    socket.to(room).emit("webrtc:audio-toggle", {
+      fromUserId: socket.data.userId,
+      enabled,
+      room
+    });
+  });
+
+  socket.on("webrtc:video-toggle", ({ room, enabled }) => {
+    if (!room) return;
+    console.log(`[webrtc] video ${enabled ? "enabled" : "disabled"} from ${socket.data.userId}`);
+    socket.to(room).emit("webrtc:video-toggle", {
+      fromUserId: socket.data.userId,
+      enabled,
+      room
+    });
+  });
+
+  socket.on("webrtc:speaker-toggle", ({ room, enabled }) => {
+    if (!room) return;
+    console.log(`[webrtc] speaker ${enabled ? "enabled" : "disabled"} from ${socket.data.userId}`);
+    socket.to(room).emit("webrtc:speaker-toggle", {
+      fromUserId: socket.data.userId,
+      enabled,
+      room
+    });
+  });
+
+  socket.on("webrtc:test", ({ room }) => {
+    if (!room) return;
+    const total = peersIn(room).length;
+    console.log(`[webrtc] test from ${socket.data.userId} in ${room} - ${total} total peers`);
+    socket.emit("webrtc:test:response", {
+      success: true,
+      peersInRoom: total,
+      room,
+      webrtcSupported: true,
+    });
+  });
+
   // ---- Audio streaming handlers
   socket.on("audio:chunk", ({ room, data }) => {
     if (!room) return;
