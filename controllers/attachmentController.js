@@ -74,6 +74,12 @@ class AttachmentController {
             // Upload each file to GCS
             for (const file of files) {
                 try {
+                    // Validate file buffer
+                    if (!file.buffer || file.buffer.length === 0) {
+                        console.error(`Invalid buffer for file ${file.originalname}`);
+                        continue;
+                    }
+                    
                     // Generate GCS path
                     const gcsPath = `tickets/ticket-${id}/${file.uniqueName}`;
                     
@@ -108,7 +114,13 @@ class AttachmentController {
                     });
 
                 } catch (uploadError) {
-                    console.error(`Failed to upload ${file.originalname}:`, uploadError);
+                    console.error(`Failed to upload ${file.originalname}:`, {
+                        error: uploadError.message,
+                        stack: uploadError.stack,
+                        fileName: file.originalname,
+                        fileSize: file.size,
+                        mimeType: file.mimetype
+                    });
                     // Continue with other files
                 }
             }

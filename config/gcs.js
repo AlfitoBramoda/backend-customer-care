@@ -73,15 +73,48 @@ class GCSConfig {
         });
 
         return new Promise((resolve, reject) => {
-            stream.on('error', reject);
-            stream.on('finish', () => {
-                resolve({
-                    fileName,
-                    publicUrl: `gs://${this.bucketName}/${fileName}`,
-                    mediaLink: file.publicUrl()
-                });
+            let isResolved = false;
+            
+            const cleanup = () => {
+                if (!stream.destroyed) {
+                    stream.removeAllListeners();
+                }
+            };
+            
+            stream.on('error', (error) => {
+                if (!isResolved) {
+                    isResolved = true;
+                    cleanup();
+                    reject(error);
+                }
             });
-            stream.end(buffer);
+            
+            stream.on('finish', () => {
+                if (!isResolved) {
+                    isResolved = true;
+                    cleanup();
+                    resolve({
+                        fileName,
+                        publicUrl: `gs://${this.bucketName}/${fileName}`,
+                        mediaLink: file.publicUrl()
+                    });
+                }
+            });
+            
+            // Write buffer and end stream properly
+            if (buffer && buffer.length > 0) {
+                stream.write(buffer, (error) => {
+                    if (error && !isResolved) {
+                        isResolved = true;
+                        cleanup();
+                        reject(error);
+                    } else {
+                        stream.end();
+                    }
+                });
+            } else {
+                stream.end();
+            }
         });
     }
 
